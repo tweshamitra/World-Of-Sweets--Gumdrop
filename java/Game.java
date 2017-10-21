@@ -41,14 +41,23 @@ public class Game{
 		return players[playerNum].color;
 	}
 	
+	//unsure?
 	public void getPlayerLocation(int playerNum)
 	{
 		//TODO: Addison:  Return a representation of the requested player's location, however you decide to represent that
 	}
 	
+	//TODO
+	//Or however we want to manifest location
 	public void moveCurPlayer(int Location)
 	{
 
+	}
+	
+	//TODO
+	public void getNextValidSpace(String color, String doub)
+	{
+		
 	}
 
 	public void pause(long ms)

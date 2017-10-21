@@ -7,16 +7,19 @@ import javax.imageio.*;
 
 
 public class GameGUI {
-	private final int HEIGHT = 660;
+	private final int HEIGHT = 695;
     private final int WIDTH = 1300;
 	private JLabel ticker = new JLabel("");
-	private JPanel tickerPanel, deckPanel, displayCardPanel, drawACardPanel;
+	private JLabel drawnCardLabel = new JLabel("", SwingConstants.CENTER);
+	private JPanel tickerPanel, deckPanel, drawACardPanel;
 	private JBoardPanel boardPanel;
+	private JWelcomePanel displayCardPanel;
 	private JButton deckOfCards, shuffleCards;
 	private final String html1 = "<html><body style='width: ";
     private final String html2 = "px'>";
 	private Game theGame;
 	private boolean canDraw;
+	private ImageIcon drawnCard;
 	
 	public GameGUI()
 	{
@@ -38,9 +41,11 @@ public class GameGUI {
 		
 		//TODO: Twesha:  Insert your logic for getting the player info here
 		//This is for testing purposes.  Overwrite it.
-		theGame = new Game(2);
-		theGame.setPlayer(0,"Samantha","blue");
-		theGame.setPlayer(1,"Ronald","red");
+		theGame = new Game(4);
+		theGame.setPlayer(0,"Forrest","blue");
+		theGame.setPlayer(1,"Jessica","red");
+		theGame.setPlayer(2,"Addison", "yellow");
+		theGame.setPlayer(3,"Twesha", "green");
 		
 		//Call this to progress to the main logic of the game screen.   Again, you should probably call this in a 'submit' button
 		//along with pushing the data to the game object.
@@ -48,48 +53,31 @@ public class GameGUI {
 	}
 	
 	public void updateDeckImage(int numCards){
-		
-		//TODO: Forrest:  Modify the logic and/or images accordingly to your needs
-		String imgString = "cards.png";
-		if(numCards > 25)
+		String imgString = "Full.png";
+		if(numCards > 50)
 		{
-			imgString = "60" + imgString;
+			imgString = "100" + imgString;
 		}
-		else if(numCards > 15 && numCards <= 25)
+		else if(numCards > 40 && numCards <= 50)
+		{
+			imgString = "75" + imgString;
+		}
+		else if(numCards > 30 && numCards <= 40)
+		{
+			imgString = "50" + imgString;
+		}
+		else if(numCards > 15 && numCards <= 30)
 		{
 			imgString = "25" + imgString;
 		}
-		else if(numCards > 10 && numCards <= 15)
+		else if(numCards > 6 && numCards <= 15)
 		{
-			imgString = "15" + imgString;
+			imgString = "10" + imgString;
 		}
-		else if(numCards > 6 && numCards <= 10)
-		{
-			imgString = "6" + imgString;
-		}
-		else if(numCards == 6)
-		{
-			imgString = "6" + imgString;
-		}
-		else if(numCards == 5)
+		else if(numCards > 0)
 		{
 			imgString = "5" + imgString;
-		}
-		else if(numCards == 4)
-		{
-			imgString = "4" + imgString;
-		}
-		else if(numCards == 3)
-		{
-			imgString = "3" + imgString;
-		}
-		else if(numCards == 2)
-		{
-			imgString = "2" + imgString;
-		}
-		else if(numCards == 1)
-		{
-			imgString = imgString;
+
 		}
 		else
 		{
@@ -100,7 +88,17 @@ public class GameGUI {
 		deckOfCards.setIcon(icon);
 	}
 	
-	//TODO: modify this to add color capabilities
+	public void showDrawnCard(String color, String doub)
+	{
+		String tempString = doub + color + ".png";
+		drawnCardLabel.setIcon(new ImageIcon(getImage(tempString)));
+	}
+	
+	public void removeDrawnCard()
+	{
+		drawnCardLabel.setIcon(null);
+	}
+	
 	public void updateTicker(String text, String color){
 		switch(color.toLowerCase()){
             case "red":  ticker.setForeground(Color.RED);
@@ -147,14 +145,13 @@ public class GameGUI {
 		
 		//INITIALIZING THE DRAWN CARD DISPLAY
 		
-		displayCardPanel = new JPanel(new FlowLayout());
+		displayCardPanel = new JWelcomePanel();
+		displayCardPanel.setLayout(new BorderLayout());
 		displayCardPanel.setBackground(Color.YELLOW);
-		displayCardPanel.setPreferredSize(new Dimension(500, 300));
+		displayCardPanel.setPreferredSize(new Dimension(500, 300));		
 		
-		JLabel display = new JLabel(html1 + "400" + html2 + "This is where the drawn card goes");
-		display.setFont(new Font("TimesRoman", Font.ITALIC, 48));
-		display.setForeground(Color.BLACK);
-		displayCardPanel.add(display);
+		drawnCardLabel.setVerticalAlignment(SwingConstants.TOP);
+		displayCardPanel.add(drawnCardLabel, BorderLayout.CENTER);
 		
 		deckPanel.add(displayCardPanel);
 		
@@ -163,14 +160,11 @@ public class GameGUI {
 		drawACardPanel.setBackground(Color.RED);
 		drawACardPanel.setPreferredSize(new Dimension(500, 300));
 		
-		JLabel draw = new JLabel(html1 + "400" + html2 + "This is where the deck goes");
-		draw.setFont(new Font("TimesRoman", Font.ITALIC, 48));
-		draw.setForeground(Color.BLACK);
-		
 		//ADDING THE DECK BUTTON
-		ImageIcon icon = new ImageIcon(getImage("60cards.png")); 
+		ImageIcon icon = new ImageIcon(getImage("100Full.png")); 
 		deckOfCards = new JButton();
 		deckOfCards.setIcon(icon);
+		deckOfCards.setPreferredSize(new Dimension(250, 300));
 		
 		ActionListener buttonListener = new ButtonListener();
 		deckOfCards.addActionListener(buttonListener);
@@ -179,13 +173,11 @@ public class GameGUI {
 		icon = new ImageIcon(getImage("shuffle.png")); 
 		shuffleCards = new JButton();
 		shuffleCards.setIcon(icon);
+		shuffleCards.setPreferredSize(new Dimension(250, 300));
 		
 		buttonListener = new ShuffleListener();
 		shuffleCards.addActionListener(buttonListener);
 		
-		
-		
-		drawACardPanel.add(draw, BorderLayout.PAGE_START);
 		drawACardPanel.add(deckOfCards, BorderLayout.LINE_END);
 		drawACardPanel.add(shuffleCards, BorderLayout.LINE_START);
 		
@@ -197,12 +189,7 @@ public class GameGUI {
 		
 		boardPanel = new JBoardPanel();
 		boardPanel.setBackground(Color.BLUE);
-		boardPanel.setPreferredSize(new Dimension(800, 600));
-		
-		JLabel boardlabel = new JLabel(html1 + "400" + html2 +"This is where the board goes");
-		boardlabel.setFont(new Font("TimesRoman", Font.ITALIC, 48));
-		boardlabel.setForeground(Color.BLACK);
-		boardPanel.add(boardlabel);
+		boardPanel.setPreferredSize(new Dimension(800, 615));
 		
 		pane.add(boardPanel, BorderLayout.CENTER);
 
@@ -213,10 +200,26 @@ public class GameGUI {
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);       
-			//TODO: Forrest:  Update this with the real board image OR replace the board.png image with it
 			g.drawImage(getImage("board.png"), 0, 0, null);
+			
 			//This is where the animation for moving the tokens will be as well.  
+			//For now, dummy data to test
+			g.drawImage(getImage("bluetoken.png"), 15, 535, null);
+			g.drawImage(getImage("redtoken.png"), 50, 120, null);
+			/*for(int x = 0; x < theGame.getNumPlayers(); x++)
+			{
+				String imgName = theGame.getPlayerColor(x) + "token.png";
+				g.drawImage(getImage(imgName),  ... location data ..., null);
+			}*/
 		}  
+	}
+	
+	//THIS CLASS IS THE WELCOME PANEL
+	public class JWelcomePanel extends JPanel{
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);   
+			g.drawImage(getImage("welcome.png"), 0, 0, null);
+		}
 	}
 	
 	//THIS IS THE FIRST FUNCTION CALLED THAT INITIALIZES THE GUI
@@ -318,16 +321,18 @@ public class GameGUI {
 			{
 				String color = drawnCard.color;
 				String doub = drawnCard.isdouble ? "double" : "single";
+				showDrawnCard(color, doub);
 				String curPlayer = theGame.getCurPlayerName();
 				String playerColor = theGame.getCurPlayerColor();
 				updateTicker(curPlayer + " drew a " + doub + " " + color + " card!", playerColor);
 				//TODO:  more logic will be needed here to determine where the player is moving to
-				theGame.pause(200);
+				theGame.pause(600);
 				String oor2 = drawnCard.isdouble ? "two" : "one";
 				String plur = drawnCard.isdouble ? "s" : "";
 				updateTicker(curPlayer + " moved " + oor2 + " " + color + " space" + plur + "!", playerColor);
 				theGame.incrementTurn();
-				theGame.pause(200);
+				theGame.pause(600);
+				removeDrawnCard();
 				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 			}
 			else
