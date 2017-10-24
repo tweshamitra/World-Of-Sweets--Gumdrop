@@ -1,9 +1,11 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.*;
 import javax.swing.*;
 import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
+import java.util.*;
 
 
 public class GameGUI {
@@ -201,6 +203,25 @@ public class GameGUI {
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);       
 			g.drawImage(getImage("board.png"), 0, 0, null);
+			// 169, 167
+			ArrayList<Space> spaceList = new ArrayList<>();
+			Space s = new Space(87, 138);
+			Space s2 = new Space(169, 167);
+			spaceList.add(s);
+			spaceList.add(s2);
+			s.drawSpace(g);
+			s2.drawSpace(g);
+			
+			
+			addMouseListener(new MouseAdapter(){
+				@Override
+				public void mouseClicked(MouseEvent e){
+					super.mouseClicked(e);
+					for(Space sp : spaceList){
+						sp.wasClicked(e);
+					}
+				}
+			});
 			
 			//This is where the animation for moving the tokens will be as well.  
 			//For now, dummy data to test
