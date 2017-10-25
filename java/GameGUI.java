@@ -151,7 +151,7 @@ public class GameGUI {
 		displayCardPanel.setLayout(new BorderLayout());
 		displayCardPanel.setBackground(Color.YELLOW);
 		displayCardPanel.setPreferredSize(new Dimension(500, 300));		
-		
+		displayCardPanel.setMaximumSize(new Dimension(500, 300));	
 		drawnCardLabel.setVerticalAlignment(SwingConstants.TOP);
 		displayCardPanel.add(drawnCardLabel, BorderLayout.CENTER);
 		
@@ -199,29 +199,30 @@ public class GameGUI {
 
 	//THIS CLASS HANDLES THE CUSTOM ANIMATION FOR THE GAME BOARD AND TOKENS
     public class JBoardPanel extends JPanel{
+		ArrayList<Space> spaceList = new ArrayList<>();
+		int xy[] = new int[2];
+		
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);       
 			g.drawImage(getImage("board.png"), 0, 0, null);
-			// 169, 167
-			ArrayList<Space> spaceList = new ArrayList<>();
-			Space s = new Space(87, 138);
-			Space s2 = new Space(169, 167);
-			spaceList.add(s);
-			spaceList.add(s2);
-			s.drawSpace(g);
-			s2.drawSpace(g);
 			
+			for(Space sp : theGame.gameBoard.gameSpaces){
+				sp.drawSpace(g);
+			}
 			
+			// MouseListener used to see if any of the space have been clicked
 			addMouseListener(new MouseAdapter(){
 				@Override
 				public void mouseClicked(MouseEvent e){
 					super.mouseClicked(e);
-					for(Space sp : spaceList){
+					for(Space sp : theGame.gameBoard.gameSpaces){
 						sp.wasClicked(e);
 					}
 				}
 			});
+			
+			
 			
 			//This is where the animation for moving the tokens will be as well.  
 			//For now, dummy data to test
@@ -233,6 +234,11 @@ public class GameGUI {
 				g.drawImage(getImage(imgName),  ... location data ..., null);
 			}*/
 		}  
+		
+		public void drawSpace(Graphics g, Space s){
+			Graphics2D g2d = (Graphics2D) g;
+			g2d.draw(s.getSpace());
+		}
 	}
 	
 	//THIS CLASS IS THE WELCOME PANEL
