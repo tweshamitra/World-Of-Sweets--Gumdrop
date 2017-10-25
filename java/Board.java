@@ -18,18 +18,28 @@ public class Board{
 			System.exit(1);
 		}
 		
-		
+		int i = 0;
 		while(in.hasNext()){
-				String line[];
-				String input = in.nextLine();
-				line = input.split(", ");
-				int x1, x2, y1, y2;
-				x1 = Integer.parseInt(line[0]);
-				// x2 = Integer.parseInt(line[1]);
-				y1 = Integer.parseInt(line[2]);
-				// y2 = Integer.parseInt(line[3]);
-				gameSpaces.add(new Space(x1, y1));
+			String line[];
+			String input = in.nextLine();
+			line = input.split(", ");
+			int x1, x2, y1, y2;
+			x1 = Integer.parseInt(line[0]);
+			// x2 = Integer.parseInt(line[1]);
+			y1 = Integer.parseInt(line[2]);
+			// y2 = Integer.parseInt(line[3]);
+			if(i == 0){
+				gameSpaces.add(new Space(x1, y1, true, false));
 			}
+			else if(i == 31){
+				gameSpaces.add(new Space(x1, y1, false, true));
+			}
+			else{
+				gameSpaces.add(new Space(x1, y1, false, false));
+			}
+			i++;
+		}
+		
 	}
 	
 }

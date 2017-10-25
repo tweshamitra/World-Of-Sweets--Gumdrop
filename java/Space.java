@@ -10,9 +10,9 @@ public class Space{
 	Player players[] = new Player[4];
 	String color;
 	Shape cir;
-	Shape wLine;
-	Shape hLine;
 	boolean clicked = false;
+	boolean start = false;
+	boolean goal = false;
 	int x;
 	int y;
 	int playerIndex = 0;
@@ -22,10 +22,18 @@ public class Space{
 	int positionD[] = new int[2];
 	
 	
-	public Space(int x, int y){
+	public Space(int x, int y, boolean start, boolean goal){
 		this.x = x;
 		this.y = y;
-		cir = new Ellipse2D.Double(x, y, 63, 68);
+		this.start = start;
+		this.goal = goal;
+		if(start){
+			cir = new Ellipse2D.Double(x, y, 106, 113);
+		}else if(goal){
+			cir = new Rectangle2D.Double(x, y, 140, 135);
+		}else{
+			cir = new Ellipse2D.Double(x, y, 63, 68);
+		}
 		// wLine = new Line2D.Double(x, y+68/2, x+63, y+68/2);
 		// hLine = new Line2D.Double(x+63/2, y, x+63/2, y+68);
 		
@@ -69,28 +77,39 @@ public class Space{
 		return playerIndex;
 	}
 	
+	public void setGoal(){
+		goal = true;
+	}
+	
+	public void setStart(){
+		start = true;
+	}
+	
 	public Shape getSpace(){
 		return cir;
 	}
 	
-	public Shape divHeight(){
-		return hLine;
-	}
+	// public Shape divHeight(){
+		// return hLine;
+	// }
 	
-	public Shape divWidth(){
-		return wLine;
-	}
-	
-	public void drawSpace(Graphics g){
-		Graphics2D g2d = (Graphics2D) g;
-		g2d.draw(cir);
-	}
+	// public Shape divWidth(){
+		// return wLine;
+	// }
 	
 	public void wasClicked(MouseEvent e){
 		if(cir.contains(e.getPoint())){
 			clicked = true;
 			System.out.println( this + " clicked");
 		}
+	}
+	
+	public boolean isStart(){
+		return start;
+	}
+	
+	public boolean isGoal(){
+		return goal;
 	}
 	
 	public boolean clickedStatus(){

@@ -207,9 +207,9 @@ public class GameGUI {
 			super.paintComponent(g);       
 			g.drawImage(getImage("board.png"), 0, 0, null);
 			
-			for(Space sp : theGame.gameBoard.gameSpaces){
-				sp.drawSpace(g);
-			}
+			// for(Space sp : theGame.gameBoard.gameSpaces){
+				// drawSpace(g, sp);
+			// }
 			
 			// MouseListener used to see if any of the space have been clicked
 			addMouseListener(new MouseAdapter(){
