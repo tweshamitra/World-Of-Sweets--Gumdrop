@@ -36,27 +36,20 @@ public class GameGUI {
 	}
 	//THIS FUNCTION WILL DRAW THE START SCREEN
 	private void drawStartScreen(Container pane) {
-		//You might want to call pane.removeAll(); here just to be safe.
-		//Plus, it'll add functionality for a "Main Menu" button.
-		
-		//TODO: Twesha:  Insert your logic for operating the start screen here
-		
-		//Call this to switch to the get info screen.  You probably want to call this in a button listener after a click. 
-	
 		pane.removeAll();
-		pane.setLayout(new FlowLayout());
+		pane.setLayout(new GridBagLayout());
 
 		JPanel startPanel = new JPanel();
-	
 		for(int i = 0; i < nums.length; i++){
 			num_players_menu.addItem(nums[i]);
 		}
+		
 		JPanel welcomePanel = new JPanel();
-		//welcomePanel.setLayout(new GridLayout(1,1));
-		welcomePanel.setSize(100,100);
+
+		welcomePanel.setLayout(new GridLayout(1,1));
 		welcomePanel.setBackground(Color.PINK);
 		welcomePanel.add(new JLabel("Welcome to World of Sweets!"));
-
+		welcomePanel.setMaximumSize(new Dimension(10,10));
 		startPanel.setLayout(new GridLayout(0,2));
 		startPanel.setBackground(Color.PINK);
 		
@@ -77,17 +70,23 @@ public class GameGUI {
 		startPanel.add(text_4);
 
 		JPanel submitPanel = new JPanel(new GridLayout(1,1));
-
+		submitPanel.setBackground(Color.PINK);
 		JButton submit = new JButton("Start game");
 		ActionListener submitListener = new SubmitListener(pane);
-
+		JPanel infoPanel = new JPanel(new GridLayout(0,1));
+		infoPanel.add(welcomePanel);
 		submit.addActionListener(submitListener);
+		submitPanel.setLayout(new FlowLayout());
 		submitPanel.add(submit);
-		pane.add(welcomePanel);
-		pane.add(startPanel);
-		pane.add(submitPanel);
+		submitPanel.setMaximumSize(new Dimension(50,50));
+		pane.setBackground(Color.PINK);
+		infoPanel.add(startPanel);
+		infoPanel.add(submitPanel);
 
-		//drawPlayerInfoScreen(pane);
+		pane.add(infoPanel);
+		// pane.add(welcomePanel);
+		// pane.add(startPanel);
+		// pane.add(submitPanel);
 		
 	}
 	
@@ -102,31 +101,16 @@ public class GameGUI {
 			playerNames.add(text_2.getText());
 			playerNames.add(text_3.getText());
 			playerNames.add(text_4.getText());
-
-			
-			theGame = new Game(numPlayers);
-			for(int i = 0 ; i < numPlayers; i++){
-				theGame.setPlayer(i, playerNames.get(i), colors[i]);
-			}
-			addBoardComponentsToPane(pane);
+			drawPlayerInfoScreen(pane);
 		}
 	}
 	private void drawPlayerInfoScreen(Container pane) {
-		//Calling pane.removeAll(); will remove all the elements from the start screen.
-		
-		//TODO: Twesha:  Insert your logic for getting the player info here
-		//This is for testing purposes.  Overwrite it.
 		pane.removeAll();
-
-		theGame = new Game(4);
-		theGame.setPlayer(0,"Forrest","blue");
-		theGame.setPlayer(1,"Jessica","red");
-		theGame.setPlayer(2,"Addison", "yellow");
-		theGame.setPlayer(3,"Twesha", "green");
-		
-		//Call this to progress to the main logic of the game screen.   Again, you should probably call this in a 'submit' button
-		//along with pushing the data to the game object.
-		//addBoardComponentsToPane(pane);
+		theGame = new Game(numPlayers);
+		for(int i = 0; i < numPlayers; i++){
+			theGame.setPlayer(i, playerNames.get(i), colors[i]);
+		}
+		addBoardComponentsToPane(pane);
 	}
 	
 	public void updateDeckImage(int numCards){
