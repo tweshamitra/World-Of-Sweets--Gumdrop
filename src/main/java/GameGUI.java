@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
-
+import java.util.*;
 
 public class GameGUI {
 	private final int HEIGHT = 695;
@@ -20,35 +20,96 @@ public class GameGUI {
 	private Game theGame;
 	private boolean canDraw;
 	private ImageIcon drawnCard;
-	
+	private int[] nums = {2,3,4};
+	private String[] colors = {"red", "blue", "yellow", "green"};
+	private JTextField text_1 = new JTextField();
+    private JTextField text_2 = new JTextField();
+    private JTextField text_3 = new JTextField();
+    private JTextField text_4 = new JTextField();
+	private int numPlayers;
+	private ArrayList<String> playerNames = new ArrayList<String>();
+	private JComboBox num_players_menu = new JComboBox();
+
 	public GameGUI()
 	{
 		
 	}
 	//THIS FUNCTION WILL DRAW THE START SCREEN
 	private void drawStartScreen(Container pane) {
-		//You might want to call pane.removeAll(); here just to be safe.
-		//Plus, it'll add functionality for a "Main Menu" button.
+		pane.removeAll();
+		pane.setLayout(new GridBagLayout());
+
+		JPanel startPanel = new JPanel();
+		for(int i = 0; i < nums.length; i++){
+			num_players_menu.addItem(nums[i]);
+		}
 		
-		//TODO: Twesha:  Insert your logic for operating the start screen here
+		JPanel welcomePanel = new JPanel();
+
+		welcomePanel.setLayout(new GridLayout(1,1));
+		welcomePanel.setBackground(Color.PINK);
+		welcomePanel.add(new JLabel("Welcome to World of Sweets!"));
+		welcomePanel.setMaximumSize(new Dimension(10,10));
+		startPanel.setLayout(new GridLayout(0,2));
+		startPanel.setBackground(Color.PINK);
 		
-		//Call this to switch to the get info screen.  You probably want to call this in a button listener after a click. 
-		drawPlayerInfoScreen(pane);
+		startPanel.add(new JLabel("Choose number of players:"));
+		startPanel.add(num_players_menu);
+
+		startPanel.add(new JLabel("Enter player names: "));
+
+		startPanel.add(text_1);
+        startPanel.add(new JLabel());
+		
+		startPanel.add(text_2);
+        startPanel.add(new JLabel());
+
+		startPanel.add(text_3);
+        startPanel.add(new JLabel());
+
+		startPanel.add(text_4);
+
+		JPanel submitPanel = new JPanel(new GridLayout(1,1));
+		submitPanel.setBackground(Color.PINK);
+		JButton submit = new JButton("Start game");
+		ActionListener submitListener = new SubmitListener(pane);
+		JPanel infoPanel = new JPanel(new GridLayout(0,1));
+		infoPanel.add(welcomePanel);
+		submit.addActionListener(submitListener);
+		submitPanel.setLayout(new FlowLayout());
+		submitPanel.add(submit);
+		submitPanel.setMaximumSize(new Dimension(50,50));
+		pane.setBackground(Color.PINK);
+		infoPanel.add(startPanel);
+		infoPanel.add(submitPanel);
+
+		pane.add(infoPanel);
+		// pane.add(welcomePanel);
+		// pane.add(startPanel);
+		// pane.add(submitPanel);
+		
 	}
 	
+	class SubmitListener implements ActionListener{
+		Container pane;
+		public SubmitListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e ){
+			numPlayers = (int) num_players_menu.getSelectedItem();
+			playerNames.add(text_1.getText());
+			playerNames.add(text_2.getText());
+			playerNames.add(text_3.getText());
+			playerNames.add(text_4.getText());
+			drawPlayerInfoScreen(pane);
+		}
+	}
 	private void drawPlayerInfoScreen(Container pane) {
-		//Calling pane.removeAll(); will remove all the elements from the start screen.
-		
-		//TODO: Twesha:  Insert your logic for getting the player info here
-		//This is for testing purposes.  Overwrite it.
-		theGame = new Game(4);
-		theGame.setPlayer(0,"Forrest","blue");
-		theGame.setPlayer(1,"Jessica","red");
-		theGame.setPlayer(2,"Addison", "yellow");
-		theGame.setPlayer(3,"Twesha", "green");
-		
-		//Call this to progress to the main logic of the game screen.   Again, you should probably call this in a 'submit' button
-		//along with pushing the data to the game object.
+		pane.removeAll();
+		theGame = new Game(numPlayers);
+		for(int i = 0; i < numPlayers; i++){
+			theGame.setPlayer(i, playerNames.get(i), colors[i]);
+		}
 		addBoardComponentsToPane(pane);
 	}
 	
@@ -122,7 +183,8 @@ public class GameGUI {
     private void addBoardComponentsToPane(Container pane) {
 
 		pane.removeAll();
-	
+		pane.revalidate();
+		pane.repaint();
 		pane.setLayout(new BorderLayout());
 		
 		//INITIALIZING THE TICKER
