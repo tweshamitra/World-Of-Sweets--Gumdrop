@@ -18,6 +18,8 @@ public class Board{
 			System.exit(1);
 		}
 		
+		// Cycle through all coordinates and generate Spaces at those coordinates
+		// For spaces that aren't the start or end, repeatedly assign colors in the order r->y->b->g->o
 		int i = 0;
 		while(in.hasNext()){
 			String line[];
@@ -29,13 +31,33 @@ public class Board{
 			y1 = Integer.parseInt(line[2]);
 			// y2 = Integer.parseInt(line[3]);
 			if(i == 0){
-				gameSpaces.add(new Space(x1, y1, true, false));
+				gameSpaces.add(new Space(x1, y1, true, false, "start"));
 			}
 			else if(i == 31){
-				gameSpaces.add(new Space(x1, y1, false, true));
+				gameSpaces.add(new Space(x1, y1, false, true, "all"));
 			}
 			else{
-				gameSpaces.add(new Space(x1, y1, false, false));
+				switch(i%5){
+					case 0:
+					gameSpaces.add(new Space(x1, y1, false, false, "orange"));
+					break;
+					
+					case 1:
+					gameSpaces.add(new Space(x1, y1, false, false, "red"));
+					break;
+					
+					case 2:
+					gameSpaces.add(new Space(x1, y1, false, false, "yellow"));
+					break;
+					
+					case 3:
+					gameSpaces.add(new Space(x1, y1, false, false, "blue"));
+					break;
+					
+					case 4:
+					gameSpaces.add(new Space(x1, y1, false, false, "green"));
+					break;
+				}
 			}
 			i++;
 		}

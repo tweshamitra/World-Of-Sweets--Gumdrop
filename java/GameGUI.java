@@ -209,6 +209,7 @@ public class GameGUI {
 			
 			// for(Space sp : theGame.gameBoard.gameSpaces){
 				// drawSpace(g, sp);
+				// System.out.println(sp.getColor());
 			// }
 			
 			// MouseListener used to see if any of the space have been clicked

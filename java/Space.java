@@ -22,11 +22,12 @@ public class Space{
 	int positionD[] = new int[2];
 	
 	
-	public Space(int x, int y, boolean start, boolean goal){
+	public Space(int x, int y, boolean start, boolean goal, String color){
 		this.x = x;
 		this.y = y;
 		this.start = start;
 		this.goal = goal;
+		this.color = color;
 		if(start){
 			cir = new Ellipse2D.Double(x, y, 106, 113);
 		}else if(goal){
@@ -77,16 +78,12 @@ public class Space{
 		return playerIndex;
 	}
 	
-	public void setGoal(){
-		goal = true;
-	}
-	
-	public void setStart(){
-		start = true;
-	}
-	
 	public Shape getSpace(){
 		return cir;
+	}
+	
+	public String getColor(){
+		return color;
 	}
 	
 	// public Shape divHeight(){
@@ -116,14 +113,12 @@ public class Space{
 		return clicked;
 	}
 	
-	public int[] addPlayer(){
+	public void addPlayer(){
 		int ret[] = new int[2];
 		ret[0] = x+63*(1/3);
 		ret[1] = y+68*(1/3)-10;
-		System.out.println("ret[0]: " + ret[0]);
-		System.out.println("ret[1]: " + ret[1]);
 		clicked = false;
-		return ret;
+		// return ret;
 	}
 	
 }
