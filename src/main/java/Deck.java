@@ -43,6 +43,16 @@ public class Deck{
 				}
 			}				
 		}
+		//add five skips
+		for(int s = 0; s < 5; s ++)
+		{
+			thedeck.add( rand.nextInt(thedeck.size()+1) , new Card(1) );
+		}
+		//add three middles
+		for(int m = 0; m < 3; m ++)
+		{
+			thedeck.add( rand.nextInt(thedeck.size()+1) , new Card(2) );
+		}
 		
 		return true;
 	}
