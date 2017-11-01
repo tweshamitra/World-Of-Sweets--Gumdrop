@@ -8,7 +8,7 @@ import java.util.*;
 
 public class GameGUI {
 	private final int HEIGHT = 695;
-    private final int WIDTH = 1300;
+    private final int WIDTH = 1050;
 	private JLabel ticker = new JLabel("");
 	private JLabel drawnCardLabel = new JLabel("", SwingConstants.CENTER);
 	private JPanel tickerPanel, deckPanel, drawACardPanel;
@@ -155,6 +155,12 @@ public class GameGUI {
 		drawnCardLabel.setIcon(new ImageIcon(getImage(tempString)));
 	}
 	
+	public void showSpecialCard(String spec)
+	{
+		String tempString = spec + ".png";
+		drawnCardLabel.setIcon(new ImageIcon(getImage(tempString)));
+	}
+	
 	public void removeDrawnCard()
 	{
 		drawnCardLabel.setIcon(null);
@@ -191,9 +197,10 @@ public class GameGUI {
 
 		tickerPanel = new JPanel(new FlowLayout());;
 		tickerPanel.setBackground(Color.PINK);
-		tickerPanel.setPreferredSize(new Dimension(1300, 60));
-		
+		tickerPanel.setPreferredSize(new Dimension(1050, 60));
+	
 		ticker.setFont(new Font("TimesRoman", Font.ITALIC, 48));
+		ticker.setHorizontalAlignment(JLabel.CENTER);
 		updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 		
 		tickerPanel.add(ticker);
@@ -203,14 +210,14 @@ public class GameGUI {
 		
 		deckPanel = new JPanel();
 		deckPanel.setLayout(new BoxLayout(deckPanel, BoxLayout.Y_AXIS));
-		deckPanel.setPreferredSize(new Dimension(500, 600));
+		deckPanel.setPreferredSize(new Dimension(250, 600));
 		
 		//INITIALIZING THE DRAWN CARD DISPLAY
 		
 		displayCardPanel = new JWelcomePanel();
 		displayCardPanel.setLayout(new BorderLayout());
-		displayCardPanel.setBackground(Color.YELLOW);
-		displayCardPanel.setPreferredSize(new Dimension(500, 300));		
+		displayCardPanel.setBackground(Color.GREEN);
+		displayCardPanel.setPreferredSize(new Dimension(250, 300));		
 		
 		drawnCardLabel.setVerticalAlignment(SwingConstants.TOP);
 		displayCardPanel.add(drawnCardLabel, BorderLayout.CENTER);
@@ -220,7 +227,7 @@ public class GameGUI {
 		//INITIALIZING THE DECK DISPLAY
 		drawACardPanel = new JPanel(new BorderLayout());
 		drawACardPanel.setBackground(Color.RED);
-		drawACardPanel.setPreferredSize(new Dimension(500, 300));
+		drawACardPanel.setPreferredSize(new Dimension(250, 300));
 		
 		//ADDING THE DECK BUTTON
 		ImageIcon icon = new ImageIcon(getImage("100Full.png")); 
@@ -231,17 +238,17 @@ public class GameGUI {
 		ActionListener buttonListener = new ButtonListener();
 		deckOfCards.addActionListener(buttonListener);
 		
-		//ADDING THE SHUFFLE BUTTON
-		icon = new ImageIcon(getImage("shuffle.png")); 
+		//ADDING THE SHUFFLE BUTTON  --SHUFFLE BUTTON REMOVED
+		/*icon = new ImageIcon(getImage("shuffle.png")); 
 		shuffleCards = new JButton();
 		shuffleCards.setIcon(icon);
 		shuffleCards.setPreferredSize(new Dimension(250, 300));
 		
 		buttonListener = new ShuffleListener();
-		shuffleCards.addActionListener(buttonListener);
+		shuffleCards.addActionListener(buttonListener);*/
 		
-		drawACardPanel.add(deckOfCards, BorderLayout.LINE_END);
-		drawACardPanel.add(shuffleCards, BorderLayout.LINE_START);
+		drawACardPanel.add(deckOfCards, BorderLayout.CENTER);
+		//drawACardPanel.add(shuffleCards, BorderLayout.LINE_START);
 		
 		deckPanel.add(drawACardPanel);
 		
@@ -326,7 +333,7 @@ public class GameGUI {
 		// Every time we click the button, it will draw a card and take a turn
 
 		public void actionPerformed(ActionEvent e) {
-				shuffleCards.setEnabled(false);
+				//shuffleCards.setEnabled(false);
 				deckOfCards.setEnabled(false);
 				(new GameLogicThread()).execute();
 		}
@@ -338,7 +345,7 @@ public class GameGUI {
 
 		// Every time we click the button, it will shuffle the deck
 		public void actionPerformed(ActionEvent e) {
-				shuffleCards.setEnabled(false);
+				//shuffleCards.setEnabled(false);
 				deckOfCards.setEnabled(false);
 				(new ShuffleLogicThread()).execute();
 		}
@@ -364,7 +371,7 @@ public class GameGUI {
 
        @Override
        protected void done() {
-           shuffleCards.setEnabled(true);
+           //shuffleCards.setEnabled(true);
 		   deckOfCards.setEnabled(true);
        }
    }
@@ -375,19 +382,23 @@ public class GameGUI {
        public Void doInBackground() {
            	Card drawnCard = theGame.drawCard();
 			updateDeckImage(theGame.getNumCardsLeft());
+			String curPlayer = theGame.getCurPlayerName();
+			String playerColor = theGame.getCurPlayerColor();
 			if(drawnCard == null)
 			{
-				updateTicker("The deck needs shuffled!", "black");
+				theGame.shuffleDeck();
+				updateTicker("The deck was shuffled!", "black");
+				updateDeckImage(theGame.getNumCardsLeft());
+				theGame.pause(400);		
+				drawnCard = theGame.drawCard();				
 			}
-			else if(drawnCard.special == false)
+			if(drawnCard.special == false)
 			{
 				String color = drawnCard.color;
 				String doub = drawnCard.isdouble ? "double" : "single";
 				showDrawnCard(color, doub);
-				String curPlayer = theGame.getCurPlayerName();
-				String playerColor = theGame.getCurPlayerColor();
 				updateTicker(curPlayer + " drew a " + doub + " " + color + " card!", playerColor);
-				//TODO:  more logic will be needed here to determine where the player is moving to
+				//TODO:  Addison:  more logic will be needed here to determine where the player is moving to
 				theGame.pause(600);
 				String oor2 = drawnCard.isdouble ? "two" : "one";
 				String plur = drawnCard.isdouble ? "s" : "";
@@ -400,6 +411,35 @@ public class GameGUI {
 			else
 			{
 				//input logic for special cards here
+				switch(drawnCard.specNum)
+				{
+					//the card is a skip
+					case 1: showSpecialCard(drawnCard.specText);
+							updateTicker(curPlayer + "'s turn is skipped!", playerColor);
+							theGame.pause(700);
+							theGame.incrementTurn();
+							removeDrawnCard();
+							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
+							break;
+					//the card is a middle
+					case 2: showSpecialCard(drawnCard.specText);
+							updateTicker(curPlayer + " drew a middle card!", playerColor);
+							theGame.pause(600);
+							//TODO:  Addison:  incorporate the movement logic
+							
+							updateTicker(curPlayer + " was sent to the middle of the board!", playerColor);
+							theGame.pause(600);
+							theGame.incrementTurn();
+							removeDrawnCard();
+							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
+							break;
+					//unknown card exception, game broke
+					default: //keep going i guess
+							System.out.println(drawnCard.color + " " + drawnCard.isdouble + " " + drawnCard.special + " " + drawnCard.specText + " " + drawnCard.specNum);
+							theGame.incrementTurn();
+							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
+							break;
+				}
 			}
 			return null;
        }
@@ -407,7 +447,7 @@ public class GameGUI {
        @Override
        protected void done() {
            deckOfCards.setEnabled(true);
-		   shuffleCards.setEnabled(true);
+		   //shuffleCards.setEnabled(true);
        }
    }
 }

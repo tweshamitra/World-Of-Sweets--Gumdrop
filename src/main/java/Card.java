@@ -4,6 +4,8 @@ public class Card{
 	String color;
 	boolean isdouble;
 	boolean special;
+	String specText;
+	int specNum;
 	
 	public Card(String c, boolean d) //throws InvalidColorException
 	{
@@ -17,5 +19,26 @@ public class Card{
 		color = c;
 		isdouble = d;
 		special = false;
+		specText = null;
+	}
+	
+	//1 = skip, 2 = middle
+	//There's no reason you couldn't just use a string here,
+	//but I used an int to further distinguish it from the other constructor
+	public Card(int Num)
+	{
+		color = "none";
+		isdouble = false;
+		special = true;
+		specNum = Num;
+		switch(Num)
+		{
+			case 1: specText = "skip";
+					break;
+			case 2: specText = "middle";
+					break;
+			default:
+					break;
+		}
 	}
 }
