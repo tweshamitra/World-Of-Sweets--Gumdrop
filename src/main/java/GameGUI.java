@@ -22,10 +22,12 @@ public class GameGUI {
 	private ImageIcon drawnCard;
 	private int[] nums = {2,3,4};
 	private String[] colors = {"red", "blue", "yellow", "green"};
-	private JTextField text_1 = new JTextField();
-    private JTextField text_2 = new JTextField();
-    private JTextField text_3 = new JTextField();
-    private JTextField text_4 = new JTextField();
+	private JTextField text_1 = new JTextField("Player 1");
+    private JTextField text_2 = new JTextField("Player 2");
+    private JTextField text_3 = new JTextField("Player 3");
+    private JTextField text_4 = new JTextField("Player 4");
+	private JLabel playNameLabel;
+	private JButton submit;
 	private int numPlayers;
 	private ArrayList<String> playerNames = new ArrayList<String>();
 	private JComboBox num_players_menu = new JComboBox();
@@ -44,20 +46,42 @@ public class GameGUI {
 			num_players_menu.addItem(nums[i]);
 		}
 		
-		JPanel welcomePanel = new JPanel();
 
+
+		num_players_menu.setBackground(Color.GREEN);
+		ActionListener comboBoxListener = new ComboBoxListener(pane);		
+		num_players_menu.addActionListener(comboBoxListener);
+
+		
+		ImageIcon welcomeIcon = new ImageIcon(getImage("WelcomeSign.png"));
+		JLabel welcomeLabel = new JLabel();
+		welcomeLabel.setIcon(welcomeIcon);
+		welcomeLabel.setHorizontalAlignment(JLabel.CENTER);
+
+		ImageIcon numPlayIcon = new ImageIcon(getImage("NumPlaySign.png"));
+		JLabel numPlayLabel = new JLabel();
+		numPlayLabel.setIcon(numPlayIcon);
+		numPlayLabel.setHorizontalAlignment(JLabel.CENTER);
+		
+		ImageIcon playNameIcon = new ImageIcon(getImage("PlayNameSign.png"));
+		playNameLabel = new JLabel();
+		playNameLabel.setIcon(playNameIcon);
+		playNameLabel.setHorizontalAlignment(JLabel.CENTER);
+				
+		JPanel welcomePanel = new JPanel();
 		welcomePanel.setLayout(new GridLayout(1,1));
 		welcomePanel.setBackground(Color.PINK);
-		welcomePanel.add(new JLabel("Welcome to World of Sweets!"));
+		welcomePanel.add(welcomeLabel);
 		welcomePanel.setMaximumSize(new Dimension(10,10));
 		startPanel.setLayout(new GridLayout(0,2));
 		startPanel.setBackground(Color.PINK);
 		
-		startPanel.add(new JLabel("Choose number of players:"));
+
+		startPanel.add(numPlayLabel);
 		startPanel.add(num_players_menu);
 
-		startPanel.add(new JLabel("Enter player names: "));
-
+		startPanel.add(playNameLabel);
+		playNameLabel.setVisible(false);
 		startPanel.add(text_1);
         startPanel.add(new JLabel());
 		
@@ -68,10 +92,22 @@ public class GameGUI {
         startPanel.add(new JLabel());
 
 		startPanel.add(text_4);
+		
+		text_1.setVisible(false);
+		text_2.setVisible(false);
+		text_3.setVisible(false);
+		text_4.setVisible(false);
+		text_1.setBackground(Color.GREEN);
+		text_2.setBackground(Color.GREEN);
+		text_3.setBackground(Color.GREEN);
+		text_4.setBackground(Color.GREEN);
 
 		JPanel submitPanel = new JPanel(new GridLayout(1,1));
 		submitPanel.setBackground(Color.PINK);
-		JButton submit = new JButton("Start game");
+		submit = new JButton();
+		submit.setIcon(new ImageIcon(getImage("StartSign.png")));
+		submit.setBackground(Color.PINK);
+		submit.setBorder(null);
 		ActionListener submitListener = new SubmitListener(pane);
 		JPanel infoPanel = new JPanel(new GridLayout(0,1));
 		infoPanel.add(welcomePanel);
@@ -82,13 +118,45 @@ public class GameGUI {
 		pane.setBackground(Color.PINK);
 		infoPanel.add(startPanel);
 		infoPanel.add(submitPanel);
-
+		
+		submit.setVisible(false);
+		
+		
 		pane.add(infoPanel);
 		// pane.add(welcomePanel);
 		// pane.add(startPanel);
 		// pane.add(submitPanel);
 		
 	}
+	
+	class ComboBoxListener implements ActionListener{
+		Container pane;
+		public ComboBoxListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e ){
+			playNameLabel.setVisible(true);
+			submit.setVisible(true);
+			numPlayers = (int) num_players_menu.getSelectedItem();
+			if(numPlayers == 2){
+				text_1.setVisible(true);
+				text_2.setVisible(true);
+				text_3.setVisible(false);
+				text_4.setVisible(false);
+			} else if (numPlayers == 3){
+				text_1.setVisible(true);
+				text_2.setVisible(true);
+				text_3.setVisible(true);
+				text_4.setVisible(false);				
+			} else{
+				text_1.setVisible(true);
+				text_2.setVisible(true);
+				text_3.setVisible(true);
+				text_4.setVisible(true);
+			}
+		}
+	}
+	
 	
 	class SubmitListener implements ActionListener{
 		Container pane;
