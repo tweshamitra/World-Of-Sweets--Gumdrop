@@ -428,6 +428,7 @@ public class GameGUI {
 	//FUNCTION THAT CREATES THE WIN SCREEN
 	private void createWinScreen() {
 		//TODO
+		System.out.println("You've won!");
 	}
 
 	//A FUNCTION THAT SIMPLIFIES THE GETTING OF IMAGES FROM THE IMG FOLDER
@@ -450,6 +451,12 @@ public class GameGUI {
 				//shuffleCards.setEnabled(false);
 				deckOfCards.setEnabled(false);
 				(new GameLogicThread()).execute();
+				for (int i = 0; i < theGame.players.length; i++){
+					if(theGame.players[i].checkWin())
+					{
+						createWinScreen();
+					}
+				}
 		}
 		
 	}
@@ -462,6 +469,12 @@ public class GameGUI {
 				//shuffleCards.setEnabled(false);
 				deckOfCards.setEnabled(false);
 				(new ShuffleLogicThread()).execute();
+				for (int i = 0; i < theGame.players.length; i++){
+					if(theGame.players[i].checkWin())
+					{
+						createWinScreen();
+					}
+				}
 		}
 		
 	}
@@ -489,6 +502,7 @@ public class GameGUI {
 		   deckOfCards.setEnabled(true);
        }
    }
+   
 	
 	//THE WORKER FOR THE DRAW CARD LOGIC
 	class GameLogicThread extends SwingWorker<Void, Object> {

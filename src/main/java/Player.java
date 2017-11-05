@@ -22,4 +22,12 @@ public class Player{
 	public Space getCurrentSpace(){
 		return currentSpace;
 	}
+	
+	public boolean checkWin(){
+		if (currentSpace.isGoal()){
+			return true;
+		} else{
+			return false;
+		}
+	}
 }
