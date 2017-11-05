@@ -1,4 +1,24 @@
+import java.awt.*;
+import java.awt.geom.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import javax.imageio.*;
+import javax.swing.*;
+import java.util.*;
+
 public class Space{
+	Player players[] = new Player[4];
+	String color;
+	String label;
+	Shape cir;
+	boolean start = false;
+	boolean goal = false;
+	int x, y, width, height;
+	int playerIndex = 0;
+	int positionA[] = new int[2];
+	int positionB[] = new int[2];
+	int positionC[] = new int[2];
+	int positionD[] = new int[2];
 	
 	public Space(int x, int y, boolean start, boolean goal, String color, int labelInt){
 		this.x = x;

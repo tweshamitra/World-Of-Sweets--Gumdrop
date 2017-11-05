@@ -352,6 +352,9 @@ public class GameGUI {
 
 	//THIS CLASS HANDLES THE CUSTOM ANIMATION FOR THE GAME BOARD AND TOKENS
     public class JBoardPanel extends JPanel{
+		int xy[] = new int[2];
+		boolean firstRun = true;
+		
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);       
@@ -373,7 +376,25 @@ public class GameGUI {
 			drawPlayers(g);
 			
 			
-		}  
+		}
+		
+		public void drawSpace(Graphics g, Space s){
+			Graphics2D g2d = (Graphics2D) g;
+			g2d.draw(s.getSpace());
+		}
+		
+		public Space getSpaceAt(int s){
+			return theGame.gameBoard.gameSpaces[s];
+		}
+		
+		public void drawPlayers(Graphics g){
+			for(int i = 0; i < numPlayers; i++){
+				int[] xy = theGame.players[i].getCurrentLocation();
+				g.drawImage(getImage(colors[i]+"token.png"), xy[0], xy[1], null);
+			}
+			this.revalidate();
+			this.repaint();
+		}
 	}
 	
 	//THIS CLASS IS THE WELCOME PANEL
