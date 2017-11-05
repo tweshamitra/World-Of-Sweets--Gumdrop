@@ -325,6 +325,24 @@ public class GameGUI {
 		//INITIALIZING THE GAME BOARD
 		
 		boardPanel = new JBoardPanel();
+		
+		// Needed to add the mouselistener to the instance of the jboardpanel otherwise click events registered numerous times
+		boardPanel.addMouseListener(new MouseAdapter(){
+				@Override
+				public void mouseClicked(MouseEvent e){
+					for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
+						Space sp = theGame.gameBoard.gameSpaces[i];
+						int xy[] = new int[2];
+						if(sp.wasClicked(e)){
+							xy = sp.nextFreeSpace(theGame.getCurPlayerNum());
+							// System.out.println("PIn: " + sp.getPIndex() + " x: " + xy[0] + " y: " + xy[1] + " label: " + sp.getLabel());
+							theGame.moveCurPlayer(xy, sp);
+						}
+					}
+					
+				}
+			});
+			
 		boardPanel.setBackground(Color.BLUE);
 		boardPanel.setPreferredSize(new Dimension(800, 615));
 		
@@ -339,15 +357,22 @@ public class GameGUI {
 			super.paintComponent(g);       
 			g.drawImage(getImage("board.png"), 0, 0, null);
 			
-			//This is where the animation for moving the tokens will be as well.  
-			//For now, dummy data to test
-			g.drawImage(getImage("bluetoken.png"), 15, 535, null);
-			g.drawImage(getImage("redtoken.png"), 50, 120, null);
-			/*for(int x = 0; x < theGame.getNumPlayers(); x++)
-			{
-				String imgName = theGame.getPlayerColor(x) + "token.png";
-				g.drawImage(getImage(imgName),  ... location data ..., null);
-			}*/
+
+			// If it is the first players initial turn, draw all the players in the start space
+			// otherwise, draw them whereever their coordinates indicate
+			if(firstRun){
+				Space startSpace = getSpaceAt(0);
+				for(int i = 0; i < numPlayers; i++){
+					int[] xy = startSpace.nextFreeSpace(i);
+					theGame.players[i].updateLocation(xy, startSpace);
+					g.drawImage(getImage(colors[i]+"token.png"), xy[0], xy[1], null);
+				}
+				firstRun = false;
+			}
+			
+			drawPlayers(g);
+			
+			
 		}  
 	}
 	

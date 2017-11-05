@@ -41,6 +41,20 @@ public class Game{
 		return players[playerNum].color;
 	}
 	
+	public int getCurPlayerNum(){
+		int ret = -1;
+		for(int i = 0; i < players.length; i++){
+			if(getCurPlayerName().equals(getPlayerName(i))){
+				ret = i;
+			}
+		}
+		return ret;
+	}
+	
+	public String getCurrentSpaceLabel(){
+		return players[turn].getCurrentSpace().getLabel();
+	}
+	
 	//unsure?
 	public void getPlayerLocation(int playerNum)
 	{
@@ -49,16 +63,26 @@ public class Game{
 	
 	//TODO
 	//Or however we want to manifest location
-	public void moveCurPlayer(int Location)
-	{
 
+	public void moveCurPlayer(int[] location, Space s)
+	{
+		players[turn].updateLocation(location, s);
+		System.out.println("current space: " + getCurrentSpaceLabel());
 	}
 	
 	//TODO
-	public void getNextValidSpace(String color, String doub)
-	{
+	// public Space getNextValidSpace(String color, String doub)
+	// {
+		// Space currentSpace = players[turn].getCurrentSpace();
+		// int currentIndex;
+		// Gets the index of the space in gameSpaces the current player is on
+		// for(int i = 0; i < gameBoard.NUMBER_OF_SPACES; i++){
+			// if(gameBoard.gameSpaces[i].getLabel().equals(currentSpace.getLabel())){
+				// currentIndex = i;
+			// }
+		// }
 		
-	}
+	// }
 
 	public void pause(long ms)
 	{

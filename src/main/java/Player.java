@@ -4,11 +4,20 @@ public class Player{
 	public Player(String pname, String pcolor){
 		name = pname;
 		color = pcolor;
-		//TODO: Addison: initialize and represent location in this class in whatever way
 	}
 
-	public void updateLocation()
+
+	public void updateLocation(int[] newCoords, Space s)
 	{
-		//Again, however you want to do it
+		coordinates = newCoords;
+		currentSpace = s;
+	}
+	
+	public int[] getCurrentLocation(){
+		return coordinates;
+	}
+	
+	public Space getCurrentSpace(){
+		return currentSpace;
 	}
 }
