@@ -22,10 +22,12 @@ public class GameGUI {
 	private ImageIcon drawnCard;
 	private int[] nums = {2,3,4};
 	private String[] colors = {"red", "blue", "yellow", "green"};
-	private JTextField text_1 = new JTextField();
-    private JTextField text_2 = new JTextField();
-    private JTextField text_3 = new JTextField();
-    private JTextField text_4 = new JTextField();
+	private JTextField text_1 = new JTextField("Player 1");
+    private JTextField text_2 = new JTextField("Player 2");
+    private JTextField text_3 = new JTextField("Player 3");
+    private JTextField text_4 = new JTextField("Player 4");
+	private JLabel playNameLabel;
+	private JButton submit;
 	private int numPlayers;
 	private ArrayList<String> playerNames = new ArrayList<String>();
 	private JComboBox num_players_menu = new JComboBox();
@@ -44,20 +46,42 @@ public class GameGUI {
 			num_players_menu.addItem(nums[i]);
 		}
 		
-		JPanel welcomePanel = new JPanel();
 
+
+		num_players_menu.setBackground(Color.GREEN);
+		ActionListener comboBoxListener = new ComboBoxListener(pane);		
+		num_players_menu.addActionListener(comboBoxListener);
+
+		
+		ImageIcon welcomeIcon = new ImageIcon(getImage("WelcomeSign.png"));
+		JLabel welcomeLabel = new JLabel();
+		welcomeLabel.setIcon(welcomeIcon);
+		welcomeLabel.setHorizontalAlignment(JLabel.CENTER);
+
+		ImageIcon numPlayIcon = new ImageIcon(getImage("NumPlaySign.png"));
+		JLabel numPlayLabel = new JLabel();
+		numPlayLabel.setIcon(numPlayIcon);
+		numPlayLabel.setHorizontalAlignment(JLabel.CENTER);
+		
+		ImageIcon playNameIcon = new ImageIcon(getImage("PlayNameSign.png"));
+		playNameLabel = new JLabel();
+		playNameLabel.setIcon(playNameIcon);
+		playNameLabel.setHorizontalAlignment(JLabel.CENTER);
+				
+		JPanel welcomePanel = new JPanel();
 		welcomePanel.setLayout(new GridLayout(1,1));
 		welcomePanel.setBackground(Color.PINK);
-		welcomePanel.add(new JLabel("Welcome to World of Sweets!"));
+		welcomePanel.add(welcomeLabel);
 		welcomePanel.setMaximumSize(new Dimension(10,10));
 		startPanel.setLayout(new GridLayout(0,2));
 		startPanel.setBackground(Color.PINK);
 		
-		startPanel.add(new JLabel("Choose number of players:"));
+
+		startPanel.add(numPlayLabel);
 		startPanel.add(num_players_menu);
 
-		startPanel.add(new JLabel("Enter player names: "));
-
+		startPanel.add(playNameLabel);
+		playNameLabel.setVisible(false);
 		startPanel.add(text_1);
         startPanel.add(new JLabel());
 		
@@ -68,10 +92,22 @@ public class GameGUI {
         startPanel.add(new JLabel());
 
 		startPanel.add(text_4);
+		
+		text_1.setVisible(false);
+		text_2.setVisible(false);
+		text_3.setVisible(false);
+		text_4.setVisible(false);
+		text_1.setBackground(Color.GREEN);
+		text_2.setBackground(Color.GREEN);
+		text_3.setBackground(Color.GREEN);
+		text_4.setBackground(Color.GREEN);
 
 		JPanel submitPanel = new JPanel(new GridLayout(1,1));
 		submitPanel.setBackground(Color.PINK);
-		JButton submit = new JButton("Start game");
+		submit = new JButton();
+		submit.setIcon(new ImageIcon(getImage("StartSign.png")));
+		submit.setBackground(Color.PINK);
+		submit.setBorder(null);
 		ActionListener submitListener = new SubmitListener(pane);
 		JPanel infoPanel = new JPanel(new GridLayout(0,1));
 		infoPanel.add(welcomePanel);
@@ -82,13 +118,45 @@ public class GameGUI {
 		pane.setBackground(Color.PINK);
 		infoPanel.add(startPanel);
 		infoPanel.add(submitPanel);
-
+		
+		submit.setVisible(false);
+		
+		
 		pane.add(infoPanel);
 		// pane.add(welcomePanel);
 		// pane.add(startPanel);
 		// pane.add(submitPanel);
 		
 	}
+	
+	class ComboBoxListener implements ActionListener{
+		Container pane;
+		public ComboBoxListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e ){
+			playNameLabel.setVisible(true);
+			submit.setVisible(true);
+			numPlayers = (int) num_players_menu.getSelectedItem();
+			if(numPlayers == 2){
+				text_1.setVisible(true);
+				text_2.setVisible(true);
+				text_3.setVisible(false);
+				text_4.setVisible(false);
+			} else if (numPlayers == 3){
+				text_1.setVisible(true);
+				text_2.setVisible(true);
+				text_3.setVisible(true);
+				text_4.setVisible(false);				
+			} else{
+				text_1.setVisible(true);
+				text_2.setVisible(true);
+				text_3.setVisible(true);
+				text_4.setVisible(true);
+			}
+		}
+	}
+	
 	
 	class SubmitListener implements ActionListener{
 		Container pane;
@@ -257,6 +325,24 @@ public class GameGUI {
 		//INITIALIZING THE GAME BOARD
 		
 		boardPanel = new JBoardPanel();
+		
+		// Needed to add the mouselistener to the instance of the jboardpanel otherwise click events registered numerous times
+		boardPanel.addMouseListener(new MouseAdapter(){
+				@Override
+				public void mouseClicked(MouseEvent e){
+					for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
+						Space sp = theGame.gameBoard.gameSpaces[i];
+						int xy[] = new int[2];
+						if(sp.wasClicked(e)){
+							xy = sp.nextFreeSpace(theGame.getCurPlayerNum());
+							// System.out.println("PIn: " + sp.getPIndex() + " x: " + xy[0] + " y: " + xy[1] + " label: " + sp.getLabel());
+							theGame.moveCurPlayer(xy, sp);
+						}
+					}
+					
+				}
+			});
+			
 		boardPanel.setBackground(Color.BLUE);
 		boardPanel.setPreferredSize(new Dimension(800, 615));
 		
@@ -266,21 +352,49 @@ public class GameGUI {
 
 	//THIS CLASS HANDLES THE CUSTOM ANIMATION FOR THE GAME BOARD AND TOKENS
     public class JBoardPanel extends JPanel{
+		int xy[] = new int[2];
+		boolean firstRun = true;
+		
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);       
 			g.drawImage(getImage("board.png"), 0, 0, null);
 			
-			//This is where the animation for moving the tokens will be as well.  
-			//For now, dummy data to test
-			g.drawImage(getImage("bluetoken.png"), 15, 535, null);
-			g.drawImage(getImage("redtoken.png"), 50, 120, null);
-			/*for(int x = 0; x < theGame.getNumPlayers(); x++)
-			{
-				String imgName = theGame.getPlayerColor(x) + "token.png";
-				g.drawImage(getImage(imgName),  ... location data ..., null);
-			}*/
-		}  
+
+			// If it is the first players initial turn, draw all the players in the start space
+			// otherwise, draw them whereever their coordinates indicate
+			if(firstRun){
+				Space startSpace = getSpaceAt(0);
+				for(int i = 0; i < numPlayers; i++){
+					int[] xy = startSpace.nextFreeSpace(i);
+					theGame.players[i].updateLocation(xy, startSpace);
+					g.drawImage(getImage(colors[i]+"token.png"), xy[0], xy[1], null);
+				}
+				firstRun = false;
+			}
+			
+			drawPlayers(g);
+			
+			
+		}
+		
+		public void drawSpace(Graphics g, Space s){
+			Graphics2D g2d = (Graphics2D) g;
+			g2d.draw(s.getSpace());
+		}
+		
+		public Space getSpaceAt(int s){
+			return theGame.gameBoard.gameSpaces[s];
+		}
+		
+		public void drawPlayers(Graphics g){
+			for(int i = 0; i < numPlayers; i++){
+				int[] xy = theGame.players[i].getCurrentLocation();
+				g.drawImage(getImage(colors[i]+"token.png"), xy[0], xy[1], null);
+			}
+			this.revalidate();
+			this.repaint();
+		}
 	}
 	
 	//THIS CLASS IS THE WELCOME PANEL
@@ -314,6 +428,7 @@ public class GameGUI {
 	//FUNCTION THAT CREATES THE WIN SCREEN
 	private void createWinScreen() {
 		//TODO
+		System.out.println("You've won!");
 	}
 
 	//A FUNCTION THAT SIMPLIFIES THE GETTING OF IMAGES FROM THE IMG FOLDER
@@ -336,6 +451,12 @@ public class GameGUI {
 				//shuffleCards.setEnabled(false);
 				deckOfCards.setEnabled(false);
 				(new GameLogicThread()).execute();
+				for (int i = 0; i < theGame.players.length; i++){
+					if(theGame.players[i].checkWin())
+					{
+						createWinScreen();
+					}
+				}
 		}
 		
 	}
@@ -348,6 +469,12 @@ public class GameGUI {
 				//shuffleCards.setEnabled(false);
 				deckOfCards.setEnabled(false);
 				(new ShuffleLogicThread()).execute();
+				for (int i = 0; i < theGame.players.length; i++){
+					if(theGame.players[i].checkWin())
+					{
+						createWinScreen();
+					}
+				}
 		}
 		
 	}
@@ -375,6 +502,7 @@ public class GameGUI {
 		   deckOfCards.setEnabled(true);
        }
    }
+   
 	
 	//THE WORKER FOR THE DRAW CARD LOGIC
 	class GameLogicThread extends SwingWorker<Void, Object> {
@@ -399,12 +527,16 @@ public class GameGUI {
 				showDrawnCard(color, doub);
 				updateTicker(curPlayer + " drew a " + doub + " " + color + " card!", playerColor);
 				//TODO:  Addison:  more logic will be needed here to determine where the player is moving to
-				theGame.pause(600);
+				Space nextValid = theGame.getNextValidSpace(color, doub);
+				System.out.println("Next valid: " + nextValid.getLabel());
+				
+				
+				theGame.pause(2000);
 				String oor2 = drawnCard.isdouble ? "two" : "one";
 				String plur = drawnCard.isdouble ? "s" : "";
 				updateTicker(curPlayer + " moved " + oor2 + " " + color + " space" + plur + "!", playerColor);
 				theGame.incrementTurn();
-				theGame.pause(600);
+				theGame.pause(2000);
 				removeDrawnCard();
 				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 			}
@@ -416,7 +548,7 @@ public class GameGUI {
 					//the card is a skip
 					case 1: showSpecialCard(drawnCard.specText);
 							updateTicker(curPlayer + "'s turn is skipped!", playerColor);
-							theGame.pause(700);
+							theGame.pause(2000);
 							theGame.incrementTurn();
 							removeDrawnCard();
 							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
@@ -424,11 +556,13 @@ public class GameGUI {
 					//the card is a middle
 					case 2: showSpecialCard(drawnCard.specText);
 							updateTicker(curPlayer + " drew a middle card!", playerColor);
-							theGame.pause(600);
+							theGame.pause(2000);
 							//TODO:  Addison:  incorporate the movement logic
+							Space middleSpace = theGame.gameBoard.gameSpaces[16];
+							theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
 							
 							updateTicker(curPlayer + " was sent to the middle of the board!", playerColor);
-							theGame.pause(600);
+							theGame.pause(2000);
 							theGame.incrementTurn();
 							removeDrawnCard();
 							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
