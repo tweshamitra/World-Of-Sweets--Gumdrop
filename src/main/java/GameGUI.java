@@ -527,12 +527,16 @@ public class GameGUI {
 				showDrawnCard(color, doub);
 				updateTicker(curPlayer + " drew a " + doub + " " + color + " card!", playerColor);
 				//TODO:  Addison:  more logic will be needed here to determine where the player is moving to
-				theGame.pause(600);
+				Space nextValid = theGame.getNextValidSpace(color, doub);
+				System.out.println("Next valid: " + nextValid.getLabel());
+				
+				
+				theGame.pause(2000);
 				String oor2 = drawnCard.isdouble ? "two" : "one";
 				String plur = drawnCard.isdouble ? "s" : "";
 				updateTicker(curPlayer + " moved " + oor2 + " " + color + " space" + plur + "!", playerColor);
 				theGame.incrementTurn();
-				theGame.pause(600);
+				theGame.pause(2000);
 				removeDrawnCard();
 				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 			}
@@ -544,7 +548,7 @@ public class GameGUI {
 					//the card is a skip
 					case 1: showSpecialCard(drawnCard.specText);
 							updateTicker(curPlayer + "'s turn is skipped!", playerColor);
-							theGame.pause(700);
+							theGame.pause(2000);
 							theGame.incrementTurn();
 							removeDrawnCard();
 							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
@@ -552,11 +556,13 @@ public class GameGUI {
 					//the card is a middle
 					case 2: showSpecialCard(drawnCard.specText);
 							updateTicker(curPlayer + " drew a middle card!", playerColor);
-							theGame.pause(600);
+							theGame.pause(2000);
 							//TODO:  Addison:  incorporate the movement logic
+							Space middleSpace = theGame.gameBoard.gameSpaces[16];
+							theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
 							
 							updateTicker(curPlayer + " was sent to the middle of the board!", playerColor);
-							theGame.pause(600);
+							theGame.pause(2000);
 							theGame.incrementTurn();
 							removeDrawnCard();
 							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
