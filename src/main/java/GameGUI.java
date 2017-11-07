@@ -427,12 +427,13 @@ public class GameGUI {
 		pane.repaint();
 		pane.setLayout(new BorderLayout());
 		tickerPanel = new JPanel(new FlowLayout());
+		tickerPanel.setBackground(Color.PINK);
 		ticker.setBackground(Color.BLUE);
 		ticker.setPreferredSize(new Dimension(1050,60));
 
 		ticker.setFont(new Font("TimesRoman", Font.ITALIC, 48));
 		ticker.setHorizontalAlignment(JLabel.CENTER);
-		updateTicker("Game over!", "Black");
+		
 
 		tickerPanel.add(ticker);
 		pane.add(tickerPanel, BorderLayout.PAGE_START);
@@ -462,10 +463,13 @@ public class GameGUI {
 		drawACardPanel.add(deckOfCards, BorderLayout.CENTER);
 		deckPanel.add(drawACardPanel);
 		JLabel winnerLabel = new JLabel(winner.getPlayerName()+ " has won!");
+		winnerLabel.setFont(new Font("TimesRoman", Font.ITALIC, 72));
+		winnerLabel.setForeground(Color.RED);
+		winnerLabel.setBackground(Color.GREEN);
 		JPanel winnerPanel = new JPanel(new GridLayout(2,1));
 		JPanel actions = new JPanel(new FlowLayout());
 		actions.setBackground(Color.YELLOW);
-		
+
 		JButton playAgain = new JButton("Play again!");
 		JButton quit = new JButton("Quit");
 		ActionListener quitListener = new QuitListener();
@@ -475,7 +479,6 @@ public class GameGUI {
 		winnerPanel.setBackground(Color.YELLOW);
 		winnerPanel.setPreferredSize(new Dimension(1050, 60));
 
-		winnerLabel.setFont(new Font("TimesRoman", Font.ITALIC,60));
 		winnerLabel.setHorizontalAlignment(JLabel.CENTER);
 
 		winnerPanel.add(winnerLabel);
