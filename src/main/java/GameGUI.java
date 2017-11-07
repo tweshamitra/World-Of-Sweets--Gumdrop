@@ -123,10 +123,6 @@ public class GameGUI {
 		
 		
 		pane.add(infoPanel);
-		// pane.add(welcomePanel);
-		// pane.add(startPanel);
-		// pane.add(submitPanel);
-		
 	}
 	
 	class ComboBoxListener implements ActionListener{
@@ -142,7 +138,6 @@ public class GameGUI {
 				text_1.setVisible(true);
 				text_2.setVisible(true);
 				text_3.setVisible(false);
-				text_4.setVisible(false);
 			} else if (numPlayers == 3){
 				text_1.setVisible(true);
 				text_2.setVisible(true);
@@ -303,7 +298,7 @@ public class GameGUI {
 		deckOfCards.setIcon(icon);
 		deckOfCards.setPreferredSize(new Dimension(250, 300));
 		
-		ActionListener buttonListener = new ButtonListener();
+		ActionListener buttonListener = new ButtonListener(pane);
 		deckOfCards.addActionListener(buttonListener);
 		
 		//ADDING THE SHUFFLE BUTTON  --SHUFFLE BUTTON REMOVED
@@ -354,7 +349,6 @@ public class GameGUI {
     public class JBoardPanel extends JPanel{
 		int xy[] = new int[2];
 		boolean firstRun = true;
-		
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);       
@@ -426,11 +420,90 @@ public class GameGUI {
     }
 	
 	//FUNCTION THAT CREATES THE WIN SCREEN
-	private void createWinScreen() {
+	private void createWinScreen(Player winner, Container pane) {
 		//TODO
-		System.out.println("You've won!");
+		pane.removeAll();
+		pane.revalidate();
+		pane.repaint();
+		pane.setLayout(new BorderLayout());
+		tickerPanel = new JPanel(new FlowLayout());
+		ticker.setBackground(Color.BLUE);
+		ticker.setPreferredSize(new Dimension(1050,60));
+
+		ticker.setFont(new Font("TimesRoman", Font.ITALIC, 48));
+		ticker.setHorizontalAlignment(JLabel.CENTER);
+		updateTicker("Game over!", "Black");
+
+		tickerPanel.add(ticker);
+		pane.add(tickerPanel, BorderLayout.PAGE_START);
+
+		deckPanel = new JPanel();
+		deckPanel.setLayout(new BoxLayout(deckPanel, BoxLayout.Y_AXIS));
+		deckPanel.setPreferredSize(new Dimension(250, 600));
+				
+		displayCardPanel = new JWelcomePanel();
+		displayCardPanel.setLayout(new BorderLayout());
+		displayCardPanel.setBackground(Color.GREEN);
+		displayCardPanel.setPreferredSize(new Dimension(250, 300));		
+		
+		drawnCardLabel.setVerticalAlignment(SwingConstants.TOP);
+		displayCardPanel.add(drawnCardLabel, BorderLayout.CENTER);
+		
+		deckPanel.add(displayCardPanel);
+		
+		drawACardPanel = new JPanel(new BorderLayout());
+		drawACardPanel.setBackground(Color.RED);
+		drawACardPanel.setPreferredSize(new Dimension(250, 300));
+		
+		ImageIcon icon = new ImageIcon(getImage("100Full.png")); 
+		deckOfCards = new JButton();
+		deckOfCards.setIcon(icon);
+		deckOfCards.setPreferredSize(new Dimension(250, 300));
+		drawACardPanel.add(deckOfCards, BorderLayout.CENTER);
+		deckPanel.add(drawACardPanel);
+		JLabel winnerLabel = new JLabel(winner.getPlayerName()+ " has won!");
+		JPanel winnerPanel = new JPanel(new GridLayout(2,1));
+		JPanel actions = new JPanel(new FlowLayout());
+		actions.setBackground(Color.YELLOW);
+		
+		JButton playAgain = new JButton("Play again!");
+		JButton quit = new JButton("Quit");
+		ActionListener quitListener = new QuitListener();
+		ActionListener playAgainButtonListener = new PlayAgainListener(pane);
+		playAgain.addActionListener(playAgainButtonListener);
+		quit.addActionListener(quitListener);
+		winnerPanel.setBackground(Color.YELLOW);
+		winnerPanel.setPreferredSize(new Dimension(1050, 60));
+
+		winnerLabel.setFont(new Font("TimesRoman", Font.ITALIC,60));
+		winnerLabel.setHorizontalAlignment(JLabel.CENTER);
+
+		winnerPanel.add(winnerLabel);
+		actions.add(playAgain);
+		actions.add(quit);
+		winnerPanel.add(actions);
+		pane.add(deckPanel, BorderLayout.LINE_START);
+		pane.add(winnerPanel);
+		//System.out.println("You've won!");
+	}
+	class PlayAgainListener implements ActionListener{
+		Container pane;
+		public PlayAgainListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e){
+			createBoardGUI();
+		}
 	}
 
+	class QuitListener implements ActionListener{
+		public QuitListener(){
+
+		}
+		public void actionPerformed(ActionEvent e){
+			System.exit(0);
+		}
+	}
 	//A FUNCTION THAT SIMPLIFIES THE GETTING OF IMAGES FROM THE IMG FOLDER
 	private Image getImage(String name)
 	{
@@ -444,7 +517,10 @@ public class GameGUI {
 	
 	//THE LISTENER FOR THE DRAW CARD BUTTON
 	private class ButtonListener implements ActionListener {
-
+		Container pane;
+		public ButtonListener(Container pane){
+			this.pane = pane;
+		}
 		// Every time we click the button, it will draw a card and take a turn
 
 		public void actionPerformed(ActionEvent e) {
@@ -454,25 +530,8 @@ public class GameGUI {
 				for (int i = 0; i < theGame.players.length; i++){
 					if(theGame.players[i].checkWin())
 					{
-						createWinScreen();
-					}
-				}
-		}
-		
-	}
-	
-	//THE LISTENER FOR THE SHUFFLE CARD BUTTON
-	private class ShuffleListener implements ActionListener {
-
-		// Every time we click the button, it will shuffle the deck
-		public void actionPerformed(ActionEvent e) {
-				//shuffleCards.setEnabled(false);
-				deckOfCards.setEnabled(false);
-				(new ShuffleLogicThread()).execute();
-				for (int i = 0; i < theGame.players.length; i++){
-					if(theGame.players[i].checkWin())
-					{
-						createWinScreen();
+						this.pane.removeAll();
+						createWinScreen(theGame.players[i], this.pane);
 					}
 				}
 		}
