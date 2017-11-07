@@ -91,7 +91,7 @@ public class Game{
 		}
 		// Looks ahead at most five spaces to find the next valid space
 		if(doub.equals("single")){
-			for(int j = currentIndex+1; j < currentIndex+6; j++){
+			for(int j = currentIndex+1; j < Math.min(currentIndex+6, gameBoard.NUMBER_OF_SPACES-1); j++){
 				if(gameBoard.gameSpaces[j].getColor().equals(color)){
 					returnSpace = gameBoard.gameSpaces[j];
 					found = true;
@@ -101,11 +101,12 @@ public class Game{
 					returnSpace = gameBoard.gameSpaces[gameBoard.NUMBER_OF_SPACES-1];
 				}
 			}
+			
 		}
 		// Starts the search for the next valid space five spaces ahead of current, then will search at most five spaces ahead for the next valid space
 		else if(doub.equals("double")){
 			if(currentIndex < gameBoard.NUMBER_OF_SPACES - 5){
-				for(int j = currentIndex+6; j < currentIndex+11; j+=1){
+				for(int j = currentIndex+6; j < Math.min(currentIndex+11, gameBoard.NUMBER_OF_SPACES-1); j++){
 					if(gameBoard.gameSpaces[j].getColor().equals(color)){
 						returnSpace = gameBoard.gameSpaces[j];
 						found = true;
