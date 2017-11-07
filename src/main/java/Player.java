@@ -14,7 +14,9 @@ public class Player{
 		coordinates = newCoords;
 		currentSpace = s;
 	}
-	
+	public String getPlayerName(){
+		return this.name;
+	}
 	public int[] getCurrentLocation(){
 		return coordinates;
 	}

@@ -15,7 +15,7 @@ public class Board{
 			in = new Scanner(file);
 		}
 		catch(FileNotFoundException e){
-			System.out.println("whomp whomp");
+			System.out.println("Space Coordinates file not found!");
 			System.exit(1);
 		}
 		

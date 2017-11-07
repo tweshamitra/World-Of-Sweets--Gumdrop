@@ -20,7 +20,6 @@ public class GameGUI {
 	private Game theGame;
 	private boolean canDraw;
 	private ImageIcon drawnCard;
-	private int[] nums = {2,3,4};
 	private String[] colors = {"red", "blue", "yellow", "green"};
 	private JTextField text_1 = new JTextField("Player 1");
     private JTextField text_2 = new JTextField("Player 2");
@@ -29,25 +28,22 @@ public class GameGUI {
 	private JLabel playNameLabel;
 	private JButton submit;
 	private int numPlayers;
+	private int[] nums = {2,3,4};
 	private ArrayList<String> playerNames = new ArrayList<String>();
 	private JComboBox num_players_menu = new JComboBox();
 
 	public GameGUI()
 	{
-		
+		num_players_menu.addItem(nums[0]);
+		num_players_menu.addItem(nums[1]);
+		num_players_menu.addItem(nums[2]);
 	}
 	//THIS FUNCTION WILL DRAW THE START SCREEN
 	private void drawStartScreen(Container pane) {
 		pane.removeAll();
 		pane.setLayout(new GridBagLayout());
-
+		playerNames.clear();
 		JPanel startPanel = new JPanel();
-		for(int i = 0; i < nums.length; i++){
-			num_players_menu.addItem(nums[i]);
-		}
-		
-
-
 		num_players_menu.setBackground(Color.GREEN);
 		ActionListener comboBoxListener = new ComboBoxListener(pane);		
 		num_players_menu.addActionListener(comboBoxListener);
@@ -123,10 +119,6 @@ public class GameGUI {
 		
 		
 		pane.add(infoPanel);
-		// pane.add(welcomePanel);
-		// pane.add(startPanel);
-		// pane.add(submitPanel);
-		
 	}
 	
 	class ComboBoxListener implements ActionListener{
@@ -142,7 +134,6 @@ public class GameGUI {
 				text_1.setVisible(true);
 				text_2.setVisible(true);
 				text_3.setVisible(false);
-				text_4.setVisible(false);
 			} else if (numPlayers == 3){
 				text_1.setVisible(true);
 				text_2.setVisible(true);
@@ -303,20 +294,11 @@ public class GameGUI {
 		deckOfCards.setIcon(icon);
 		deckOfCards.setPreferredSize(new Dimension(250, 300));
 		
-		ActionListener buttonListener = new ButtonListener();
+		ActionListener buttonListener = new ButtonListener(pane);
 		deckOfCards.addActionListener(buttonListener);
 		
-		//ADDING THE SHUFFLE BUTTON  --SHUFFLE BUTTON REMOVED
-		/*icon = new ImageIcon(getImage("shuffle.png")); 
-		shuffleCards = new JButton();
-		shuffleCards.setIcon(icon);
-		shuffleCards.setPreferredSize(new Dimension(250, 300));
-		
-		buttonListener = new ShuffleListener();
-		shuffleCards.addActionListener(buttonListener);*/
-		
+	
 		drawACardPanel.add(deckOfCards, BorderLayout.CENTER);
-		//drawACardPanel.add(shuffleCards, BorderLayout.LINE_START);
 		
 		deckPanel.add(drawACardPanel);
 		
@@ -326,23 +308,7 @@ public class GameGUI {
 		
 		boardPanel = new JBoardPanel();
 		
-		// Needed to add the mouselistener to the instance of the jboardpanel otherwise click events registered numerous times
-		boardPanel.addMouseListener(new MouseAdapter(){
-				@Override
-				public void mouseClicked(MouseEvent e){
-					for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
-						Space sp = theGame.gameBoard.gameSpaces[i];
-						int xy[] = new int[2];
-						if(sp.wasClicked(e)){
-							xy = sp.nextFreeSpace(theGame.getCurPlayerNum());
-							// System.out.println("PIn: " + sp.getPIndex() + " x: " + xy[0] + " y: " + xy[1] + " label: " + sp.getLabel());
-							theGame.moveCurPlayer(xy, sp);
-						}
-					}
-					
-				}
-			});
-			
+
 		boardPanel.setBackground(Color.BLUE);
 		boardPanel.setPreferredSize(new Dimension(800, 615));
 		
@@ -354,7 +320,6 @@ public class GameGUI {
     public class JBoardPanel extends JPanel{
 		int xy[] = new int[2];
 		boolean firstRun = true;
-		
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);       
@@ -370,9 +335,12 @@ public class GameGUI {
 					theGame.players[i].updateLocation(xy, startSpace);
 					g.drawImage(getImage(colors[i]+"token.png"), xy[0], xy[1], null);
 				}
+				
+				
 				firstRun = false;
 			}
-			
+			Space middleSpace = getSpaceAt(16);
+			drawSpace(g, middleSpace);
 			drawPlayers(g);
 			
 			
@@ -380,7 +348,8 @@ public class GameGUI {
 		
 		public void drawSpace(Graphics g, Space s){
 			Graphics2D g2d = (Graphics2D) g;
-			g2d.draw(s.getSpace());
+			g2d.draw(s.getHorizontal());
+			g2d.draw(s.getVertical());
 		}
 		
 		public Space getSpaceAt(int s){
@@ -426,11 +395,92 @@ public class GameGUI {
     }
 	
 	//FUNCTION THAT CREATES THE WIN SCREEN
-	private void createWinScreen() {
+	private void createWinScreen(Player winner, Container pane) {
 		//TODO
-		System.out.println("You've won!");
+		pane.removeAll();
+		pane.revalidate();
+		pane.repaint();
+		pane.setLayout(new BorderLayout());
+
+		JPanel textPanel = new JPanel(new FlowLayout());
+		textPanel.setBackground(Color.PINK);
+		JLabel text = new JLabel("Game over!");
+	
+		text.setPreferredSize(new Dimension(1050,60));
+		text.setFont(new Font("TimesRoman", Font.ITALIC, 60));
+		text.setHorizontalAlignment(JLabel.CENTER);
+
+		textPanel.add(text);
+		pane.add(textPanel, BorderLayout.PAGE_START);
+		deckPanel = new JPanel();
+		deckPanel.setLayout(new BoxLayout(deckPanel, BoxLayout.Y_AXIS));
+		deckPanel.setPreferredSize(new Dimension(250, 600));
+				
+		displayCardPanel = new JWelcomePanel();
+		displayCardPanel.setLayout(new BorderLayout());
+		displayCardPanel.setBackground(Color.GREEN);
+		displayCardPanel.setPreferredSize(new Dimension(250, 300));		
+		
+		drawnCardLabel.setVerticalAlignment(SwingConstants.TOP);
+		displayCardPanel.add(drawnCardLabel, BorderLayout.CENTER);
+		
+		deckPanel.add(displayCardPanel);
+		
+		drawACardPanel = new JPanel(new BorderLayout());
+		drawACardPanel.setBackground(Color.RED);
+		drawACardPanel.setPreferredSize(new Dimension(250, 300));
+		
+		ImageIcon icon = new ImageIcon(getImage("100Full.png")); 
+		deckOfCards = new JButton();
+		deckOfCards.setIcon(icon);
+		deckOfCards.setPreferredSize(new Dimension(250, 300));
+		drawACardPanel.add(deckOfCards, BorderLayout.CENTER);
+		deckPanel.add(drawACardPanel);
+		JLabel winnerLabel = new JLabel(winner.getPlayerName()+ " has won!");
+		winnerLabel.setFont(new Font("TimesRoman", Font.ITALIC, 72));
+		winnerLabel.setForeground(Color.RED);
+		winnerLabel.setBackground(Color.GREEN);
+		JPanel winnerPanel = new JPanel(new GridLayout(2,1));
+		JPanel actions = new JPanel(new FlowLayout());
+		actions.setBackground(Color.YELLOW);
+
+		JButton playAgain = new JButton("Play again!");
+		JButton quit = new JButton("Quit");
+		ActionListener quitListener = new QuitListener();
+		ActionListener playAgainButtonListener = new PlayAgainListener(pane);
+		playAgain.addActionListener(playAgainButtonListener);
+		quit.addActionListener(quitListener);
+		winnerPanel.setBackground(Color.YELLOW);
+		winnerPanel.setPreferredSize(new Dimension(1050, 60));
+
+		winnerLabel.setHorizontalAlignment(JLabel.CENTER);
+
+		winnerPanel.add(winnerLabel);
+		actions.add(playAgain);
+		actions.add(quit);
+		winnerPanel.add(actions);
+		pane.add(deckPanel, BorderLayout.LINE_START);
+		pane.add(winnerPanel);
+		//System.out.println("You've won!");
+	}
+	class PlayAgainListener implements ActionListener{
+		Container pane;
+		public PlayAgainListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e){
+			createBoardGUI();
+		}
 	}
 
+	class QuitListener implements ActionListener{
+		public QuitListener(){
+
+		}
+		public void actionPerformed(ActionEvent e){
+			System.exit(0);
+		}
+	}
 	//A FUNCTION THAT SIMPLIFIES THE GETTING OF IMAGES FROM THE IMG FOLDER
 	private Image getImage(String name)
 	{
@@ -444,7 +494,10 @@ public class GameGUI {
 	
 	//THE LISTENER FOR THE DRAW CARD BUTTON
 	private class ButtonListener implements ActionListener {
-
+		Container pane;
+		public ButtonListener(Container pane){
+			this.pane = pane;
+		}
 		// Every time we click the button, it will draw a card and take a turn
 
 		public void actionPerformed(ActionEvent e) {
@@ -454,25 +507,8 @@ public class GameGUI {
 				for (int i = 0; i < theGame.players.length; i++){
 					if(theGame.players[i].checkWin())
 					{
-						createWinScreen();
-					}
-				}
-		}
-		
-	}
-	
-	//THE LISTENER FOR THE SHUFFLE CARD BUTTON
-	private class ShuffleListener implements ActionListener {
-
-		// Every time we click the button, it will shuffle the deck
-		public void actionPerformed(ActionEvent e) {
-				//shuffleCards.setEnabled(false);
-				deckOfCards.setEnabled(false);
-				(new ShuffleLogicThread()).execute();
-				for (int i = 0; i < theGame.players.length; i++){
-					if(theGame.players[i].checkWin())
-					{
-						createWinScreen();
+						this.pane.removeAll();
+						createWinScreen(theGame.players[i], this.pane);
 					}
 				}
 		}
@@ -517,7 +553,7 @@ public class GameGUI {
 				theGame.shuffleDeck();
 				updateTicker("The deck was shuffled!", "black");
 				updateDeckImage(theGame.getNumCardsLeft());
-				theGame.pause(400);		
+				theGame.pause(1000);		
 				drawnCard = theGame.drawCard();				
 			}
 			if(drawnCard.special == false)
@@ -526,12 +562,11 @@ public class GameGUI {
 				String doub = drawnCard.isdouble ? "double" : "single";
 				showDrawnCard(color, doub);
 				updateTicker(curPlayer + " drew a " + doub + " " + color + " card!", playerColor);
+				theGame.pause(1000);
 				//TODO:  Addison:  more logic will be needed here to determine where the player is moving to
 				Space nextValid = theGame.getNextValidSpace(color, doub);
-				System.out.println("Next valid: " + nextValid.getLabel());
+				theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
 				
-				
-				theGame.pause(2000);
 				String oor2 = drawnCard.isdouble ? "two" : "one";
 				String plur = drawnCard.isdouble ? "s" : "";
 				updateTicker(curPlayer + " moved " + oor2 + " " + color + " space" + plur + "!", playerColor);
@@ -556,13 +591,13 @@ public class GameGUI {
 					//the card is a middle
 					case 2: showSpecialCard(drawnCard.specText);
 							updateTicker(curPlayer + " drew a middle card!", playerColor);
-							theGame.pause(2000);
+							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							Space middleSpace = theGame.gameBoard.gameSpaces[16];
 							theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
 							
 							updateTicker(curPlayer + " was sent to the middle of the board!", playerColor);
-							theGame.pause(2000);
+							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
 							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
