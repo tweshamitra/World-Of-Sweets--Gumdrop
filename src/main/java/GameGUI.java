@@ -13,6 +13,7 @@ public class GameGUI {
 	private JLabel drawnCardLabel = new JLabel("", SwingConstants.CENTER);
 	private JPanel tickerPanel, deckPanel, drawACardPanel;
 	private JBoardPanel boardPanel;
+	private JFrame frame;
 	private JWelcomePanel displayCardPanel;
 	private JButton deckOfCards, shuffleCards;
 	private final String html1 = "<html><body style='width: ";
@@ -117,8 +118,10 @@ public class GameGUI {
 		
 		submit.setVisible(false);
 		
-		
 		pane.add(infoPanel);
+		
+		pane.revalidate();
+		pane.repaint();
 	}
 	
 	class ComboBoxListener implements ActionListener{
@@ -377,7 +380,7 @@ public class GameGUI {
 	//THIS IS THE FIRST FUNCTION CALLED THAT INITIALIZES THE GUI
     public void createBoardGUI() {
         //Create and set up the window.
-        JFrame frame = new JFrame("World of Sweets!");
+        frame = new JFrame("World of Sweets!");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Set up the content pane.
@@ -395,8 +398,9 @@ public class GameGUI {
     }
 	
 	//FUNCTION THAT CREATES THE WIN SCREEN
-	private void createWinScreen(Player winner, Container pane) {
+	private void createWinScreen(Player winner){ //, Container pane) {
 		//TODO
+		Container pane = frame.getContentPane();
 		pane.removeAll();
 		pane.revalidate();
 		pane.repaint();
@@ -432,6 +436,7 @@ public class GameGUI {
 		
 		ImageIcon icon = new ImageIcon(getImage("100Full.png")); 
 		deckOfCards = new JButton();
+		deckOfCards.setEnabled(false);
 		deckOfCards.setIcon(icon);
 		deckOfCards.setPreferredSize(new Dimension(250, 300));
 		drawACardPanel.add(deckOfCards, BorderLayout.CENTER);
@@ -461,6 +466,8 @@ public class GameGUI {
 		winnerPanel.add(actions);
 		pane.add(deckPanel, BorderLayout.LINE_START);
 		pane.add(winnerPanel);
+		pane.revalidate();
+		pane.repaint();
 		//System.out.println("You've won!");
 	}
 	class PlayAgainListener implements ActionListener{
@@ -504,13 +511,7 @@ public class GameGUI {
 				//shuffleCards.setEnabled(false);
 				deckOfCards.setEnabled(false);
 				(new GameLogicThread()).execute();
-				for (int i = 0; i < theGame.players.length; i++){
-					if(theGame.players[i].checkWin())
-					{
-						this.pane.removeAll();
-						createWinScreen(theGame.players[i], this.pane);
-					}
-				}
+
 		}
 		
 	}
@@ -573,7 +574,7 @@ public class GameGUI {
 				theGame.incrementTurn();
 				theGame.pause(2000);
 				removeDrawnCard();
-				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
+				//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 			}
 			else
 			{
@@ -586,7 +587,7 @@ public class GameGUI {
 							theGame.pause(2000);
 							theGame.incrementTurn();
 							removeDrawnCard();
-							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
+							//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 							break;
 					//the card is a middle
 					case 2: showSpecialCard(drawnCard.specText);
@@ -600,13 +601,13 @@ public class GameGUI {
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
-							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
+							//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 							break;
 					//unknown card exception, game broke
 					default: //keep going i guess
 							System.out.println(drawnCard.color + " " + drawnCard.isdouble + " " + drawnCard.special + " " + drawnCard.specText + " " + drawnCard.specNum);
 							theGame.incrementTurn();
-							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
+							//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 							break;
 				}
 			}
@@ -615,7 +616,19 @@ public class GameGUI {
 
        @Override
        protected void done() {
-           deckOfCards.setEnabled(true);
+			boolean won = false;
+			for (int i = 0; i < theGame.players.length; i++){
+				if(theGame.players[i].checkWin())
+				{
+					updateTicker("Game over!", "BLACK");
+					won = true;
+					createWinScreen(theGame.players[i]); //, this.pane);
+				}
+			}
+			if(!won) { 
+				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
+				deckOfCards.setEnabled(true);
+			}
 		   //shuffleCards.setEnabled(true);
        }
    }
