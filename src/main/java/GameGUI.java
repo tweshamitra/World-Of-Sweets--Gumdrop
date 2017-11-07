@@ -297,17 +297,8 @@ public class GameGUI {
 		ActionListener buttonListener = new ButtonListener(pane);
 		deckOfCards.addActionListener(buttonListener);
 		
-		//ADDING THE SHUFFLE BUTTON  --SHUFFLE BUTTON REMOVED
-		/*icon = new ImageIcon(getImage("shuffle.png")); 
-		shuffleCards = new JButton();
-		shuffleCards.setIcon(icon);
-		shuffleCards.setPreferredSize(new Dimension(250, 300));
-		
-		buttonListener = new ShuffleListener();
-		shuffleCards.addActionListener(buttonListener);*/
-		
+	
 		drawACardPanel.add(deckOfCards, BorderLayout.CENTER);
-		//drawACardPanel.add(shuffleCards, BorderLayout.LINE_START);
 		
 		deckPanel.add(drawACardPanel);
 		
@@ -317,23 +308,7 @@ public class GameGUI {
 		
 		boardPanel = new JBoardPanel();
 		
-		// Needed to add the mouselistener to the instance of the jboardpanel otherwise click events registered numerous times
-		// boardPanel.addMouseListener(new MouseAdapter(){
-				// @Override
-				// public void mouseClicked(MouseEvent e){
-					// for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
-						// Space sp = theGame.gameBoard.gameSpaces[i];
-						// int xy[] = new int[2];
-						// if(sp.wasClicked(e)){
-							// xy = sp.nextFreeSpace(theGame.getCurPlayerNum());
-							// System.out.println("PIn: " + sp.getPIndex() + " x: " + xy[0] + " y: " + xy[1] + " label: " + sp.getLabel());
-							// theGame.moveCurPlayer(xy, sp);
-						// }
-					// }
-					
-				// }
-			// });
-			
+
 		boardPanel.setBackground(Color.BLUE);
 		boardPanel.setPreferredSize(new Dimension(800, 615));
 		
@@ -426,18 +401,17 @@ public class GameGUI {
 		pane.revalidate();
 		pane.repaint();
 		pane.setLayout(new BorderLayout());
-		tickerPanel = new JPanel(new FlowLayout());
-		tickerPanel.setBackground(Color.PINK);
-		ticker.setBackground(Color.BLUE);
-		ticker.setPreferredSize(new Dimension(1050,60));
 
-		ticker.setFont(new Font("TimesRoman", Font.ITALIC, 48));
-		ticker.setHorizontalAlignment(JLabel.CENTER);
-		
+		JPanel textPanel = new JPanel(new FlowLayout());
+		textPanel.setBackground(Color.PINK);
+		JLabel text = new JLabel("Game over!");
+	
+		text.setPreferredSize(new Dimension(1050,60));
+		text.setFont(new Font("TimesRoman", Font.ITALIC, 60));
+		text.setHorizontalAlignment(JLabel.CENTER);
 
-		tickerPanel.add(ticker);
-		pane.add(tickerPanel, BorderLayout.PAGE_START);
-
+		textPanel.add(text);
+		pane.add(textPanel, BorderLayout.PAGE_START);
 		deckPanel = new JPanel();
 		deckPanel.setLayout(new BoxLayout(deckPanel, BoxLayout.Y_AXIS));
 		deckPanel.setPreferredSize(new Dimension(250, 600));
