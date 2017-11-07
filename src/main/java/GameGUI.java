@@ -20,7 +20,6 @@ public class GameGUI {
 	private Game theGame;
 	private boolean canDraw;
 	private ImageIcon drawnCard;
-	private int[] nums = {2,3,4};
 	private String[] colors = {"red", "blue", "yellow", "green"};
 	private JTextField text_1 = new JTextField("Player 1");
     private JTextField text_2 = new JTextField("Player 2");
@@ -29,25 +28,22 @@ public class GameGUI {
 	private JLabel playNameLabel;
 	private JButton submit;
 	private int numPlayers;
+	private int[] nums = {2,3,4};
 	private ArrayList<String> playerNames = new ArrayList<String>();
 	private JComboBox num_players_menu = new JComboBox();
 
 	public GameGUI()
 	{
-		
+		num_players_menu.addItem(nums[0]);
+		num_players_menu.addItem(nums[1]);
+		num_players_menu.addItem(nums[2]);
 	}
 	//THIS FUNCTION WILL DRAW THE START SCREEN
 	private void drawStartScreen(Container pane) {
 		pane.removeAll();
 		pane.setLayout(new GridBagLayout());
-
+		playerNames.clear();
 		JPanel startPanel = new JPanel();
-		for(int i = 0; i < nums.length; i++){
-			num_players_menu.addItem(nums[i]);
-		}
-		
-
-
 		num_players_menu.setBackground(Color.GREEN);
 		ActionListener comboBoxListener = new ComboBoxListener(pane);		
 		num_players_menu.addActionListener(comboBoxListener);
