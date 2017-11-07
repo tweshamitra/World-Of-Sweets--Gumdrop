@@ -19,6 +19,8 @@ public class Space{
 	int positionB[] = new int[2];
 	int positionC[] = new int[2];
 	int positionD[] = new int[2];
+	Shape horizontal;
+	Shape vertical;
 	
 	public Space(int x, int y, boolean start, boolean goal, String color, int labelInt){
 		this.x = x;
@@ -27,6 +29,8 @@ public class Space{
 		this.goal = goal;
 		this.color = color;
 		label = color + "-" + labelInt;
+		horizontal = new Line2D.Double(x+63/2, y, x+63/2, y+68);
+		vertical = new Line2D.Double(x, y+68/2, x+63, y+68/2);
 		if(start){
 			cir = new Ellipse2D.Double(x, y, 106, 113);
 			width = 106;
@@ -94,6 +98,14 @@ public class Space{
 			break;
 		}
 		return ret;
+	}
+	
+	public Shape getHorizontal(){
+		return horizontal;
+	}
+	
+	public Shape getVertical(){
+		return vertical;
 	}
 	
 	public boolean contains(int x, int y){

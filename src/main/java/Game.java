@@ -67,7 +67,7 @@ public class Game{
 	public void moveCurPlayer(int[] location, Space s)
 	{
 		players[turn].updateLocation(location, s);
-		System.out.println("current space: " + getCurrentSpaceLabel());
+		// System.out.println("current space: " + getCurrentSpaceLabel());
 	}
 	
 	//TODO
@@ -78,20 +78,24 @@ public class Game{
 		Space currentSpace = players[turn].getCurrentSpace();
 		int currentIndex = -1;
 		// Gets the index of the space in gameSpaces the current player is on
-		for(int i = 0; i < gameBoard.NUMBER_OF_SPACES; i++){
-			if(gameBoard.gameSpaces[i].getLabel().equals(currentSpace.getLabel())){
-				currentIndex = i;
-				System.out.println("found current space, index: " + i);
+		if(color.equals("start")){
+			currentIndex = 0;
+		}
+		else{
+			for(int i = 0; i < gameBoard.NUMBER_OF_SPACES; i++){
+				if(gameBoard.gameSpaces[i].getLabel().equals(currentSpace.getLabel())){
+					currentIndex = i;
+					// System.out.println("found current space, index: " + i);
+				}
 			}
 		}
 		// Looks ahead at most five spaces to find the next valid space
 		if(doub.equals("single")){
 			for(int j = currentIndex+1; j < currentIndex+6; j++){
 				if(gameBoard.gameSpaces[j].getColor().equals(color)){
-					int nextIndex = j;
 					returnSpace = gameBoard.gameSpaces[j];
 					found = true;
-					System.out.println("first if, index: " + j);
+					// System.out.println("first if, index: " + j);
 				}
 				if(!found){
 					returnSpace = gameBoard.gameSpaces[gameBoard.NUMBER_OF_SPACES-1];
@@ -100,13 +104,12 @@ public class Game{
 		}
 		// Starts the search for the next valid space five spaces ahead of current, then will search at most five spaces ahead for the next valid space
 		else if(doub.equals("double")){
-			if(currentIndex < gameBoard.NUMBER_OF_SPACES - 6){
-				for(int j = currentIndex+6; j < currentIndex+12; j+=1){
+			if(currentIndex < gameBoard.NUMBER_OF_SPACES - 5){
+				for(int j = currentIndex+6; j < currentIndex+11; j+=1){
 					if(gameBoard.gameSpaces[j].getColor().equals(color)){
-						int nextIndex = j;
 						returnSpace = gameBoard.gameSpaces[j];
 						found = true;
-						System.out.println("second if, index: " + j);
+						// System.out.println("second if, index: " + j);
 					}
 					if(!found){
 						returnSpace = gameBoard.gameSpaces[gameBoard.NUMBER_OF_SPACES-1];

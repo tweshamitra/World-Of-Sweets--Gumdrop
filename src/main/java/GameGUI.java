@@ -318,21 +318,21 @@ public class GameGUI {
 		boardPanel = new JBoardPanel();
 		
 		// Needed to add the mouselistener to the instance of the jboardpanel otherwise click events registered numerous times
-		boardPanel.addMouseListener(new MouseAdapter(){
-				@Override
-				public void mouseClicked(MouseEvent e){
-					for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
-						Space sp = theGame.gameBoard.gameSpaces[i];
-						int xy[] = new int[2];
-						if(sp.wasClicked(e)){
-							xy = sp.nextFreeSpace(theGame.getCurPlayerNum());
+		// boardPanel.addMouseListener(new MouseAdapter(){
+				// @Override
+				// public void mouseClicked(MouseEvent e){
+					// for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
+						// Space sp = theGame.gameBoard.gameSpaces[i];
+						// int xy[] = new int[2];
+						// if(sp.wasClicked(e)){
+							// xy = sp.nextFreeSpace(theGame.getCurPlayerNum());
 							// System.out.println("PIn: " + sp.getPIndex() + " x: " + xy[0] + " y: " + xy[1] + " label: " + sp.getLabel());
-							theGame.moveCurPlayer(xy, sp);
-						}
-					}
+							// theGame.moveCurPlayer(xy, sp);
+						// }
+					// }
 					
-				}
-			});
+				// }
+			// });
 			
 		boardPanel.setBackground(Color.BLUE);
 		boardPanel.setPreferredSize(new Dimension(800, 615));
@@ -360,9 +360,12 @@ public class GameGUI {
 					theGame.players[i].updateLocation(xy, startSpace);
 					g.drawImage(getImage(colors[i]+"token.png"), xy[0], xy[1], null);
 				}
+				
+				
 				firstRun = false;
 			}
-			
+			Space middleSpace = getSpaceAt(16);
+			drawSpace(g, middleSpace);
 			drawPlayers(g);
 			
 			
@@ -370,7 +373,8 @@ public class GameGUI {
 		
 		public void drawSpace(Graphics g, Space s){
 			Graphics2D g2d = (Graphics2D) g;
-			g2d.draw(s.getSpace());
+			g2d.draw(s.getHorizontal());
+			g2d.draw(s.getVertical());
 		}
 		
 		public Space getSpaceAt(int s){
@@ -575,7 +579,7 @@ public class GameGUI {
 				theGame.shuffleDeck();
 				updateTicker("The deck was shuffled!", "black");
 				updateDeckImage(theGame.getNumCardsLeft());
-				theGame.pause(400);		
+				theGame.pause(1000);		
 				drawnCard = theGame.drawCard();				
 			}
 			if(drawnCard.special == false)
@@ -584,12 +588,11 @@ public class GameGUI {
 				String doub = drawnCard.isdouble ? "double" : "single";
 				showDrawnCard(color, doub);
 				updateTicker(curPlayer + " drew a " + doub + " " + color + " card!", playerColor);
+				theGame.pause(1000);
 				//TODO:  Addison:  more logic will be needed here to determine where the player is moving to
 				Space nextValid = theGame.getNextValidSpace(color, doub);
-				System.out.println("Next valid: " + nextValid.getLabel());
+				theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
 				
-				
-				theGame.pause(2000);
 				String oor2 = drawnCard.isdouble ? "two" : "one";
 				String plur = drawnCard.isdouble ? "s" : "";
 				updateTicker(curPlayer + " moved " + oor2 + " " + color + " space" + plur + "!", playerColor);
@@ -614,13 +617,13 @@ public class GameGUI {
 					//the card is a middle
 					case 2: showSpecialCard(drawnCard.specText);
 							updateTicker(curPlayer + " drew a middle card!", playerColor);
-							theGame.pause(2000);
+							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							Space middleSpace = theGame.gameBoard.gameSpaces[16];
 							theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
 							
 							updateTicker(curPlayer + " was sent to the middle of the board!", playerColor);
-							theGame.pause(2000);
+							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
 							updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
