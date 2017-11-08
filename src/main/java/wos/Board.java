@@ -1,5 +1,9 @@
+package wos;
+
 import java.util.*;
 import java.io.*;
+import java.net.*;
+import wos.*;
 
 public class Board{
 	final int NUMBER_OF_SPACES = 32;
@@ -8,16 +12,23 @@ public class Board{
 		//TODO: Addison:  add the logic however necessary, don't forget to update the size of this array
 		File file  = new File("temp.txt");
 		Scanner in = new Scanner(System.in);
+		URL url = Board.class.getResource("SpaceCoordinates.txt");
+		
+		try {
+		  file = new File(url.toURI());
+		} catch(URISyntaxException e) {
+		  file = new File(url.getPath());
+		}
 		
 		
-		try{
+		/*try{
 			file = new File("./SpaceCoordinates.txt");
 			in = new Scanner(file);
 		}
 		catch(FileNotFoundException e){
 			System.out.println("Space Coordinates file not found!");
 			System.exit(1);
-		}
+		}*/
 		
 		// Cycle through all coordinates and generate Spaces at those coordinates
 		// For spaces that aren't the start or end, repeatedly assign colors in the order r->y->b->g->o

@@ -4,10 +4,10 @@ import static org.junit.Assert.*;
 public class DeckTest{
     Deck test = new Deck();
     
-    //This tests the size of the deck. The size should be 60
+    //This tests the size of the deck. The size should be 68
     @Test
     public void checkSize(){
-        assertEquals(test.sizeOfDeck(), 60);
+        assertEquals(test.sizeOfDeck(), 68);
     }
     
     /** This tests what is returned when drawCard is called. 
