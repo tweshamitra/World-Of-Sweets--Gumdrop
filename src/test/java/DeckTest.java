@@ -7,7 +7,7 @@ public class DeckTest{
     //This tests the size of the deck. The size should be 60
     @Test
     public void checkSize(){
-        assertEquals(test.sizeOfDeck(), 60);
+        assertEquals(test.sizeOfDeck(), 68);
     }
     
     /** This tests what is returned when drawCard is called. 
