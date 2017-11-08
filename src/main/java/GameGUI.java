@@ -448,9 +448,15 @@ public class GameGUI {
 		JPanel winnerPanel = new JPanel(new GridLayout(2,1));
 		JPanel actions = new JPanel(new FlowLayout());
 		actions.setBackground(Color.YELLOW);
-
-		JButton playAgain = new JButton("Play again!");
-		JButton quit = new JButton("Quit");
+		
+		JButton playAgain = new JButton();
+		playAgain.setIcon(new ImageIcon(getImage("PlaySign.png")));
+		playAgain.setBackground(Color.YELLOW);
+		playAgain.setBorder(null);
+		JButton quit = new JButton();
+		quit.setIcon(new ImageIcon(getImage("QuitSign.png")));
+		quit.setBackground(Color.YELLOW);
+		quit.setBorder(null);
 		ActionListener quitListener = new QuitListener();
 		ActionListener playAgainButtonListener = new PlayAgainListener(pane);
 		playAgain.addActionListener(playAgainButtonListener);
@@ -476,6 +482,7 @@ public class GameGUI {
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
+			frame.dispose();
 			createBoardGUI();
 		}
 	}
