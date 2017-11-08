@@ -8,13 +8,15 @@ import java.io.*;
 import javax.imageio.*;
 import java.util.*;
 import wos.*;
+import java.time.Duration;
 
 public class GameGUI {
 	private final int HEIGHT = 695;
     private final int WIDTH = 1050;
 	private JLabel ticker = new JLabel("");
+	private JLabel timer = new JLabel("");
 	private JLabel drawnCardLabel = new JLabel("", SwingConstants.CENTER);
-	private JPanel tickerPanel, deckPanel, drawACardPanel;
+	private JPanel tickerPanel, deckPanel, drawACardPanel, timeTick, timerPanel;
 	private JBoardPanel boardPanel;
 	private JFrame frame;
 	private JWelcomePanel displayCardPanel;
@@ -23,6 +25,7 @@ public class GameGUI {
     private final String html2 = "px'>";
 	private Game theGame;
 	private boolean canDraw;
+	private volatile boolean gamePlaying = true;
 	private ImageIcon drawnCard;
 	private String[] colors = {"red", "blue", "yellow", "green"};
 	private JTextField text_1 = new JTextField("Player 1");
@@ -250,6 +253,43 @@ public class GameGUI {
 		ticker.setText(text);
 		ticker.revalidate();
 	}
+	
+	public void updateTimer(Duration time)
+	{
+		String toPrint = "";
+		int days = (int) Math.floor((double)time.toDays());
+		if(days > 0)
+		{
+			if(days < 10)
+			{
+				toPrint = toPrint + "0";
+			}
+			toPrint = toPrint + Integer.toString(days) + ":";
+		}
+		int hours = (int) Math.floor((double)time.toHours())%24;
+		if(hours > 0)
+		{
+			if(hours < 10)
+			{
+				toPrint = toPrint + "0";
+			}
+			toPrint = toPrint + Integer.toString(hours) + ":";
+		}
+		int minutes =  (int) Math.floor((double)time.toMinutes())%60;
+		if(minutes < 10)
+		{
+			toPrint = toPrint + "0";
+		}
+		toPrint = toPrint + Integer.toString(minutes) + ":";
+		int seconds = (int) Math.floor((double)time.getSeconds())%60;
+		if(seconds < 10)
+		{
+			toPrint = toPrint + "0";
+		}
+		toPrint = toPrint + Integer.toString(seconds);
+		timer.setText(toPrint);
+		timer.revalidate();
+	}
 
     private void addBoardComponentsToPane(Container pane) {
 
@@ -259,17 +299,35 @@ public class GameGUI {
 		pane.setLayout(new BorderLayout());
 		
 		//INITIALIZING THE TICKER
+		
+		timeTick = new JPanel(new BorderLayout());
+		timeTick.setPreferredSize(new Dimension(1050, 60));
+		
+		timerPanel = new JPanel(new FlowLayout());
+		
+		timerPanel.setBackground(Color.PINK);
+		timerPanel.setPreferredSize(new Dimension(250, 60));
+		
+		timer.setFont(new Font("TimesRoman", Font.ITALIC, 48));
+		timer.setHorizontalAlignment(JLabel.CENTER);
+		timer.setForeground(Color.BLACK);
+		timerPanel.add(timer);
 
-		tickerPanel = new JPanel(new FlowLayout());;
+		tickerPanel = new JPanel(new FlowLayout());
 		tickerPanel.setBackground(Color.PINK);
-		tickerPanel.setPreferredSize(new Dimension(1050, 60));
+		tickerPanel.setPreferredSize(new Dimension(800, 60));
 	
 		ticker.setFont(new Font("TimesRoman", Font.ITALIC, 48));
 		ticker.setHorizontalAlignment(JLabel.CENTER);
 		updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
-		
 		tickerPanel.add(ticker);
-		pane.add(tickerPanel, BorderLayout.PAGE_START);
+		
+		timeTick.add(tickerPanel, BorderLayout.CENTER);
+		timeTick.add(timerPanel, BorderLayout.LINE_START);
+		
+		
+		
+		pane.add(timeTick, BorderLayout.PAGE_START);
 		
 		//INITIALIZING THE DECK PANEL
 		
@@ -320,6 +378,7 @@ public class GameGUI {
 		
 		pane.add(boardPanel, BorderLayout.CENTER);
 
+		(new TimerThread()).execute();
     }
 
 	//THIS CLASS HANDLES THE CUSTOM ANIMATION FOR THE GAME BOARD AND TOKENS
@@ -635,6 +694,7 @@ public class GameGUI {
 				{
 					updateTicker("Game over!", "BLACK");
 					won = true;
+					gamePlaying = false;
 					createWinScreen(theGame.players[i]); //, this.pane);
 				}
 			}
@@ -644,5 +704,25 @@ public class GameGUI {
 			}
 		   //shuffleCards.setEnabled(true);
        }
-   }
+	}
+	   
+	class TimerThread extends SwingWorker<Void, Object> {
+	   @Override
+		public Void doInBackground() {
+			Duration timePassed = Duration.ZERO;
+			while(gamePlaying)
+			{
+				updateTimer(timePassed);
+				try{
+					Thread.sleep(1000);
+				}catch(InterruptedException e){  }
+				timePassed = timePassed.plusSeconds(1);
+			}
+
+			return null;
+		}
+	}
+	   
+
+   
 }
