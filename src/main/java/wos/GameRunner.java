@@ -1,3 +1,7 @@
+package wos;
+
+import wos.*;
+
 public class GameRunner{
 	public static void main(String[] args) {
         //Schedule a job for the event-dispatching thread:

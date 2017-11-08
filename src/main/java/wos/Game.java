@@ -1,3 +1,7 @@
+package wos;
+
+import wos.*;
+
 public class Game{
 	Board gameBoard;
 	Player[] players;

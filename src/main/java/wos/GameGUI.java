@@ -1,3 +1,5 @@
+package wos;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -5,6 +7,7 @@ import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
 import java.util.*;
+import wos.*;
 
 public class GameGUI {
 	private final int HEIGHT = 695;
@@ -334,7 +337,7 @@ public class GameGUI {
 			if(firstRun){
 				Space startSpace = getSpaceAt(0);
 				for(int i = 0; i < numPlayers; i++){
-					int[] xy = startSpace.nextFreeSpace(i);
+					xy = startSpace.nextFreeSpace(i);
 					theGame.players[i].updateLocation(xy, startSpace);
 					g.drawImage(getImage(colors[i]+"token.png"), xy[0], xy[1], null);
 				}
@@ -482,8 +485,9 @@ public class GameGUI {
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
-			frame.dispose();
-			createBoardGUI();
+			//frame.dispose();
+			//createBoardGUI();
+			drawStartScreen(pane);
 		}
 	}
 
@@ -500,7 +504,9 @@ public class GameGUI {
 	{
 		BufferedImage img = null;
 		try {
-			img = ImageIO.read(new File("../img/" + name));
+			img = ImageIO.read(GameGUI.class.getResource(name));
+			//img = ImageIO.read(ClassLoader.getSystemClassLoader().getResource("/" + name));
+			//img = ImageIO.read(new File("../img/" + name));
 		} catch (IOException e) {
 		}
 		return img;

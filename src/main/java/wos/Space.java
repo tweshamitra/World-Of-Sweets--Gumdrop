@@ -1,3 +1,5 @@
+package wos;
+
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.event.*;
@@ -5,6 +7,7 @@ import java.awt.image.*;
 import javax.imageio.*;
 import javax.swing.*;
 import java.util.*;
+import wos.*;
 
 public class Space{
 	Player players[] = new Player[4];

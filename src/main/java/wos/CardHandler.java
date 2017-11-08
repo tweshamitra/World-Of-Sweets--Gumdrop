@@ -1,4 +1,7 @@
+package wos;
+
 import java.util.*;
+import wos.*;
 
 public class CardHandler{
 		

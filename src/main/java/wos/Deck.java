@@ -1,4 +1,7 @@
+package wos;
+
 import java.util.*;
+import wos.*;
 
 public class Deck{
 	ArrayList<Card> thedeck = new ArrayList<Card>();
@@ -31,6 +34,7 @@ public class Deck{
 		}
 		int iterations = 2;
 		Card acard;
+
 		
 		Random rand = new Random();
 		for(int x = 0; x < iterations; x ++)

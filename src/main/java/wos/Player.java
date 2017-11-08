@@ -1,3 +1,7 @@
+package wos;
+
+import wos.*;
+
 public class Player{
 	String name;
 	String color;

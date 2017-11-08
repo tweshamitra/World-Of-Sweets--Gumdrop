@@ -1,30 +1,30 @@
+package wos;
+
 import java.util.*;
 import java.io.*;
+import java.net.*;
+import wos.*;
 
 public class Board{
 	final int NUMBER_OF_SPACES = 32;
 	Space[] gameSpaces = new Space[NUMBER_OF_SPACES];
 	public Board(){
 		//TODO: Addison:  add the logic however necessary, don't forget to update the size of this array
-		File file  = new File("temp.txt");
-		Scanner in = new Scanner(System.in);
 
-		
-		try{
-			file = new File("./SpaceCoordinates.txt");
-			in = new Scanner(file);
-		}
-		catch(FileNotFoundException e){
+		BufferedReader in = new BufferedReader(new InputStreamReader( Board.class.getResourceAsStream("SpaceCoordinates.txt") ) );
+		if ( in == null )
+		{
 			System.out.println("Space Coordinates file not found!");
-			System.exit(0);
+			System.exit(1);
 		}
 		
 		// Cycle through all coordinates and generate Spaces at those coordinates
 		// For spaces that aren't the start or end, repeatedly assign colors in the order r->y->b->g->o
 		int i = 0;
-		while(in.hasNext()){
+		try{
+		while(in.ready()){
 			String line[];
-			String input = in.nextLine();
+			String input = in.readLine();
 			line = input.split(", ");
 			int x1, y1;
 			x1 = Integer.parseInt(line[0]);
@@ -62,5 +62,11 @@ public class Board{
 		}
 		
 	}
+	catch(IOException e)
+	{
+		System.exit(1);
+	}
+	}
+	
 	
 }
