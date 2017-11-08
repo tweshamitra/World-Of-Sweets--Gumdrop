@@ -1,0 +1,9 @@
+Deliverable 2 Movement Writeup
+Addison Beall
+
+To test the movement logic for the tokens, we had to manually play the game and ensure the pieces were moving to the
+correct space corresponding to the card drawn. We used a println to get the expected space to move to and could visually
+confirm that the piece either had or had not moved to that space. Generally the token moved where expected, but when the 
+token was nearing the goal some issues appeared. Sometimes the token wouldn't move to the goal state and could get denied the win.
+After some code fixes this seemed to stop, but has come up intermittenly. I believe it may be due to an Off-by-one error, but 
+further testing needs to be done to confirm this. It will be an issue during our next deliverable.
