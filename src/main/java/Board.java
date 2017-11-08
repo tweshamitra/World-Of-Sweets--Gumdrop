@@ -8,7 +8,7 @@ public class Board{
 		//TODO: Addison:  add the logic however necessary, don't forget to update the size of this array
 		File file  = new File("temp.txt");
 		Scanner in = new Scanner(System.in);
-		
+
 		
 		try{
 			file = new File("./SpaceCoordinates.txt");
@@ -16,7 +16,7 @@ public class Board{
 		}
 		catch(FileNotFoundException e){
 			System.out.println("Space Coordinates file not found!");
-			System.exit(1);
+			System.exit(0);
 		}
 		
 		// Cycle through all coordinates and generate Spaces at those coordinates
