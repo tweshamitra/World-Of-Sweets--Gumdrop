@@ -1,5 +1,6 @@
 import org.junit.Test;
 import static org.junit.Assert.*;
+import wos.*;
 
 public class DeckTest{
     Deck test = new Deck();

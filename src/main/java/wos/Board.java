@@ -10,7 +10,7 @@ public class Board{
 	Space[] gameSpaces = new Space[NUMBER_OF_SPACES];
 	public Board(){
 		//TODO: Addison:  add the logic however necessary, don't forget to update the size of this array
-		File file  = new File("temp.txt");
+		/*File file  = new File("temp.txt");
 		Scanner in = new Scanner(System.in);
 		URL url = Board.class.getResource("SpaceCoordinates.txt");
 		
@@ -18,7 +18,15 @@ public class Board{
 		  file = new File(url.toURI());
 		} catch(URISyntaxException e) {
 		  file = new File(url.getPath());
+		}*/
+		
+		BufferedReader in = new BufferedReader(new InputStreamReader( Board.class.getResourceAsStream("SpaceCoordinates.txt") ) );
+		if ( in == null )
+		{
+			System.out.println("Space Coordinates file not found!");
+			System.exit(1);
 		}
+		
 		
 		
 		/*try{
@@ -33,9 +41,10 @@ public class Board{
 		// Cycle through all coordinates and generate Spaces at those coordinates
 		// For spaces that aren't the start or end, repeatedly assign colors in the order r->y->b->g->o
 		int i = 0;
-		while(in.hasNext()){
+		try{
+		while(in.ready()){
 			String line[];
-			String input = in.nextLine();
+			String input = in.readLine();
 			line = input.split(", ");
 			int x1, y1;
 			x1 = Integer.parseInt(line[0]);
@@ -73,5 +82,11 @@ public class Board{
 		}
 		
 	}
+	catch(IOException e)
+	{
+		System.exit(1);
+	}
+	}
+	
 	
 }

@@ -485,8 +485,9 @@ public class GameGUI {
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
-			frame.dispose();
-			createBoardGUI();
+			//frame.dispose();
+			//createBoardGUI();
+			drawStartScreen(pane);
 		}
 	}
 
