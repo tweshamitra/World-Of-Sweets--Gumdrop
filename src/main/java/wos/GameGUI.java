@@ -21,11 +21,9 @@ public class GameGUI {
 	private JFrame frame;
 	private JWelcomePanel displayCardPanel;
 	private JButton deckOfCards, shuffleCards;
-	private final String html1 = "<html><body style='width: ";
-    private final String html2 = "px'>";
 	private Game theGame;
-	private boolean canDraw;
-	private volatile boolean gamePlaying = true;
+	private volatile boolean gameOver;
+	private volatile boolean gamePlaying = false;
 	private ImageIcon drawnCard;
 	private String[] colors = {"red", "blue", "yellow", "green"};
 	private JTextField text_1 = new JTextField("Player 1");
@@ -38,6 +36,7 @@ public class GameGUI {
 	private int[] nums = {2,3,4};
 	private ArrayList<String> playerNames = new ArrayList<String>();
 	private JComboBox num_players_menu = new JComboBox();
+	private Font font, font40, font48;
 
 	public GameGUI()
 	{
@@ -143,6 +142,7 @@ public class GameGUI {
 				text_1.setVisible(true);
 				text_2.setVisible(true);
 				text_3.setVisible(false);
+				text_4.setVisible(false);	
 			} else if (numPlayers == 3){
 				text_1.setVisible(true);
 				text_2.setVisible(true);
@@ -178,6 +178,7 @@ public class GameGUI {
 		for(int i = 0; i < numPlayers; i++){
 			theGame.setPlayer(i, playerNames.get(i), colors[i]);
 		}
+		gameOver = false;
 		addBoardComponentsToPane(pane);
 	}
 	
@@ -249,6 +250,22 @@ public class GameGUI {
 			default:
 					ticker.setForeground(Color.BLACK);
 		}
+		if(text.length() > 55)
+		{
+			ticker.setFont(font.deriveFont(20f));
+		}
+		else if(text.length() > 45)
+		{
+			ticker.setFont(font.deriveFont(30f));
+		}
+		
+		else if(text.length() > 35)
+		{
+			ticker.setFont(font40);
+		}
+
+		else
+			ticker.setFont(font48);
 			
 		ticker.setText(text);
 		ticker.revalidate();
@@ -308,8 +325,9 @@ public class GameGUI {
 		timerPanel.setBackground(Color.PINK);
 		timerPanel.setPreferredSize(new Dimension(250, 60));
 		
-		timer.setFont(new Font("TimesRoman", Font.ITALIC, 48));
+		timer.setFont(font48);
 		timer.setHorizontalAlignment(JLabel.CENTER);
+
 		timer.setForeground(Color.BLACK);
 		timerPanel.add(timer);
 
@@ -317,8 +335,10 @@ public class GameGUI {
 		tickerPanel.setBackground(Color.PINK);
 		tickerPanel.setPreferredSize(new Dimension(800, 60));
 	
-		ticker.setFont(new Font("TimesRoman", Font.ITALIC, 48));
+		ticker.setFont(font48);
 		ticker.setHorizontalAlignment(JLabel.CENTER);
+		ticker.setVerticalAlignment(JLabel.CENTER);
+        ticker.setVerticalTextPosition(JLabel.CENTER);
 		updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 		tickerPanel.add(ticker);
 		
@@ -453,6 +473,15 @@ public class GameGUI {
 		
         frame.setVisible(true);
 		
+		try{
+		InputStream is = GameGUI.class.getResourceAsStream("FORTE.ttf");	
+		font = Font.createFont(Font.TRUETYPE_FONT, is);	
+		font48 = font.deriveFont(48f);
+		font40 = font.deriveFont(40f);
+		}
+		catch(Exception e)
+		{}
+		
 		drawStartScreen(frame.getContentPane());
 
         //Display the window.
@@ -544,8 +573,6 @@ public class GameGUI {
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
-			//frame.dispose();
-			//createBoardGUI();
 			drawStartScreen(pane);
 		}
 	}
@@ -564,8 +591,6 @@ public class GameGUI {
 		BufferedImage img = null;
 		try {
 			img = ImageIO.read(GameGUI.class.getResource(name));
-			//img = ImageIO.read(ClassLoader.getSystemClassLoader().getResource("/" + name));
-			//img = ImageIO.read(new File("../img/" + name));
 		} catch (IOException e) {
 		}
 		return img;
@@ -580,43 +605,19 @@ public class GameGUI {
 		// Every time we click the button, it will draw a card and take a turn
 
 		public void actionPerformed(ActionEvent e) {
-				//shuffleCards.setEnabled(false);
 				deckOfCards.setEnabled(false);
 				(new GameLogicThread()).execute();
 
 		}
 		
 	}
-	
-	//THE WORKER FOR THE SHUFFLE CARDS LOGIC
-	class ShuffleLogicThread extends SwingWorker<Void, Object> {
-       @Override
-       public Void doInBackground() {
-           	boolean shuf = theGame.shuffleDeck();
-			if(shuf)
-			{
-				updateTicker("The deck was shuffled!", "black");
-				updateDeckImage(theGame.getNumCardsLeft());
-			}
-			else
-			{
-				updateTicker("The deck does not need shuffled!", "black");
-			}
-			return null;
-       }
-
-       @Override
-       protected void done() {
-           //shuffleCards.setEnabled(true);
-		   deckOfCards.setEnabled(true);
-       }
-   }
    
 	
 	//THE WORKER FOR THE DRAW CARD LOGIC
 	class GameLogicThread extends SwingWorker<Void, Object> {
        @Override
        public Void doInBackground() {
+			gamePlaying = true;
            	Card drawnCard = theGame.drawCard();
 			updateDeckImage(theGame.getNumCardsLeft());
 			String curPlayer = theGame.getCurPlayerName();
@@ -661,7 +662,7 @@ public class GameGUI {
 							removeDrawnCard();
 							//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 							break;
-					//the card is a middle
+					/*  I'm leaving this code in here since the other cards will probably be very similar to implement.
 					case 2: showSpecialCard(drawnCard.specText);
 							updateTicker(curPlayer + " drew a middle card!", playerColor);
 							theGame.pause(1000);
@@ -674,6 +675,71 @@ public class GameGUI {
 							theGame.incrementTurn();
 							removeDrawnCard();
 							//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
+							break; */
+					//Chocolate Falls
+					case 2: showSpecialCard(drawnCard.specText);
+							updateTicker(curPlayer + " drew a chocolate card!", playerColor);
+							theGame.pause(1000);
+							//TODO:  Addison:  incorporate the movement logic
+							//Space middleSpace = theGame.gameBoard.gameSpaces[16];
+							//theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+							
+							updateTicker(curPlayer + " was sent to Chocolate Falls!", playerColor);
+							theGame.pause(1000);
+							theGame.incrementTurn();
+							removeDrawnCard();
+							break;
+					//Lollipop Mountain
+					case 3: showSpecialCard(drawnCard.specText);
+							updateTicker(curPlayer + " drew a lollipop card!", playerColor);
+							theGame.pause(1000);
+							//TODO:  Addison:  incorporate the movement logic
+							//Space middleSpace = theGame.gameBoard.gameSpaces[16];
+							//theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+							
+							updateTicker(curPlayer + " was sent to Lollipop Mountain!", playerColor);
+							theGame.pause(1000);
+							theGame.incrementTurn();
+							removeDrawnCard();
+							break;
+					//Frosted Forest
+					case 4: showSpecialCard(drawnCard.specText);
+							updateTicker(curPlayer + " drew a frosted card!", playerColor);
+							theGame.pause(1000);
+							//TODO:  Addison:  incorporate the movement logic
+							//Space middleSpace = theGame.gameBoard.gameSpaces[16];
+							//theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+							
+							updateTicker(curPlayer + " was sent to the Frosted Forest!", playerColor);
+							theGame.pause(1000);
+							theGame.incrementTurn();
+							removeDrawnCard();
+							break;
+					//Peanut Brittle Bridge
+					case 5: showSpecialCard(drawnCard.specText);
+							updateTicker(curPlayer + " drew a brittle card!", playerColor);
+							theGame.pause(1000);
+							//TODO:  Addison:  incorporate the movement logic
+							//Space middleSpace = theGame.gameBoard.gameSpaces[16];
+							//theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+							
+							updateTicker(curPlayer + " was sent to Brittle Bridge!", playerColor);
+							theGame.pause(1000);
+							theGame.incrementTurn();
+							removeDrawnCard();
+							break;
+					//Something Castle
+					case 6: showSpecialCard(drawnCard.specText);
+							updateTicker(curPlayer + " drew a [placeholder] card!", playerColor);
+							theGame.pause(1000);
+							//TODO:  Addison:  incorporate the movement logic
+							Space middleSpace = theGame.gameBoard.gameSpaces[16];
+							theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+							
+							updateTicker(curPlayer + " was sent to [placeholder] Castle!", playerColor);
+							theGame.pause(1000);
+							theGame.incrementTurn();
+							removeDrawnCard();
 							break;
 					//unknown card exception, game broke
 					default: //keep going i guess
@@ -695,6 +761,7 @@ public class GameGUI {
 					updateTicker("Game over!", "BLACK");
 					won = true;
 					gamePlaying = false;
+					gameOver = true;
 					createWinScreen(theGame.players[i]); //, this.pane);
 				}
 			}
@@ -702,23 +769,27 @@ public class GameGUI {
 				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 				deckOfCards.setEnabled(true);
 			}
-		   //shuffleCards.setEnabled(true);
        }
 	}
 	   
 	class TimerThread extends SwingWorker<Void, Object> {
 	   @Override
 		public Void doInBackground() {
-			Duration timePassed = Duration.ZERO;
-			while(gamePlaying)
-			{
+			while(!gameOver){
+				Duration timePassed = Duration.ZERO;
 				updateTimer(timePassed);
+				while(gamePlaying)
+				{
+					updateTimer(timePassed);
+					try{
+						Thread.sleep(1000);
+					}catch(InterruptedException e){  }
+					timePassed = timePassed.plusSeconds(1);
+				}
 				try{
-					Thread.sleep(1000);
+					Thread.sleep(100);
 				}catch(InterruptedException e){  }
-				timePassed = timePassed.plusSeconds(1);
 			}
-
 			return null;
 		}
 	}
