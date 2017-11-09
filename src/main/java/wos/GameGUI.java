@@ -37,6 +37,7 @@ public class GameGUI {
 	private ArrayList<String> playerNames = new ArrayList<String>();
 	private JComboBox num_players_menu = new JComboBox();
 	private Font font, font40, font48;
+	private Date gameStarted;
 
 	public GameGUI()
 	{
@@ -271,10 +272,14 @@ public class GameGUI {
 		ticker.revalidate();
 	}
 	
-	public void updateTimer(Duration time)
+	public void updateTimer(Date start)
 	{
+		Date current = new Date();
+		int seconds = (int) (current.getTime()-start.getTime())/1000;
+		int minutes = seconds / 60;
+		int hours = minutes / 60;
+		int days = hours / 24;
 		String toPrint = "";
-		int days = (int) Math.floor((double)time.toDays());
 		if(days > 0)
 		{
 			if(days < 10)
@@ -283,7 +288,7 @@ public class GameGUI {
 			}
 			toPrint = toPrint + Integer.toString(days) + ":";
 		}
-		int hours = (int) Math.floor((double)time.toHours())%24;
+		hours =  hours%24;
 		if(hours > 0)
 		{
 			if(hours < 10)
@@ -292,13 +297,13 @@ public class GameGUI {
 			}
 			toPrint = toPrint + Integer.toString(hours) + ":";
 		}
-		int minutes =  (int) Math.floor((double)time.toMinutes())%60;
+		minutes =  minutes%60;
 		if(minutes < 10)
 		{
 			toPrint = toPrint + "0";
 		}
 		toPrint = toPrint + Integer.toString(minutes) + ":";
-		int seconds = (int) Math.floor((double)time.getSeconds())%60;
+		seconds = seconds%60;
 		if(seconds < 10)
 		{
 			toPrint = toPrint + "0";
@@ -776,15 +781,14 @@ public class GameGUI {
 	   @Override
 		public Void doInBackground() {
 			while(!gameOver){
-				Duration timePassed = Duration.ZERO;
-				updateTimer(timePassed);
+				gameStarted = new Date();
+				updateTimer(gameStarted);
 				while(gamePlaying)
 				{
-					updateTimer(timePassed);
 					try{
 						Thread.sleep(1000);
 					}catch(InterruptedException e){  }
-					timePassed = timePassed.plusSeconds(1);
+					updateTimer(gameStarted);
 				}
 				try{
 					Thread.sleep(100);
