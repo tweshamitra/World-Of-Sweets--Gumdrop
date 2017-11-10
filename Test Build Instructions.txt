@@ -1,0 +1,15 @@
+TO BUILD:  gradle -PmainClass=wos/GUITest build
+
+TO RUN NORMALLY:  gradle -PmainClass=wos/GUITest run
+OR:  gradle -PmainClass=wos/GameRunner execute
+
+TO TEST THE WIN CONDITIONS:  gradle -PmainClass=wos/GUITest execute
+*any number of new tests can be added by coding them, and then replacing GUITest above with the correct class name.
+
+
+
+This branch includes a test to make sure all variations of the final stretch will compute as a win in the game's logic.  
+
+However, the ability to switch between running the game normally and running the test requires modifying gradle.build.  The instructions to run are included above.
+
+Even if you want to run the game normally, you need to include "-PmainClass=***" to satify the new execute command.  I would recommend deleting this change for submission, unless you want to submit these as manual tests.  

@@ -797,7 +797,162 @@ public class GameGUI {
 			return null;
 		}
 	}
+	
+	void Test()
+	{
+		resetBoard();
+		(new TestThread()).execute();
+	}
+	
+	void resetBoard()
+	{
+		theGame = new Game(1);
+		numPlayers = 1;
+		theGame.setPlayer(0, "TestPlayer", "orange");
+		
+		frame = new JFrame("World of Sweets!");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		//Set up the content pane.
+		
+		frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+		frame.setMinimumSize(new Dimension(WIDTH, HEIGHT));
+		frame.setResizable(false);
+		
+		frame.setVisible(true);
+		
+		try{
+		InputStream is = GameGUI.class.getResourceAsStream("FORTE.ttf");	
+		font = Font.createFont(Font.TRUETYPE_FONT, is);	
+		font48 = font.deriveFont(48f);
+		font40 = font.deriveFont(40f);
+		}
+		catch(Exception e)
+		{}
+		
+		addBoardComponentsToPane(frame.getContentPane());
+		updateTicker("Testing...", "black");
+		deckOfCards.setEnabled(false);
+	}
 	   
+	class TestThread extends SwingWorker<Void, Object> {
+	   @Override
+		public Void doInBackground() {
+			try{
+			String[] colors = {"red", "yellow", "blue", "green", "orange"};
+			String[] fives = {"red-5", "yellow-5", "blue-5", "green-5", "orange-5"};
+			int[] fivenum = {21, 22, 23, 24, 25};
+			String[] sixes = {"red-6", "yellow-6", "blue-6", "green-6", "orange-6"};
+			int[] sixnum = {26, 27, 28, 29, 30};
+			Space nextValid, middleSpace;
+			
+			theGame.pause(2000);
+			
+			//testing the fives with doubles
+			for( int x = 0; x < 5; x ++)
+			{
+				for( int y = 0; y <= x; y ++)
+				{
+					updateTicker("Moving TEST to " + fives[x], "black");
+					
+					middleSpace = theGame.gameBoard.gameSpaces[fivenum[x]];
+					theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+					
+					theGame.pause(500);
+					
+					updateTicker("Testing a double " + colors[y], "black");
+					
+					nextValid = theGame.getNextValidSpace(colors[y], "double");
+					theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
+					
+					theGame.pause(500);
+					
+					if(theGame.players[0].checkWin())
+					{
+						updateTicker("Test passed.", "black");
+						theGame.pause(200);
+					}
+					else
+					{
+						updateTicker("TEST FAILED", "red");
+						System.out.println(fives[x] + " drawing a double " + colors[y] + " DOES NOT WIN THE GAME.");
+						theGame.pause(1200);
+					}
+				}
+			}
+			
+			//testing the sixes with doubles
+			for( int x = 0; x < 5; x ++)
+			{
+				for( int y = 0; y <= x; y ++)
+				{
+					updateTicker("Moving TEST to " + sixes[x], "black");
+					
+					middleSpace = theGame.gameBoard.gameSpaces[sixnum[x]];
+					theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+					
+					theGame.pause(500);
+					
+					updateTicker("Testing a double " + colors[y], "black");
+					
+					nextValid = theGame.getNextValidSpace(colors[y], "double");
+					theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
+					
+					theGame.pause(500);
+					
+					if(theGame.players[0].checkWin())
+					{
+						updateTicker("Test passed.", "black");
+						theGame.pause(200);
+					}
+					else
+					{
+						updateTicker("TEST FAILED", "red");
+						System.out.println(sixes[x] + " drawing a double " + colors[y] + " DOES NOT WIN THE GAME.");
+						theGame.pause(1200);
+					}
+				}
+			}
+			//testing the sixes with singles
+			for( int x = 0; x < 5; x ++)
+			{
+				for( int y = 0; y <= x; y ++)
+				{
+					updateTicker("Moving TEST to " + sixes[x], "black");
+					
+					middleSpace = theGame.gameBoard.gameSpaces[sixnum[x]];
+					theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+					
+					theGame.pause(500);
+					
+					updateTicker("Testing a single " + colors[y], "black");
+					
+					nextValid = theGame.getNextValidSpace(colors[y], "single");
+					theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
+					
+					theGame.pause(500);
+					
+					if(theGame.players[0].checkWin())
+					{
+						updateTicker("Test passed.", "black");
+						theGame.pause(200);
+					}
+					else
+					{
+						updateTicker("TEST FAILED", "red");
+						System.out.println(sixes[x] + " drawing a single " + colors[y] + " DOES NOT WIN THE GAME.");
+						theGame.pause(1200);
+					}
+				}
+			}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			
+			
+			return null;
+		}
+	}
 
    
 }

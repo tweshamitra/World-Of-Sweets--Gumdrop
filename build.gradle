@@ -18,3 +18,8 @@ run {
 	} catch (Exception ex) {
 	}
 }
+
+task execute(type:JavaExec) {
+   main = mainClass
+   classpath = sourceSets.main.runtimeClasspath
+}
