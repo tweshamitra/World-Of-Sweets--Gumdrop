@@ -20,6 +20,12 @@ run {
 }
 
 task execute(type:JavaExec) {
-   main = mainClass
+   if (!project.hasProperty("mainClass")) {
+      main = "wos.GameRunner"
+   }
+   else{
+      main = mainClass
+   }
    classpath = sourceSets.main.runtimeClasspath
+   
 }

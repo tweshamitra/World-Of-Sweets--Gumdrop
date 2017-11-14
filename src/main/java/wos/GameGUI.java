@@ -21,9 +21,9 @@ public class GameGUI {
 	private JFrame frame;
 	private JWelcomePanel displayCardPanel;
 	private JButton deckOfCards, shuffleCards;
-	private Game theGame;
-	private volatile boolean gameOver;
-	private volatile boolean gamePlaying = false;
+	Game theGame;
+	volatile boolean gameOver;
+	volatile boolean gamePlaying = false;
 	private ImageIcon drawnCard;
 	private String[] colors = {"red", "blue", "yellow", "green"};
 	private JTextField text_1 = new JTextField("Player 1");
@@ -289,7 +289,7 @@ public class GameGUI {
 			toPrint = toPrint + Integer.toString(days) + ":";
 		}
 		hours =  hours%24;
-		if(hours > 0)
+		if(hours > 0 || days > 0)
 		{
 			if(hours < 10)
 			{
@@ -798,13 +798,9 @@ public class GameGUI {
 		}
 	}
 	
-	void Test()
-	{
-		resetBoard();
-		(new TestThread()).execute();
-	}
-	
-	void resetBoard()
+	//Resets the board for testing purposes.
+	//Creates a game of one player and disables the card drawing function
+	void testResetBoard()
 	{
 		theGame = new Game(1);
 		numPlayers = 1;
@@ -833,125 +829,6 @@ public class GameGUI {
 		addBoardComponentsToPane(frame.getContentPane());
 		updateTicker("Testing...", "black");
 		deckOfCards.setEnabled(false);
-	}
-	   
-	class TestThread extends SwingWorker<Void, Object> {
-	   @Override
-		public Void doInBackground() {
-			try{
-			String[] colors = {"red", "yellow", "blue", "green", "orange"};
-			String[] fives = {"red-5", "yellow-5", "blue-5", "green-5", "orange-5"};
-			int[] fivenum = {21, 22, 23, 24, 25};
-			String[] sixes = {"red-6", "yellow-6", "blue-6", "green-6", "orange-6"};
-			int[] sixnum = {26, 27, 28, 29, 30};
-			Space nextValid, middleSpace;
-			
-			theGame.pause(2000);
-			
-			//testing the fives with doubles
-			for( int x = 0; x < 5; x ++)
-			{
-				for( int y = 0; y <= x; y ++)
-				{
-					updateTicker("Moving TEST to " + fives[x], "black");
-					
-					middleSpace = theGame.gameBoard.gameSpaces[fivenum[x]];
-					theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
-					
-					theGame.pause(500);
-					
-					updateTicker("Testing a double " + colors[y], "black");
-					
-					nextValid = theGame.getNextValidSpace(colors[y], "double");
-					theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
-					
-					theGame.pause(500);
-					
-					if(theGame.players[0].checkWin())
-					{
-						updateTicker("Test passed.", "black");
-						theGame.pause(200);
-					}
-					else
-					{
-						updateTicker("TEST FAILED", "red");
-						System.out.println(fives[x] + " drawing a double " + colors[y] + " DOES NOT WIN THE GAME.");
-						theGame.pause(1200);
-					}
-				}
-			}
-			
-			//testing the sixes with doubles
-			for( int x = 0; x < 5; x ++)
-			{
-				for( int y = 0; y <= x; y ++)
-				{
-					updateTicker("Moving TEST to " + sixes[x], "black");
-					
-					middleSpace = theGame.gameBoard.gameSpaces[sixnum[x]];
-					theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
-					
-					theGame.pause(500);
-					
-					updateTicker("Testing a double " + colors[y], "black");
-					
-					nextValid = theGame.getNextValidSpace(colors[y], "double");
-					theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
-					
-					theGame.pause(500);
-					
-					if(theGame.players[0].checkWin())
-					{
-						updateTicker("Test passed.", "black");
-						theGame.pause(200);
-					}
-					else
-					{
-						updateTicker("TEST FAILED", "red");
-						System.out.println(sixes[x] + " drawing a double " + colors[y] + " DOES NOT WIN THE GAME.");
-						theGame.pause(1200);
-					}
-				}
-			}
-			//testing the sixes with singles
-			for( int x = 0; x < 5; x ++)
-			{
-				for( int y = 0; y <= x; y ++)
-				{
-					updateTicker("Moving TEST to " + sixes[x], "black");
-					
-					middleSpace = theGame.gameBoard.gameSpaces[sixnum[x]];
-					theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
-					
-					theGame.pause(500);
-					
-					updateTicker("Testing a single " + colors[y], "black");
-					
-					nextValid = theGame.getNextValidSpace(colors[y], "single");
-					theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
-					
-					theGame.pause(500);
-					
-					if(theGame.players[0].checkWin())
-					{
-						updateTicker("Test passed.", "black");
-						theGame.pause(200);
-					}
-					else
-					{
-						updateTicker("TEST FAILED", "red");
-						System.out.println(sixes[x] + " drawing a single " + colors[y] + " DOES NOT WIN THE GAME.");
-						theGame.pause(1200);
-					}
-				}
-			}
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-			
-			
-			return null;
-		}
 	}
 
    
