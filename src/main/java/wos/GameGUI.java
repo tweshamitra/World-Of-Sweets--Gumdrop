@@ -9,8 +9,11 @@ import javax.imageio.*;
 import java.util.*;
 import wos.*;
 import java.time.Duration;
+import java.net.URL;
+import javax.sound.sampled.*;
 
-public class GameGUI {
+
+public class GameGUI{
 	private final int HEIGHT = 695;
     private final int WIDTH = 1050;
 	private JLabel ticker = new JLabel("");
@@ -38,6 +41,10 @@ public class GameGUI {
 	private JComboBox num_players_menu = new JComboBox();
 	private Font font, font40, font48;
 	private Date gameStarted;
+	//private File soundFile;
+	//private AudioInputStream in;
+	//private Clip clip;
+
 
 	public GameGUI()
 	{
@@ -46,7 +53,8 @@ public class GameGUI {
 		num_players_menu.addItem(nums[2]);
 	}
 	//THIS FUNCTION WILL DRAW THE START SCREEN
-	private void drawStartScreen(Container pane) {
+	private void drawStartScreen(Container pane) {	
+		playAudio("WorldSweetsTheme.wav", true);
 		pane.removeAll();
 		pane.setLayout(new GridBagLayout());
 		playerNames.clear();
@@ -136,6 +144,7 @@ public class GameGUI {
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e ){
+			playAudio("ButtonClick.wav", false);
 			playNameLabel.setVisible(true);
 			submit.setVisible(true);
 			numPlayers = (int) num_players_menu.getSelectedItem();
@@ -165,6 +174,7 @@ public class GameGUI {
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e ){
+			playAudio("ButtonClick.wav", false);
 			numPlayers = (int) num_players_menu.getSelectedItem();
 			playerNames.add(text_1.getText());
 			playerNames.add(text_2.getText());
@@ -578,6 +588,7 @@ public class GameGUI {
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
+			playAudio("ButtonClick.wav", false);
 			drawStartScreen(pane);
 		}
 	}
@@ -587,10 +598,11 @@ public class GameGUI {
 
 		}
 		public void actionPerformed(ActionEvent e){
+			playAudio("ButtonClick.wav", false);			
 			System.exit(0);
 		}
 	}
-	//A FUNCTION THAT SIMPLIFIES THE GETTING OF IMAGES FROM THE IMG FOLDER
+	//A FUNCTION THAT SIMPLIFIES THE GETTING OF IMAGES FROM THE RESOURCES FOLDER
 	private Image getImage(String name)
 	{
 		BufferedImage img = null;
@@ -601,6 +613,30 @@ public class GameGUI {
 		return img;
 	}
 	
+	private void playAudio(String name, boolean loop){
+		URL url = null;
+		AudioInputStream audioIn = null;
+		Clip clip =  null;
+		try{
+			url = GameGUI.class.getResource(name);
+			audioIn = AudioSystem.getAudioInputStream(url);
+			clip = AudioSystem.getClip();
+			clip.open(audioIn);
+			if (loop){
+				clip.loop(Clip.LOOP_CONTINUOUSLY);
+			}else{
+				clip.start();
+			}
+		} catch(UnsupportedAudioFileException e){
+			System.out.println("UnsupportedAudioFileException");
+		} catch(IOException d){
+			System.out.println("IOException");
+		} catch (LineUnavailableException f){
+			System.out.println("LineUnavailableException");
+		}		
+	}
+	
+	
 	//THE LISTENER FOR THE DRAW CARD BUTTON
 	private class ButtonListener implements ActionListener {
 		Container pane;
@@ -610,6 +646,7 @@ public class GameGUI {
 		// Every time we click the button, it will draw a card and take a turn
 
 		public void actionPerformed(ActionEvent e) {
+				playAudio("CardFlip.wav", false);
 				deckOfCards.setEnabled(false);
 				(new GameLogicThread()).execute();
 
@@ -629,6 +666,7 @@ public class GameGUI {
 			String playerColor = theGame.getCurPlayerColor();
 			if(drawnCard == null)
 			{
+				playAudio("DeckShuffle.wav", false);
 				theGame.shuffleDeck();
 				updateTicker("The deck was shuffled!", "black");
 				updateDeckImage(theGame.getNumCardsLeft());
@@ -709,13 +747,13 @@ public class GameGUI {
 							break;
 					//Frosted Forest
 					case 4: showSpecialCard(drawnCard.specText);
-							updateTicker(curPlayer + " drew a frosted card!", playerColor);
+							updateTicker(curPlayer + " drew a cupcake card!", playerColor);
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							//Space middleSpace = theGame.gameBoard.gameSpaces[16];
 							//theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
 							
-							updateTicker(curPlayer + " was sent to the Frosted Forest!", playerColor);
+							updateTicker(curPlayer + " was sent to the Cupcake Forest!", playerColor);
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
@@ -733,15 +771,15 @@ public class GameGUI {
 							theGame.incrementTurn();
 							removeDrawnCard();
 							break;
-					//Something Castle
+					//Something Lake
 					case 6: showSpecialCard(drawnCard.specText);
-							updateTicker(curPlayer + " drew a [placeholder] card!", playerColor);
+							updateTicker(curPlayer + " drew a licorice card!", playerColor);
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							Space middleSpace = theGame.gameBoard.gameSpaces[16];
 							theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
 							
-							updateTicker(curPlayer + " was sent to [placeholder] Castle!", playerColor);
+							updateTicker(curPlayer + " was sent to Licorice Lake!", playerColor);
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
