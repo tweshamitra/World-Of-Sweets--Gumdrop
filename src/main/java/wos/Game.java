@@ -89,32 +89,37 @@ public class Game{
 			for(int i = 0; i < gameBoard.NUMBER_OF_SPACES; i++){
 				if(gameBoard.gameSpaces[i].getLabel().equals(currentSpace.getLabel())){
 					currentIndex = i;
-					// System.out.println("found current space, index: " + i);
+					//System.out.println("found current space, index: " + i);
 				}
 			}
 		}
 		// Looks ahead at most five spaces to find the next valid space
 		if(doub.equals("single")){
-			for(int j = currentIndex+1; j < Math.min(currentIndex+6, gameBoard.NUMBER_OF_SPACES-1); j++){
-				if(gameBoard.gameSpaces[j].getColor().equals(color)){
-					returnSpace = gameBoard.gameSpaces[j];
-					found = true;
-					// System.out.println("first if, index: " + j);
-				}
-				if(!found){
-					returnSpace = gameBoard.gameSpaces[gameBoard.NUMBER_OF_SPACES-1];
+			if(currentIndex + 1 == gameBoard.NUMBER_OF_SPACES-1){
+				returnSpace = gameBoard.gameSpaces[gameBoard.NUMBER_OF_SPACES-1];
+			}
+			else{
+				for(int j = currentIndex+1; j < Math.min(currentIndex+6, gameBoard.NUMBER_OF_SPACES-1); j++){
+					if(gameBoard.gameSpaces[j].getColor().equals(color)){
+						returnSpace = gameBoard.gameSpaces[j];
+						found = true;
+						//System.out.println("first if, index: " + j);
+					}
+					if(!found){
+						returnSpace = gameBoard.gameSpaces[gameBoard.NUMBER_OF_SPACES-1];
+					}
 				}
 			}
 			
 		}
 		// Starts the search for the next valid space five spaces ahead of current, then will search at most five spaces ahead for the next valid space
 		else if(doub.equals("double")){
-			if(currentIndex < gameBoard.NUMBER_OF_SPACES - 5){
+			if(currentIndex < gameBoard.NUMBER_OF_SPACES - 7){
 				for(int j = currentIndex+6; j < Math.min(currentIndex+11, gameBoard.NUMBER_OF_SPACES-1); j++){
 					if(gameBoard.gameSpaces[j].getColor().equals(color)){
 						returnSpace = gameBoard.gameSpaces[j];
 						found = true;
-						// System.out.println("second if, index: " + j);
+						//System.out.println("second if, index: " + j);
 					}
 					if(!found){
 						returnSpace = gameBoard.gameSpaces[gameBoard.NUMBER_OF_SPACES-1];
@@ -125,6 +130,7 @@ public class Game{
 				returnSpace = gameBoard.gameSpaces[gameBoard.NUMBER_OF_SPACES-1];
 			}
 		}
+		
 		return returnSpace;
 	}
 
