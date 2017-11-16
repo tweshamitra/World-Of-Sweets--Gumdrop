@@ -35,19 +35,19 @@ public class Space{
 		horizontal = new Line2D.Double(x+63/2, y, x+63/2, y+68);
 		vertical = new Line2D.Double(x, y+68/2, x+63, y+68/2);
 		if(start){
-			cir = new Ellipse2D.Double(x, y, 106, 113);
-			width = 106;
-			height = 113;
+			cir = new Ellipse2D.Double(x, y, 60, 60);
+			width = 60;
+			height = 60;
 			label = "start";
 		}else if(goal){
-			cir = new Rectangle2D.Double(x, y, 140, 135);
-			width = 140;
-			height = 145;
+			cir = new Rectangle2D.Double(x, y, 60, 60);
+			width = 60;
+			height = 60;
 			label = "goal";
 		}else{
-			cir = new Ellipse2D.Double(x, y, 63, 68);
-			width = 63;
-			height = 68;
+			cir = new Ellipse2D.Double(x, y, 45, 45);
+			width = 45;
+			height = 45;
 		}
 		
 		if(start){
