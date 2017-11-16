@@ -4,11 +4,13 @@ import wos.*;
 
 public class DeckTest{
     Deck test = new Deck();
+	Card mcard = new Card(3);
+	Card bcard = new Card(5);
     
-    //This tests the size of the deck. The size should be 68
+    //This tests the size of the deck. The size should be 70
     @Test
     public void checkSize(){
-        assertEquals(test.sizeOfDeck(), 68);
+        assertEquals(test.sizeOfDeck(), 70);
     }
     
     /** This tests what is returned when drawCard is called. 
@@ -26,4 +28,21 @@ public class DeckTest{
     public void testIsDeckEmpty(){
         assertFalse(test.isDeckEmpty());
     }
+	
+	/**Testing the new special cards
+	   new Card(3) should be mountain
+	 */
+	@Test
+	public void testMountain(){
+		assertEquals(mcard.specText, "mountain");
+	}
+	
+	/**Testing the new special cards
+	  new Card(5) should be bridge
+	*/
+	@Test
+	public void testBridge(){
+		assertEquals(bcard.specText, "bridge");
+	}
+	
 }

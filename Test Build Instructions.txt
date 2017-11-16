@@ -1,0 +1,6 @@
+gradle -PmainClass=wos/WinTest execute
+gradle -PmainClass=wos/TimerTest1 execute
+gradle -PmainClass=wos/TimerTest2 execute
+
+*any number of new tests can be added by coding them, and then replacing GUITest above with the correct class name.  
+*note that gradle -PmainClass=wos/GameRunner execute or gradle execute will run the game normally, as will gradle run.  

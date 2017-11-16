@@ -52,11 +52,13 @@ public class Deck{
 		{
 			thedeck.add( rand.nextInt(thedeck.size()+1) , new Card(1) );
 		}
-		//add three middles
-		for(int m = 0; m < 3; m ++)
-		{
-			thedeck.add( rand.nextInt(thedeck.size()+1) , new Card(2) );
-		}
+		//add each of the movement cards
+		thedeck.add( rand.nextInt(thedeck.size()+1) , new Card(2) );
+		thedeck.add( rand.nextInt(thedeck.size()+1) , new Card(3) );
+		thedeck.add( rand.nextInt(thedeck.size()+1) , new Card(4) );
+		thedeck.add( rand.nextInt(thedeck.size()+1) , new Card(5) );
+		thedeck.add( rand.nextInt(thedeck.size()+1) , new Card(6) );
+	
 		
 		return true;
 	}
