@@ -6,7 +6,7 @@ import java.net.*;
 import wos.*;
 
 public class Board{
-	final int NUMBER_OF_SPACES = 32;
+	final int NUMBER_OF_SPACES = 73;
 	Space[] gameSpaces = new Space[NUMBER_OF_SPACES];
 	public Board(){
 		//TODO: Addison:  add the logic however necessary, don't forget to update the size of this array
@@ -32,7 +32,7 @@ public class Board{
 			if(i == 0){
 				gameSpaces[i] = new Space(x1, y1, true, false, "start", 0);
 			}
-			else if(i == 31){
+			else if(i == 72){
 				gameSpaces[i] = new Space(x1, y1, false, true, "all", 0);
 			}
 			else{
