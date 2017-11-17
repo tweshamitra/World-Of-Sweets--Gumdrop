@@ -407,6 +407,23 @@ public class GameGUI{
 		
 		boardPanel = new JBoardPanel();
 		
+		// MouseListener to test space coordinates
+		// boardPanel.addMouseListener(new MouseAdapter(){
+				// @Override
+				// public void mouseClicked(MouseEvent e){
+					// for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
+						// Space sp = theGame.gameBoard.gameSpaces[i];
+						// int xy[] = new int[2];
+						// if(sp.wasClicked(e)){
+							// xy = sp.nextFreeSpace(theGame.getCurPlayerNum());
+							// System.out.println("PIn: " + sp.getPIndex() + " x: " + xy[0] + " y: " + xy[1] + " label: " + sp.getLabel());
+							// theGame.moveCurPlayer(xy, sp);
+						// }
+					// }
+					
+				// }
+			// });
+		
 
 		boardPanel.setBackground(Color.BLUE);
 		boardPanel.setPreferredSize(new Dimension(800, 615));
@@ -439,8 +456,12 @@ public class GameGUI{
 				
 				firstRun = false;
 			}
-			Space middleSpace = getSpaceAt(16);
-			drawSpace(g, middleSpace);
+			// Space middleSpace = getSpaceAt(16);
+			// drawSpace(g, middleSpace);
+			for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
+				Space s = getSpaceAt(i);
+				drawSpace(g, s);
+			}
 			drawPlayers(g);
 			
 			
@@ -448,8 +469,9 @@ public class GameGUI{
 		
 		public void drawSpace(Graphics g, Space s){
 			Graphics2D g2d = (Graphics2D) g;
-			g2d.draw(s.getHorizontal());
-			g2d.draw(s.getVertical());
+			// g2d.draw(s.getHorizontal());
+			// g2d.draw(s.getVertical());
+			g2d.draw(s.getSpace());
 		}
 		
 		public Space getSpaceAt(int s){

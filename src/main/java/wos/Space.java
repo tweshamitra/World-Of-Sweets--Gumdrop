@@ -26,29 +26,26 @@ public class Space{
 	Shape horizontal;
 	Shape vertical;
 	
-	public Space(int x, int y, boolean start, boolean goal, String color, int labelInt){
-		this.x = x;
-		this.y = y;
+	public Space(int x1, int x2, int y1, int y2, boolean start, boolean goal, String color, int labelInt){
+		this.x = x1;
+		this.y = y1;
 		this.start = start;
 		this.goal = goal;
 		this.color = color;
+		int width = x2 - x1;
+		int height = y2 - y1;
 		label = color + "-" + labelInt;
 		horizontal = new Line2D.Double(x+63/2, y, x+63/2, y+68);
 		vertical = new Line2D.Double(x, y+68/2, x+63, y+68/2);
 		if(start){
-			cir = new Ellipse2D.Double(x, y, 60, 60);
-			width = 60;
-			height = 60;
+			cir = new Ellipse2D.Double(x, y, width, height);
 			label = "start";
 		}else if(goal){
-			cir = new Rectangle2D.Double(x, y, 60, 60);
-			width = 60;
-			height = 60;
+			cir = new Rectangle2D.Double(x, y, width, height);
 			label = "goal";
-		}else{
-			cir = new Ellipse2D.Double(x, y, 30, 30);
-			width = 30;
-			height = 30;
+		}
+		else{
+			cir = new Ellipse2D.Double(x, y, width, height);
 		}
 		
 		if(start){
