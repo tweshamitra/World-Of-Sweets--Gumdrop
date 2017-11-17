@@ -7,6 +7,7 @@ import java.awt.image.*;
 import javax.imageio.*;
 import javax.swing.*;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import wos.*;
 
 public class Space{
@@ -45,9 +46,9 @@ public class Space{
 			height = 60;
 			label = "goal";
 		}else{
-			cir = new Ellipse2D.Double(x, y, 45, 45);
-			width = 45;
-			height = 45;
+			cir = new Ellipse2D.Double(x, y, 30, 30);
+			width = 30;
+			height = 30;
 		}
 		
 		if(start){
@@ -100,6 +101,11 @@ public class Space{
 			ret = positionD;
 			break;
 		}
+		int[] jitter = new int[2];
+		jitter[0] = ThreadLocalRandom.current().nextInt(0, 5) - 3;
+		jitter[1] = ThreadLocalRandom.current().nextInt(0, 5) - 3;
+		ret[0] = ret[0] + jitter[0];
+		ret[1] = ret[1] + jitter[1];
 		return ret;
 	}
 	

@@ -807,6 +807,8 @@ public class GameGUI{
 					gameOver = true;
 					createWinScreen(theGame.players[i]); //, this.pane);
 				}
+				int z = i + 1;
+				//System.out.println("Player " + z + ": " + theGame.players[i].currentSpace.label); 
 			}
 			if(!won) { 
 				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
