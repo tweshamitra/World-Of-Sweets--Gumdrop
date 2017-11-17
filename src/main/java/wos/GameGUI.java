@@ -19,11 +19,11 @@ public class GameGUI{
 	private JLabel ticker = new JLabel("");
 	private JLabel timer = new JLabel("");
 	private JLabel drawnCardLabel = new JLabel("", SwingConstants.CENTER);
-	private JPanel tickerPanel, deckPanel, drawACardPanel, timeTick, timerPanel;
+	private JPanel tickerPanel, deckPanel, drawACardPanel, timeTick, timerPanel, optionPanel, optionPane;
 	private JBoardPanel boardPanel;
 	private JFrame frame;
 	private JWelcomePanel displayCardPanel;
-	private JButton deckOfCards, shuffleCards;
+	private JButton deckOfCards, shuffleCards, submit, optionButton;
 	Game theGame;
 	volatile boolean gameOver;
 	volatile boolean gamePlaying = false;
@@ -34,7 +34,6 @@ public class GameGUI{
     private JTextField text_3 = new JTextField("Player 3");
     private JTextField text_4 = new JTextField("Player 4");
 	private JLabel playNameLabel;
-	private JButton submit;
 	private int numPlayers;
 	private int[] nums = {2,3,4};
 	private ArrayList<String> playerNames = new ArrayList<String>();
@@ -133,6 +132,7 @@ public class GameGUI{
 		submit.setVisible(false);
 		
 		pane.add(infoPanel);
+		pane.setComponentZOrder(infoPanel, 0);
 		
 		pane.revalidate();
 		pane.repaint();
@@ -348,7 +348,7 @@ public class GameGUI{
 
 		tickerPanel = new JPanel(new FlowLayout());
 		tickerPanel.setBackground(Color.PINK);
-		tickerPanel.setPreferredSize(new Dimension(800, 60));
+		tickerPanel.setPreferredSize(new Dimension(740, 60));
 	
 		ticker.setFont(font48);
 		ticker.setHorizontalAlignment(JLabel.CENTER);
@@ -357,12 +357,29 @@ public class GameGUI{
 		updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 		tickerPanel.add(ticker);
 		
+		optionPanel = new JPanel(new FlowLayout());
+		optionPanel.setBackground(Color.PINK);
+		optionPanel.setPreferredSize(new Dimension(60, 60));
+		optionButton = new JButton();
+		optionButton.setIcon(new ImageIcon(getImage("OptionsSign.png")));
+		optionButton.setBackground(Color.PINK);
+		optionButton.setBorder(null);
+		optionButton.setHorizontalAlignment(JLabel.CENTER);
+		ActionListener optionListener = new OptionListener(pane);
+		optionButton.addActionListener(optionListener);
+		optionPanel.add(optionButton);		
+
+		
+
+
+		
 		timeTick.add(tickerPanel, BorderLayout.CENTER);
 		timeTick.add(timerPanel, BorderLayout.LINE_START);
-		
+		timeTick.add(optionPanel,BorderLayout.LINE_END);
 		
 		
 		pane.add(timeTick, BorderLayout.PAGE_START);
+		pane.setComponentZOrder(timeTick, 0);
 		
 		//INITIALIZING THE DECK PANEL
 		
@@ -402,6 +419,7 @@ public class GameGUI{
 		deckPanel.add(drawACardPanel);
 		
 		pane.add(deckPanel, BorderLayout.LINE_START);
+		pane.setComponentZOrder(deckPanel, 0);
 		
 		//INITIALIZING THE GAME BOARD
 		
@@ -429,6 +447,7 @@ public class GameGUI{
 		boardPanel.setPreferredSize(new Dimension(800, 615));
 		
 		pane.add(boardPanel, BorderLayout.CENTER);
+		pane.setComponentZOrder(boardPanel, 0);
 
 		(new TimerThread()).execute();
     }
@@ -544,6 +563,7 @@ public class GameGUI{
 
 		textPanel.add(text);
 		pane.add(textPanel, BorderLayout.PAGE_START);
+		pane.setComponentZOrder(textPanel, 0);
 		deckPanel = new JPanel();
 		deckPanel.setLayout(new BoxLayout(deckPanel, BoxLayout.Y_AXIS));
 		deckPanel.setPreferredSize(new Dimension(250, 600));
@@ -599,11 +619,37 @@ public class GameGUI{
 		actions.add(quit);
 		winnerPanel.add(actions);
 		pane.add(deckPanel, BorderLayout.LINE_START);
+		pane.setComponentZOrder(deckPanel, 0);
 		pane.add(winnerPanel);
+		pane.setComponentZOrder(winnerPanel, 0);
 		pane.revalidate();
 		pane.repaint();
-		//System.out.println("You've won!");
 	}
+	
+	private void drawOptionsScreen(Container pane){
+
+		optionPane = new JPanel();
+		optionPane.setLayout(new FlowLayout());
+		optionPane.setPreferredSize(new Dimension(300, 300));
+		optionPane.setBackground(Color.PINK);
+		JButton saveButton = new JButton();
+		saveButton.setIcon(new ImageIcon(getImage("SaveSign.png")));
+		saveButton.setBackground(Color.PINK);
+		saveButton.setBorder(null);
+		JButton quitButton = new JButton();
+		quitButton.setIcon(new ImageIcon(getImage("QuitSign.png")));
+		quitButton.setBackground(Color.PINK);
+		quitButton.setBorder(null);
+		optionPane.add(saveButton);
+		optionPane.add(quitButton);
+		pane.add(optionPane);
+		pane.setComponentZOrder(optionPane, 1);
+		pane = frame.getContentPane();
+		pane.revalidate();
+		pane.repaint();
+		
+	}
+	
 	class PlayAgainListener implements ActionListener{
 		Container pane;
 		public PlayAgainListener(Container pane){
@@ -624,6 +670,19 @@ public class GameGUI{
 			System.exit(0);
 		}
 	}
+	
+	class OptionListener implements ActionListener{
+		Container pane;
+		public OptionListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e){
+			playAudio("ButtonClick.wav", false);
+			drawOptionsScreen(pane);
+		}
+	}
+	
+
 	//A FUNCTION THAT SIMPLIFIES THE GETTING OF IMAGES FROM THE RESOURCES FOLDER
 	private Image getImage(String name)
 	{
