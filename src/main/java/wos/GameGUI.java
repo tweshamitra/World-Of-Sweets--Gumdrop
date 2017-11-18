@@ -23,10 +23,11 @@ public class GameGUI{
 	private JBoardPanel boardPanel;
 	private JFrame frame;
 	private JWelcomePanel displayCardPanel;
-	private JButton deckOfCards, shuffleCards, submit, optionButton;
+	private JButton deckOfCards, shuffleCards, submit, optionButton, load;
 	Game theGame;
 	volatile boolean gameOver;
 	volatile boolean gamePlaying = false;
+	private boolean optionPanelOpen = false;
 	private ImageIcon drawnCard;
 	private String[] colors = {"red", "blue", "yellow", "green"};
 	private JTextField text_1 = new JTextField("Player 1");
@@ -112,8 +113,14 @@ public class GameGUI{
 		text_3.setBackground(Color.GREEN);
 		text_4.setBackground(Color.GREEN);
 
-		JPanel submitPanel = new JPanel(new GridLayout(1,1));
+		JPanel submitPanel = new JPanel(new GridLayout(1,2));
 		submitPanel.setBackground(Color.PINK);
+		load = new JButton();
+		load.setIcon(new ImageIcon(getImage("LoadSign.png")));
+		load.setBackground(Color.PINK);
+		load.setBorder(null);
+		ActionListener loadListener = new LoadListener(pane);
+		load.addActionListener(loadListener);
 		submit = new JButton();
 		submit.setIcon(new ImageIcon(getImage("StartSign.png")));
 		submit.setBackground(Color.PINK);
@@ -124,12 +131,14 @@ public class GameGUI{
 		submit.addActionListener(submitListener);
 		submitPanel.setLayout(new FlowLayout());
 		submitPanel.add(submit);
+		submitPanel.add(load);
 		submitPanel.setMaximumSize(new Dimension(50,50));
 		pane.setBackground(Color.PINK);
 		infoPanel.add(startPanel);
 		infoPanel.add(submitPanel);
 		
 		submit.setVisible(false);
+		load.setVisible(false);
 		
 		pane.add(infoPanel);
 		pane.setComponentZOrder(infoPanel, 0);
@@ -147,6 +156,7 @@ public class GameGUI{
 			playAudio("ButtonClick.wav", false);
 			playNameLabel.setVisible(true);
 			submit.setVisible(true);
+			load.setVisible(true);
 			numPlayers = (int) num_players_menu.getSelectedItem();
 			if(numPlayers == 2){
 				text_1.setVisible(true);
@@ -183,6 +193,17 @@ public class GameGUI{
 			drawPlayerInfoScreen(pane);
 		}
 	}
+	
+	class LoadListener implements ActionListener{
+		Container pane;
+		public LoadListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e ){
+			
+		}
+	}
+	
 	private void drawPlayerInfoScreen(Container pane) {
 		pane.removeAll();
 		theGame = new Game(numPlayers);
@@ -521,6 +542,7 @@ public class GameGUI{
         frame = new JFrame("World of Sweets!");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+
         //Set up the content pane.
 		
 		frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -539,6 +561,7 @@ public class GameGUI{
 		{}
 		
 		drawStartScreen(frame.getContentPane());
+
 
         //Display the window.
         frame.pack();
@@ -627,24 +650,33 @@ public class GameGUI{
 	}
 	
 	private void drawOptionsScreen(Container pane){
-
+		pane.remove(boardPanel);
 		optionPane = new JPanel();
 		optionPane.setLayout(new FlowLayout());
-		optionPane.setPreferredSize(new Dimension(300, 300));
+		optionPane.setPreferredSize(new Dimension(1050, 600));
 		optionPane.setBackground(Color.PINK);
 		JButton saveButton = new JButton();
 		saveButton.setIcon(new ImageIcon(getImage("SaveSign.png")));
 		saveButton.setBackground(Color.PINK);
 		saveButton.setBorder(null);
+		saveButton.setHorizontalAlignment(JLabel.CENTER);
+		saveButton.setVerticalAlignment(JLabel.CENTER);
+		ActionListener saveListener = new SaveListener(pane);
+		saveButton.addActionListener(saveListener);
 		JButton quitButton = new JButton();
 		quitButton.setIcon(new ImageIcon(getImage("QuitSign.png")));
 		quitButton.setBackground(Color.PINK);
 		quitButton.setBorder(null);
+		quitButton.setHorizontalAlignment(JLabel.CENTER);
+		quitButton.setVerticalAlignment(JLabel.CENTER);
+		ActionListener quitListener = new QuitListener();
+		quitButton.addActionListener(quitListener);
 		optionPane.add(saveButton);
 		optionPane.add(quitButton);
 		pane.add(optionPane);
 		pane.setComponentZOrder(optionPane, 1);
-		pane = frame.getContentPane();
+		deckOfCards.setEnabled(false);
+		//pane = frame.getContentPane();
 		pane.revalidate();
 		pane.repaint();
 		
@@ -678,7 +710,33 @@ public class GameGUI{
 		}
 		public void actionPerformed(ActionEvent e){
 			playAudio("ButtonClick.wav", false);
-			drawOptionsScreen(pane);
+			if (optionPanelOpen){
+				optionPanelOpen = false;
+				pane.remove(optionPane);
+				deckOfCards.setEnabled(true);
+				pane.add(boardPanel);
+				pane.revalidate();
+				pane.repaint();
+				
+			} else{
+				optionPanelOpen = true;
+				drawOptionsScreen(pane);
+			}
+		}
+	}
+	
+	class SaveListener implements ActionListener{
+		Container pane;
+		public SaveListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e){
+			//this code just removes the options panel and replaces it back to the board panel
+			pane.remove(optionPane);
+			deckOfCards.setEnabled(true);
+			pane.add(boardPanel);
+			pane.revalidate();
+			pane.repaint();
 		}
 	}
 	
