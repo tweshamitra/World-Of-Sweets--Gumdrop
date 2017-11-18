@@ -5,7 +5,7 @@ import java.io.*;
 import java.net.*;
 import wos.*;
 
-public class Board{
+public class Board implements Serializable{
 	final int NUMBER_OF_SPACES = 72;
 	Space[] gameSpaces = new Space[NUMBER_OF_SPACES];
 	public Board(){

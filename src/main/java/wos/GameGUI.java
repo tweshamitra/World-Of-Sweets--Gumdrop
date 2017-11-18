@@ -41,6 +41,10 @@ public class GameGUI{
 	private JComboBox num_players_menu = new JComboBox();
 	private Font font, font40, font48;
 	private Date gameStarted;
+	private FileOutputStream fout = null;
+	private FileInputStream fis = null;
+	private ObjectOutputStream oos = null;
+	private ObjectInputStream ois = null;
 	//private File soundFile;
 	//private AudioInputStream in;
 	//private Clip clip;
@@ -200,7 +204,15 @@ public class GameGUI{
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e ){
-			
+			try{
+				fis = new FileInputStream("game.ser");
+				ois = new ObjectInputStream(fis);
+				theGame = (Game)ois.readObject();
+				addBoardComponentsToPane(pane);
+				ois.close();
+			} catch(Exception exc2){
+				exc2.printStackTrace();
+			}
 		}
 	}
 	
@@ -731,6 +743,16 @@ public class GameGUI{
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
+		
+			try {
+				fout = new FileOutputStream("game.ser");
+				oos = new ObjectOutputStream(fout);
+				oos.writeObject(theGame);
+				oos.close();
+			}
+			catch(Exception exc){
+				exc.printStackTrace();
+			}
 			//this code just removes the options panel and replaces it back to the board panel
 			pane.remove(optionPane);
 			deckOfCards.setEnabled(true);

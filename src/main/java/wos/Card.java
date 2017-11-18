@@ -1,9 +1,11 @@
 package wos;
 
 import java.util.*;
+import java.io.Serializable;
+
 import wos.*;
 
-public class Card{
+public class Card implements Serializable{
 	String color;
 	boolean isdouble;
 	boolean special;

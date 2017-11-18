@@ -1,9 +1,11 @@
 package wos;
 
 import java.util.*;
+import java.io.Serializable;
+
 import wos.*;
 
-public class Deck{
+public class Deck implements Serializable{
 	ArrayList<Card> thedeck = new ArrayList<Card>();
 	String[] colors = {"red", "blue", "orange", "yellow", "green"};
 	

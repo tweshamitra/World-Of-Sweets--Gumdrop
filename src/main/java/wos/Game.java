@@ -1,8 +1,8 @@
 package wos;
 
 import wos.*;
-
-public class Game{
+import java.io.Serializable;
+public class Game implements Serializable{
 	Board gameBoard;
 	Player[] players;
 	Deck gameDeck;
