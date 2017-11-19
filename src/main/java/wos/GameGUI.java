@@ -31,6 +31,7 @@ public class GameGUI{
 	volatile boolean gamePlaying = false;
 	private boolean optionPanelOpen = false;
 	private boolean firstRun = true;
+	private int offset = 0;
 	private ImageIcon drawnCard;
 	private String[] colors = {"red", "blue", "yellow", "green"};
 	private JTextField text_1 = new JTextField("Player 1");
@@ -48,12 +49,15 @@ public class GameGUI{
 	private FileInputStream fis = null;
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
+	private ObjectOutputStream timerOut = null;
+	private ObjectInputStream timerIn = null;
 	private TimerThread timerThread1 = new TimerThread();
 	private Space chocFalls = new Space(30, 108, 8, 85, false, false, "none", -1);
 	private Space britBridge = new Space(142, 224, 134, 211, false, false, "none", -1);
 	private Space licLake = new Space(328, 452, 303, 395, false, false, "none", -1);
 	private Space cupForest = new Space(427, 570, 103, 205, false, false, "none", -1);
 	private Space lolMntn = new Space(521, 651, 427, 529, false, false, "none", -1);
+	private Date elapsedTime;
 	//private File soundFile;
 	//private AudioInputStream in;
 	//private Clip clip;
@@ -217,12 +221,22 @@ public class GameGUI{
 		}
 		public void actionPerformed(ActionEvent e ){
 			try{
-				fis = new FileInputStream("game.ser");
+				String filename = JOptionPane.showInputDialog("Enter name of game to open");
+
+				fis = new FileInputStream(filename+".ser");
 				ois = new ObjectInputStream(fis);
 				theGame = (Game)ois.readObject();
+				fis.close();
+				fis = new FileInputStream(filename+"timer.ser");
+				timerIn = new ObjectInputStream(fis);
+				gameStarted = (Date)timerIn.readObject();
+				System.out.println(gameStarted.getSeconds());
+				timerIn.close();
+				fis.close();
 				flag = false;
 				addBoardComponentsToPane(pane);
-				ois.close();
+				updateTimer(gameStarted);
+
 			} catch(Exception exc2){
 				exc2.printStackTrace();
 			}
@@ -335,11 +349,12 @@ public class GameGUI{
 			try{
 				Thread.sleep(50);
 			} catch( InterruptedException e2){
-
-			}
+			
+			}	
 		}
 		Date current = new Date();
 		int seconds = (int) (current.getTime()-start.getTime())/1000;
+
 		int minutes = seconds / 60;
 		int hours = minutes / 60;
 		int days = hours / 24;
@@ -773,16 +788,23 @@ public class GameGUI{
 		}
 		public void actionPerformed(ActionEvent e){
 			try {
+				String filename = JOptionPane.showInputDialog("Name your game:");
 				boardPanel.setFirstRun(false);
-				fout = new FileOutputStream("game.ser");
+				fout = new FileOutputStream(filename + ".ser");
 				oos = new ObjectOutputStream(fout);
 				oos.writeObject(theGame);
 				oos.close();
+				fout = new FileOutputStream(filename+"timer.ser");
+				timerOut = new ObjectOutputStream(fout);
+				System.out.println(gameStarted.getSeconds());
+				timerOut.writeObject(gameStarted);
+				timerOut.close();
 			}
 			catch(Exception exc){
 				exc.printStackTrace();
 			}
 			//this code just removes the options panel and replaces it back to the board panel
+			pauseTimer = false;
 			pane.remove(optionPane);
 			deckOfCards.setEnabled(true);
 			pane.add(boardPanel);
@@ -1013,10 +1035,12 @@ public class GameGUI{
 	   @Override
 		public Void doInBackground() {
 			while(!gameOver){
+				
 				gameStarted = new Date();
 				updateTimer(gameStarted);
 				while(gamePlaying)
 				{
+					
 					try{
 						Thread.sleep(1000);
 					}catch(InterruptedException e){  }
