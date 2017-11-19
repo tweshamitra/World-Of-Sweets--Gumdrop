@@ -48,7 +48,7 @@ public class Card implements Serializable{
 					break;
 			case 5: specText = "bridge";
 					break;
-			case 6: specText = "castle";
+			case 6: specText = "lake";
 					break;
 			default:
 					break;

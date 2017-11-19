@@ -140,7 +140,8 @@ public class Game implements Serializable{
 		{
 			Thread.sleep(ms);
 		} 
-		catch(InterruptedException ex)   //simulate movement time for testing purposes
+		//simulate movement time for testing purposes
+		catch(InterruptedException ex)   
 		{
 			Thread.currentThread().interrupt();
 		}

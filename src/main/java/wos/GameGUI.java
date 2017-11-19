@@ -26,6 +26,8 @@ public class GameGUI{
 	private JButton deckOfCards, shuffleCards, submit, optionButton, load;
 	Game theGame;
 	volatile boolean gameOver;
+	private boolean flag = true;
+	private boolean pauseTimer = false;
 	volatile boolean gamePlaying = false;
 	private boolean optionPanelOpen = false;
 	private ImageIcon drawnCard;
@@ -45,6 +47,7 @@ public class GameGUI{
 	private FileInputStream fis = null;
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
+	private TimerThread timerThread1 = new TimerThread();
 	//private File soundFile;
 	//private AudioInputStream in;
 	//private Clip clip;
@@ -208,6 +211,7 @@ public class GameGUI{
 				fis = new FileInputStream("game.ser");
 				ois = new ObjectInputStream(fis);
 				theGame = (Game)ois.readObject();
+				flag = false;
 				addBoardComponentsToPane(pane);
 				ois.close();
 			} catch(Exception exc2){
@@ -280,6 +284,7 @@ public class GameGUI{
 	}
 	
 	public void updateTicker(String text, String color){
+		
 		switch(color.toLowerCase()){
             case "red":  ticker.setForeground(Color.RED);
                     break;
@@ -317,6 +322,13 @@ public class GameGUI{
 	
 	public void updateTimer(Date start)
 	{
+		while(pauseTimer){
+			try{
+				Thread.sleep(50);
+			} catch( InterruptedException e2){
+
+			}
+		}
 		Date current = new Date();
 		int seconds = (int) (current.getTime()-start.getTime())/1000;
 		int minutes = seconds / 60;
@@ -457,7 +469,9 @@ public class GameGUI{
 		//INITIALIZING THE GAME BOARD
 		
 		boardPanel = new JBoardPanel();
-		
+		if(flag == false){
+			boardPanel.setFirstRun(flag);
+		}
 		// MouseListener to test space coordinates
 		// boardPanel.addMouseListener(new MouseAdapter(){
 				// @Override
@@ -482,7 +496,8 @@ public class GameGUI{
 		pane.add(boardPanel, BorderLayout.CENTER);
 		pane.setComponentZOrder(boardPanel, 0);
 
-		(new TimerThread()).execute();
+		timerThread1.execute();
+		//(new TimerThread()).execute();
     }
 
 	//THIS CLASS HANDLES THE CUSTOM ANIMATION FOR THE GAME BOARD AND TOKENS
@@ -537,6 +552,10 @@ public class GameGUI{
 			}
 			this.revalidate();
 			this.repaint();
+		}
+
+		public void setFirstRun(boolean value){
+			this.firstRun = value;
 		}
 	}
 	
@@ -721,8 +740,10 @@ public class GameGUI{
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
+			
 			playAudio("ButtonClick.wav", false);
 			if (optionPanelOpen){
+				pauseTimer = false;
 				optionPanelOpen = false;
 				pane.remove(optionPane);
 				deckOfCards.setEnabled(true);
@@ -731,6 +752,7 @@ public class GameGUI{
 				pane.repaint();
 				
 			} else{
+				pauseTimer = true;
 				optionPanelOpen = true;
 				drawOptionsScreen(pane);
 			}
@@ -743,8 +765,8 @@ public class GameGUI{
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
-		
 			try {
+				boardPanel.setFirstRun(false);
 				fout = new FileOutputStream("game.ser");
 				oos = new ObjectOutputStream(fout);
 				oos.writeObject(theGame);
