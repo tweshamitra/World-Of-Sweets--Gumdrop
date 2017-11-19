@@ -25,8 +25,6 @@ public class Space implements Serializable{
 	int positionB[] = new int[2];
 	int positionC[] = new int[2];
 	int positionD[] = new int[2];
-	Shape horizontal;
-	Shape vertical;
 	
 	public Space(int x1, int x2, int y1, int y2, boolean start, boolean goal, String color, int labelInt){
 		this.x = x1;
@@ -37,8 +35,6 @@ public class Space implements Serializable{
 		int width = x2 - x1;
 		int height = y2 - y1;
 		label = color + "-" + labelInt;
-		horizontal = new Line2D.Double(x+63/2, y, x+63/2, y+68);
-		vertical = new Line2D.Double(x, y+68/2, x+63, y+68/2);
 		if(start){
 			cir = new Ellipse2D.Double(x, y, width, height);
 			label = "start";
@@ -106,14 +102,6 @@ public class Space implements Serializable{
 		ret[0] = ret[0] + jitter[0];
 		ret[1] = ret[1] + jitter[1];
 		return ret;
-	}
-	
-	public Shape getHorizontal(){
-		return horizontal;
-	}
-	
-	public Shape getVertical(){
-		return vertical;
 	}
 	
 	public boolean contains(int x, int y){
