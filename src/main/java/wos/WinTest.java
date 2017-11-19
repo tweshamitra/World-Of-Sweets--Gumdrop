@@ -26,10 +26,10 @@ public class WinTest{
 		public Void doInBackground() {
 			try{
 			String[] colors = {"red", "yellow", "blue", "green", "orange"};
-			String[] fives = {"red-5", "yellow-5", "blue-5", "green-5", "orange-5"};
-			int[] fivenum = {21, 22, 23, 24, 25};
-			String[] sixes = {"red-6", "yellow-6", "blue-6", "green-6", "orange-6"};
-			int[] sixnum = {26, 27, 28, 29, 30};
+			String[] fives = {"red-13", "yellow-13", "blue-13", "green-13", "orange-13"};
+			int[] fivenum = {61, 62, 63, 64, 65};
+			String[] sixes = {"red-14", "yellow-14", "blue-14", "green-14", "orange-14"};
+			int[] sixnum = {66, 67, 68, 69, 70};
 			Space nextValid, middleSpace;
 			
 			thegoo.theGame.pause(2000);

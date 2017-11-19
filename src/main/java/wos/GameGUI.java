@@ -9,8 +9,11 @@ import javax.imageio.*;
 import java.util.*;
 import wos.*;
 import java.time.Duration;
+import java.net.URL;
+import javax.sound.sampled.*;
 
-public class GameGUI {
+
+public class GameGUI{
 	private final int HEIGHT = 695;
     private final int WIDTH = 1050;
 	private JLabel ticker = new JLabel("");
@@ -24,6 +27,7 @@ public class GameGUI {
 	Game theGame;
 	volatile boolean gameOver;
 	volatile boolean gamePlaying = false;
+	private boolean firstRun = true;
 	private ImageIcon drawnCard;
 	private String[] colors = {"red", "blue", "yellow", "green"};
 	private JTextField text_1 = new JTextField("Player 1");
@@ -38,6 +42,15 @@ public class GameGUI {
 	private JComboBox num_players_menu = new JComboBox();
 	private Font font, font40, font48;
 	private Date gameStarted;
+	private Space chocFalls = new Space(30, 108, 8, 85, false, false, "none", -1);
+	private Space britBridge = new Space(142, 224, 134, 211, false, false, "none", -1);
+	private Space licLake = new Space(328, 452, 303, 395, false, false, "none", -1);
+	private Space cupForest = new Space(427, 570, 103, 205, false, false, "none", -1);
+	private Space lolMntn = new Space(521, 651, 427, 529, false, false, "none", -1);
+	//private File soundFile;
+	//private AudioInputStream in;
+	//private Clip clip;
+
 
 	public GameGUI()
 	{
@@ -46,7 +59,11 @@ public class GameGUI {
 		num_players_menu.addItem(nums[2]);
 	}
 	//THIS FUNCTION WILL DRAW THE START SCREEN
-	private void drawStartScreen(Container pane) {
+	private void drawStartScreen(Container pane) {	
+		if(firstRun){
+			playAudio("WorldSweetsTheme.wav", true);
+			firstRun = false;
+		}
 		pane.removeAll();
 		pane.setLayout(new GridBagLayout());
 		playerNames.clear();
@@ -136,6 +153,7 @@ public class GameGUI {
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e ){
+			playAudio("ButtonClick.wav", false);
 			playNameLabel.setVisible(true);
 			submit.setVisible(true);
 			numPlayers = (int) num_players_menu.getSelectedItem();
@@ -165,6 +183,7 @@ public class GameGUI {
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e ){
+			playAudio("ButtonClick.wav", false);
 			numPlayers = (int) num_players_menu.getSelectedItem();
 			playerNames.add(text_1.getText());
 			playerNames.add(text_2.getText());
@@ -397,6 +416,23 @@ public class GameGUI {
 		
 		boardPanel = new JBoardPanel();
 		
+		// MouseListener to test space coordinates
+		// boardPanel.addMouseListener(new MouseAdapter(){
+				// @Override
+				// public void mouseClicked(MouseEvent e){
+					// for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
+						// Space sp = theGame.gameBoard.gameSpaces[i];
+						// int xy[] = new int[2];
+						// if(sp.wasClicked(e)){
+							// xy = sp.nextFreeSpace(theGame.getCurPlayerNum());
+							// System.out.println("PIn: " + sp.getPIndex() + " x: " + xy[0] + " y: " + xy[1] + " label: " + sp.getLabel());
+							// theGame.moveCurPlayer(xy, sp);
+						// }
+					// }
+					
+				// }
+			// });
+		
 
 		boardPanel.setBackground(Color.BLUE);
 		boardPanel.setPreferredSize(new Dimension(800, 615));
@@ -429,8 +465,12 @@ public class GameGUI {
 				
 				firstRun = false;
 			}
-			Space middleSpace = getSpaceAt(16);
-			drawSpace(g, middleSpace);
+			
+			// for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
+				// Space s = getSpaceAt(i);
+				// drawSpace(g, s);
+			// }
+			
 			drawPlayers(g);
 			
 			
@@ -438,8 +478,7 @@ public class GameGUI {
 		
 		public void drawSpace(Graphics g, Space s){
 			Graphics2D g2d = (Graphics2D) g;
-			g2d.draw(s.getHorizontal());
-			g2d.draw(s.getVertical());
+			g2d.draw(s.getSpace());
 		}
 		
 		public Space getSpaceAt(int s){
@@ -578,6 +617,7 @@ public class GameGUI {
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
+			playAudio("ButtonClick.wav", false);
 			drawStartScreen(pane);
 		}
 	}
@@ -587,10 +627,11 @@ public class GameGUI {
 
 		}
 		public void actionPerformed(ActionEvent e){
+			playAudio("ButtonClick.wav", false);			
 			System.exit(0);
 		}
 	}
-	//A FUNCTION THAT SIMPLIFIES THE GETTING OF IMAGES FROM THE IMG FOLDER
+	//A FUNCTION THAT SIMPLIFIES THE GETTING OF IMAGES FROM THE RESOURCES FOLDER
 	private Image getImage(String name)
 	{
 		BufferedImage img = null;
@@ -601,6 +642,30 @@ public class GameGUI {
 		return img;
 	}
 	
+	private void playAudio(String name, boolean loop){
+		URL url = null;
+		AudioInputStream audioIn = null;
+		Clip clip =  null;
+		try{
+			url = GameGUI.class.getResource(name);
+			audioIn = AudioSystem.getAudioInputStream(url);
+			clip = AudioSystem.getClip();
+			clip.open(audioIn);
+			if (loop){
+				clip.loop(Clip.LOOP_CONTINUOUSLY);
+			}else{
+				clip.start();
+			}
+		} catch(UnsupportedAudioFileException e){
+			System.out.println("UnsupportedAudioFileException");
+		} catch(IOException d){
+			System.out.println("IOException");
+		} catch (LineUnavailableException f){
+			System.out.println("LineUnavailableException");
+		}		
+	}
+	
+	
 	//THE LISTENER FOR THE DRAW CARD BUTTON
 	private class ButtonListener implements ActionListener {
 		Container pane;
@@ -610,6 +675,7 @@ public class GameGUI {
 		// Every time we click the button, it will draw a card and take a turn
 
 		public void actionPerformed(ActionEvent e) {
+				playAudio("CardFlip.wav", false);
 				deckOfCards.setEnabled(false);
 				(new GameLogicThread()).execute();
 
@@ -629,6 +695,7 @@ public class GameGUI {
 			String playerColor = theGame.getCurPlayerColor();
 			if(drawnCard == null)
 			{
+				playAudio("DeckShuffle.wav", false);
 				theGame.shuffleDeck();
 				updateTicker("The deck was shuffled!", "black");
 				updateDeckImage(theGame.getNumCardsLeft());
@@ -656,6 +723,8 @@ public class GameGUI {
 			}
 			else
 			{
+				Space logicalSpace;
+				
 				//input logic for special cards here
 				switch(drawnCard.specNum)
 				{
@@ -686,8 +755,8 @@ public class GameGUI {
 							updateTicker(curPlayer + " drew a chocolate card!", playerColor);
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
-							//Space middleSpace = theGame.gameBoard.gameSpaces[16];
-							//theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+							logicalSpace = theGame.gameBoard.gameSpaces[44];
+							theGame.moveCurPlayer(chocFalls.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
 							
 							updateTicker(curPlayer + " was sent to Chocolate Falls!", playerColor);
 							theGame.pause(1000);
@@ -699,23 +768,23 @@ public class GameGUI {
 							updateTicker(curPlayer + " drew a lollipop card!", playerColor);
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
-							//Space middleSpace = theGame.gameBoard.gameSpaces[16];
-							//theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+							logicalSpace = theGame.gameBoard.gameSpaces[22];
+							theGame.moveCurPlayer(lolMntn.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
 							
 							updateTicker(curPlayer + " was sent to Lollipop Mountain!", playerColor);
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
 							break;
-					//Frosted Forest
+					//Cupcake Forest
 					case 4: showSpecialCard(drawnCard.specText);
-							updateTicker(curPlayer + " drew a frosted card!", playerColor);
+							updateTicker(curPlayer + " drew a cupcake card!", playerColor);
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
-							//Space middleSpace = theGame.gameBoard.gameSpaces[16];
-							//theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+							logicalSpace = theGame.gameBoard.gameSpaces[50];
+							theGame.moveCurPlayer(cupForest.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
 							
-							updateTicker(curPlayer + " was sent to the Frosted Forest!", playerColor);
+							updateTicker(curPlayer + " was sent to the Cupcake Forest!", playerColor);
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
@@ -725,23 +794,23 @@ public class GameGUI {
 							updateTicker(curPlayer + " drew a brittle card!", playerColor);
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
-							//Space middleSpace = theGame.gameBoard.gameSpaces[16];
-							//theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+							logicalSpace = theGame.gameBoard.gameSpaces[45];
+							theGame.moveCurPlayer(britBridge.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
 							
 							updateTicker(curPlayer + " was sent to Brittle Bridge!", playerColor);
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
 							break;
-					//Something Castle
+					//Licorice Lake
 					case 6: showSpecialCard(drawnCard.specText);
-							updateTicker(curPlayer + " drew a [placeholder] card!", playerColor);
+							updateTicker(curPlayer + " drew a licorice card!", playerColor);
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
-							Space middleSpace = theGame.gameBoard.gameSpaces[16];
-							theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
+							logicalSpace = theGame.gameBoard.gameSpaces[38];
+							theGame.moveCurPlayer(licLake.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
 							
-							updateTicker(curPlayer + " was sent to [placeholder] Castle!", playerColor);
+							updateTicker(curPlayer + " was sent to Licorice Lake!", playerColor);
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
@@ -769,6 +838,8 @@ public class GameGUI {
 					gameOver = true;
 					createWinScreen(theGame.players[i]); //, this.pane);
 				}
+				int z = i + 1;
+				//System.out.println("Player " + z + ": " + theGame.players[i].currentSpace.label); 
 			}
 			if(!won) { 
 				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
