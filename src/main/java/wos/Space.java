@@ -8,9 +8,11 @@ import javax.imageio.*;
 import javax.swing.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.io.Serializable;
+
 import wos.*;
 
-public class Space{
+public class Space implements Serializable{
 	Player players[] = new Player[4];
 	String color;
 	String label;

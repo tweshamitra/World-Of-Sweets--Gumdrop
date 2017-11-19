@@ -1,8 +1,10 @@
 package wos;
 
 import wos.*;
+import java.io.Serializable;
 
-public class Player{
+
+public class Player implements Serializable{
 	String name;
 	String color;
 	Space currentSpace;

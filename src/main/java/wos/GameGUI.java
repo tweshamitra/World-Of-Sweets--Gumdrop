@@ -19,14 +19,17 @@ public class GameGUI{
 	private JLabel ticker = new JLabel("");
 	private JLabel timer = new JLabel("");
 	private JLabel drawnCardLabel = new JLabel("", SwingConstants.CENTER);
-	private JPanel tickerPanel, deckPanel, drawACardPanel, timeTick, timerPanel;
+	private JPanel tickerPanel, deckPanel, drawACardPanel, timeTick, timerPanel, optionPanel, optionPane;
 	private JBoardPanel boardPanel;
 	private JFrame frame;
 	private JWelcomePanel displayCardPanel;
-	private JButton deckOfCards, shuffleCards;
+	private JButton deckOfCards, shuffleCards, submit, optionButton, load;
 	Game theGame;
 	volatile boolean gameOver;
+	private boolean flag = true;
+	private boolean pauseTimer = false;
 	volatile boolean gamePlaying = false;
+	private boolean optionPanelOpen = false;
 	private boolean firstRun = true;
 	private ImageIcon drawnCard;
 	private String[] colors = {"red", "blue", "yellow", "green"};
@@ -35,13 +38,17 @@ public class GameGUI{
     private JTextField text_3 = new JTextField("Player 3");
     private JTextField text_4 = new JTextField("Player 4");
 	private JLabel playNameLabel;
-	private JButton submit;
 	private int numPlayers;
 	private int[] nums = {2,3,4};
 	private ArrayList<String> playerNames = new ArrayList<String>();
 	private JComboBox num_players_menu = new JComboBox();
 	private Font font, font40, font48;
 	private Date gameStarted;
+	private FileOutputStream fout = null;
+	private FileInputStream fis = null;
+	private ObjectOutputStream oos = null;
+	private ObjectInputStream ois = null;
+	private TimerThread timerThread1 = new TimerThread();
 	private Space chocFalls = new Space(30, 108, 8, 85, false, false, "none", -1);
 	private Space britBridge = new Space(142, 224, 134, 211, false, false, "none", -1);
 	private Space licLake = new Space(328, 452, 303, 395, false, false, "none", -1);
@@ -122,8 +129,14 @@ public class GameGUI{
 		text_3.setBackground(Color.GREEN);
 		text_4.setBackground(Color.GREEN);
 
-		JPanel submitPanel = new JPanel(new GridLayout(1,1));
+		JPanel submitPanel = new JPanel(new GridLayout(1,2));
 		submitPanel.setBackground(Color.PINK);
+		load = new JButton();
+		load.setIcon(new ImageIcon(getImage("LoadSign.png")));
+		load.setBackground(Color.PINK);
+		load.setBorder(null);
+		ActionListener loadListener = new LoadListener(pane);
+		load.addActionListener(loadListener);
 		submit = new JButton();
 		submit.setIcon(new ImageIcon(getImage("StartSign.png")));
 		submit.setBackground(Color.PINK);
@@ -134,14 +147,17 @@ public class GameGUI{
 		submit.addActionListener(submitListener);
 		submitPanel.setLayout(new FlowLayout());
 		submitPanel.add(submit);
+		submitPanel.add(load);
 		submitPanel.setMaximumSize(new Dimension(50,50));
 		pane.setBackground(Color.PINK);
 		infoPanel.add(startPanel);
 		infoPanel.add(submitPanel);
 		
 		submit.setVisible(false);
+		load.setVisible(false);
 		
 		pane.add(infoPanel);
+		pane.setComponentZOrder(infoPanel, 0);
 		
 		pane.revalidate();
 		pane.repaint();
@@ -156,6 +172,7 @@ public class GameGUI{
 			playAudio("ButtonClick.wav", false);
 			playNameLabel.setVisible(true);
 			submit.setVisible(true);
+			load.setVisible(true);
 			numPlayers = (int) num_players_menu.getSelectedItem();
 			if(numPlayers == 2){
 				text_1.setVisible(true);
@@ -192,6 +209,26 @@ public class GameGUI{
 			drawPlayerInfoScreen(pane);
 		}
 	}
+	
+	class LoadListener implements ActionListener{
+		Container pane;
+		public LoadListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e ){
+			try{
+				fis = new FileInputStream("game.ser");
+				ois = new ObjectInputStream(fis);
+				theGame = (Game)ois.readObject();
+				flag = false;
+				addBoardComponentsToPane(pane);
+				ois.close();
+			} catch(Exception exc2){
+				exc2.printStackTrace();
+			}
+		}
+	}
+	
 	private void drawPlayerInfoScreen(Container pane) {
 		pane.removeAll();
 		theGame = new Game(numPlayers);
@@ -256,6 +293,7 @@ public class GameGUI{
 	}
 	
 	public void updateTicker(String text, String color){
+		
 		switch(color.toLowerCase()){
             case "red":  ticker.setForeground(Color.RED);
                     break;
@@ -293,6 +331,13 @@ public class GameGUI{
 	
 	public void updateTimer(Date start)
 	{
+		while(pauseTimer){
+			try{
+				Thread.sleep(50);
+			} catch( InterruptedException e2){
+
+			}
+		}
 		Date current = new Date();
 		int seconds = (int) (current.getTime()-start.getTime())/1000;
 		int minutes = seconds / 60;
@@ -357,7 +402,7 @@ public class GameGUI{
 
 		tickerPanel = new JPanel(new FlowLayout());
 		tickerPanel.setBackground(Color.PINK);
-		tickerPanel.setPreferredSize(new Dimension(800, 60));
+		tickerPanel.setPreferredSize(new Dimension(740, 60));
 	
 		ticker.setFont(font48);
 		ticker.setHorizontalAlignment(JLabel.CENTER);
@@ -366,12 +411,29 @@ public class GameGUI{
 		updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 		tickerPanel.add(ticker);
 		
+		optionPanel = new JPanel(new FlowLayout());
+		optionPanel.setBackground(Color.PINK);
+		optionPanel.setPreferredSize(new Dimension(60, 60));
+		optionButton = new JButton();
+		optionButton.setIcon(new ImageIcon(getImage("OptionsSign.png")));
+		optionButton.setBackground(Color.PINK);
+		optionButton.setBorder(null);
+		optionButton.setHorizontalAlignment(JLabel.CENTER);
+		ActionListener optionListener = new OptionListener(pane);
+		optionButton.addActionListener(optionListener);
+		optionPanel.add(optionButton);		
+
+		
+
+
+		
 		timeTick.add(tickerPanel, BorderLayout.CENTER);
 		timeTick.add(timerPanel, BorderLayout.LINE_START);
-		
+		timeTick.add(optionPanel,BorderLayout.LINE_END);
 		
 		
 		pane.add(timeTick, BorderLayout.PAGE_START);
+		pane.setComponentZOrder(timeTick, 0);
 		
 		//INITIALIZING THE DECK PANEL
 		
@@ -411,11 +473,14 @@ public class GameGUI{
 		deckPanel.add(drawACardPanel);
 		
 		pane.add(deckPanel, BorderLayout.LINE_START);
+		pane.setComponentZOrder(deckPanel, 0);
 		
 		//INITIALIZING THE GAME BOARD
 		
 		boardPanel = new JBoardPanel();
-		
+		if(flag == false){
+			boardPanel.setFirstRun(flag);
+		}
 		// MouseListener to test space coordinates
 		// boardPanel.addMouseListener(new MouseAdapter(){
 				// @Override
@@ -438,8 +503,10 @@ public class GameGUI{
 		boardPanel.setPreferredSize(new Dimension(800, 615));
 		
 		pane.add(boardPanel, BorderLayout.CENTER);
+		pane.setComponentZOrder(boardPanel, 0);
 
-		(new TimerThread()).execute();
+		timerThread1.execute();
+		//(new TimerThread()).execute();
     }
 
 	//THIS CLASS HANDLES THE CUSTOM ANIMATION FOR THE GAME BOARD AND TOKENS
@@ -493,6 +560,10 @@ public class GameGUI{
 			this.revalidate();
 			this.repaint();
 		}
+
+		public void setFirstRun(boolean value){
+			this.firstRun = value;
+		}
 	}
 	
 	//THIS CLASS IS THE WELCOME PANEL
@@ -508,6 +579,7 @@ public class GameGUI{
         //Create and set up the window.
         frame = new JFrame("World of Sweets!");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 
         //Set up the content pane.
 		
@@ -527,6 +599,7 @@ public class GameGUI{
 		{}
 		
 		drawStartScreen(frame.getContentPane());
+
 
         //Display the window.
         frame.pack();
@@ -551,6 +624,7 @@ public class GameGUI{
 
 		textPanel.add(text);
 		pane.add(textPanel, BorderLayout.PAGE_START);
+		pane.setComponentZOrder(textPanel, 0);
 		deckPanel = new JPanel();
 		deckPanel.setLayout(new BoxLayout(deckPanel, BoxLayout.Y_AXIS));
 		deckPanel.setPreferredSize(new Dimension(250, 600));
@@ -606,11 +680,46 @@ public class GameGUI{
 		actions.add(quit);
 		winnerPanel.add(actions);
 		pane.add(deckPanel, BorderLayout.LINE_START);
+		pane.setComponentZOrder(deckPanel, 0);
 		pane.add(winnerPanel);
+		pane.setComponentZOrder(winnerPanel, 0);
 		pane.revalidate();
 		pane.repaint();
-		//System.out.println("You've won!");
 	}
+	
+	private void drawOptionsScreen(Container pane){
+		pane.remove(boardPanel);
+		optionPane = new JPanel();
+		optionPane.setLayout(new FlowLayout());
+		optionPane.setPreferredSize(new Dimension(1050, 600));
+		optionPane.setBackground(Color.PINK);
+		JButton saveButton = new JButton();
+		saveButton.setIcon(new ImageIcon(getImage("SaveSign.png")));
+		saveButton.setBackground(Color.PINK);
+		saveButton.setBorder(null);
+		saveButton.setHorizontalAlignment(JLabel.CENTER);
+		saveButton.setVerticalAlignment(JLabel.CENTER);
+		ActionListener saveListener = new SaveListener(pane);
+		saveButton.addActionListener(saveListener);
+		JButton quitButton = new JButton();
+		quitButton.setIcon(new ImageIcon(getImage("QuitSign.png")));
+		quitButton.setBackground(Color.PINK);
+		quitButton.setBorder(null);
+		quitButton.setHorizontalAlignment(JLabel.CENTER);
+		quitButton.setVerticalAlignment(JLabel.CENTER);
+		ActionListener quitListener = new QuitListener();
+		quitButton.addActionListener(quitListener);
+		optionPane.add(saveButton);
+		optionPane.add(quitButton);
+		pane.add(optionPane);
+		pane.setComponentZOrder(optionPane, 1);
+		deckOfCards.setEnabled(false);
+		//pane = frame.getContentPane();
+		pane.revalidate();
+		pane.repaint();
+		
+	}
+	
 	class PlayAgainListener implements ActionListener{
 		Container pane;
 		public PlayAgainListener(Container pane){
@@ -631,6 +740,58 @@ public class GameGUI{
 			System.exit(0);
 		}
 	}
+	
+	class OptionListener implements ActionListener{
+		Container pane;
+		public OptionListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e){
+			
+			playAudio("ButtonClick.wav", false);
+			if (optionPanelOpen){
+				pauseTimer = false;
+				optionPanelOpen = false;
+				pane.remove(optionPane);
+				deckOfCards.setEnabled(true);
+				pane.add(boardPanel);
+				pane.revalidate();
+				pane.repaint();
+				
+			} else{
+				pauseTimer = true;
+				optionPanelOpen = true;
+				drawOptionsScreen(pane);
+			}
+		}
+	}
+	
+	class SaveListener implements ActionListener{
+		Container pane;
+		public SaveListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e){
+			try {
+				boardPanel.setFirstRun(false);
+				fout = new FileOutputStream("game.ser");
+				oos = new ObjectOutputStream(fout);
+				oos.writeObject(theGame);
+				oos.close();
+			}
+			catch(Exception exc){
+				exc.printStackTrace();
+			}
+			//this code just removes the options panel and replaces it back to the board panel
+			pane.remove(optionPane);
+			deckOfCards.setEnabled(true);
+			pane.add(boardPanel);
+			pane.revalidate();
+			pane.repaint();
+		}
+	}
+	
+
 	//A FUNCTION THAT SIMPLIFIES THE GETTING OF IMAGES FROM THE RESOURCES FOLDER
 	private Image getImage(String name)
 	{

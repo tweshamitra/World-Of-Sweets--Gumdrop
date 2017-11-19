@@ -1,8 +1,8 @@
 package wos;
 
 import wos.*;
-
-public class Game{
+import java.io.Serializable;
+public class Game implements Serializable{
 	Board gameBoard;
 	Player[] players;
 	Deck gameDeck;
@@ -140,7 +140,8 @@ public class Game{
 		{
 			Thread.sleep(ms);
 		} 
-		catch(InterruptedException ex)   //simulate movement time for testing purposes
+		//simulate movement time for testing purposes
+		catch(InterruptedException ex)   
 		{
 			Thread.currentThread().interrupt();
 		}
