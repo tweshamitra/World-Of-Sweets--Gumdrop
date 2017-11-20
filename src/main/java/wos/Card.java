@@ -1,13 +1,15 @@
 package wos;
 
 import java.util.*;
+import java.io.Serializable;
+
 import wos.*;
 
-public class Card{
+public class Card implements Serializable{
 	String color;
 	boolean isdouble;
 	boolean special;
-	String specText;
+	public String specText;
 	int specNum;
 	
 	public Card(String c, boolean d) //throws InvalidColorException
@@ -38,7 +40,15 @@ public class Card{
 		{
 			case 1: specText = "skip";
 					break;
-			case 2: specText = "middle";
+			case 2: specText = "falls";
+					break;
+			case 3: specText = "mountain";
+					break;
+			case 4: specText = "forest";
+					break;
+			case 5: specText = "bridge";
+					break;
+			case 6: specText = "lake";
 					break;
 			default:
 					break;

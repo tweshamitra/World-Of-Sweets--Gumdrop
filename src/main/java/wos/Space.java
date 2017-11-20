@@ -7,9 +7,12 @@ import java.awt.image.*;
 import javax.imageio.*;
 import javax.swing.*;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.io.Serializable;
+
 import wos.*;
 
-public class Space{
+public class Space implements Serializable{
 	Player players[] = new Player[4];
 	String color;
 	String label;
@@ -22,32 +25,25 @@ public class Space{
 	int positionB[] = new int[2];
 	int positionC[] = new int[2];
 	int positionD[] = new int[2];
-	Shape horizontal;
-	Shape vertical;
 	
-	public Space(int x, int y, boolean start, boolean goal, String color, int labelInt){
-		this.x = x;
-		this.y = y;
+	public Space(int x1, int x2, int y1, int y2, boolean start, boolean goal, String color, int labelInt){
+		this.x = x1;
+		this.y = y1;
 		this.start = start;
 		this.goal = goal;
 		this.color = color;
+		int width = x2 - x1;
+		int height = y2 - y1;
 		label = color + "-" + labelInt;
-		horizontal = new Line2D.Double(x+63/2, y, x+63/2, y+68);
-		vertical = new Line2D.Double(x, y+68/2, x+63, y+68/2);
 		if(start){
-			cir = new Ellipse2D.Double(x, y, 106, 113);
-			width = 106;
-			height = 113;
+			cir = new Ellipse2D.Double(x, y, width, height);
 			label = "start";
 		}else if(goal){
-			cir = new Rectangle2D.Double(x, y, 140, 135);
-			width = 140;
-			height = 145;
+			cir = new Rectangle2D.Double(x, y, width, height);
 			label = "goal";
-		}else{
-			cir = new Ellipse2D.Double(x, y, 63, 68);
-			width = 63;
-			height = 68;
+		}
+		else{
+			cir = new Ellipse2D.Double(x, y, width, height);
 		}
 		
 		if(start){
@@ -100,15 +96,12 @@ public class Space{
 			ret = positionD;
 			break;
 		}
+		int[] jitter = new int[2];
+		jitter[0] = ThreadLocalRandom.current().nextInt(0, 5) - 3;
+		jitter[1] = ThreadLocalRandom.current().nextInt(0, 5) - 3;
+		ret[0] = ret[0] + jitter[0];
+		ret[1] = ret[1] + jitter[1];
 		return ret;
-	}
-	
-	public Shape getHorizontal(){
-		return horizontal;
-	}
-	
-	public Shape getVertical(){
-		return vertical;
 	}
 	
 	public boolean contains(int x, int y){

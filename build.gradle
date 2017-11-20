@@ -18,3 +18,14 @@ run {
 	} catch (Exception ex) {
 	}
 }
+
+task execute(type:JavaExec) {
+   if (!project.hasProperty("mainClass")) {
+      main = "wos.GameRunner"
+   }
+   else{
+      main = mainClass
+   }
+   classpath = sourceSets.main.runtimeClasspath
+   
+}
