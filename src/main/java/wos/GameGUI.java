@@ -18,6 +18,7 @@ public class GameGUI{
     private final int WIDTH = 1050;
 	private JLabel ticker = new JLabel("");
 	private JLabel timer = new JLabel("");
+	private JLabel loadError = new JLabel("");
 	private JLabel drawnCardLabel = new JLabel("", SwingConstants.CENTER);
 	private JPanel tickerPanel, deckPanel, drawACardPanel, timeTick, timerPanel, optionPanel, optionPane;
 	private JBoardPanel boardPanel;
@@ -159,9 +160,16 @@ public class GameGUI{
 		pane.setBackground(Color.PINK);
 		infoPanel.add(startPanel);
 		infoPanel.add(submitPanel);
+		JPanel errorPanel = new JPanel(new FlowLayout());
+		errorPanel.setBackground(Color.PINK);
+		loadError.setFont(font48);
+		
+		errorPanel.add(loadError);
+		infoPanel.add(errorPanel);
+		
 		
 		submit.setVisible(false);
-		load.setVisible(false);
+		load.setVisible(true);
 		
 		pane.add(infoPanel);
 		pane.setComponentZOrder(infoPanel, 0);
@@ -179,7 +187,6 @@ public class GameGUI{
 			playAudio("ButtonClick.wav", false);
 			playNameLabel.setVisible(true);
 			submit.setVisible(true);
-			load.setVisible(true);
 			numPlayers = (int) num_players_menu.getSelectedItem();
 			if(numPlayers == 2){
 				text_1.setVisible(true);
@@ -243,8 +250,9 @@ public class GameGUI{
 				(new RevertTickerThread()).execute();
 
 			} catch(Exception exc2){
-				exc2.printStackTrace();
-				updateTicker(filename + " could not be loaded.", "black");
+				//exc2.printStackTrace();
+				loadError.setText("The game could not be loaded.");
+				
 			}
 		}
 	}
