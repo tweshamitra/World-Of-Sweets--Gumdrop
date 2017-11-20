@@ -18,6 +18,7 @@ public class GameGUI{
     private final int WIDTH = 1050;
 	private JLabel ticker = new JLabel("");
 	private JLabel timer = new JLabel("");
+	private JLabel loadError = new JLabel("");
 	private JLabel drawnCardLabel = new JLabel("", SwingConstants.CENTER);
 	private JPanel tickerPanel, deckPanel, drawACardPanel, timeTick, timerPanel, optionPanel, optionPane;
 	private JBoardPanel boardPanel;
@@ -27,10 +28,13 @@ public class GameGUI{
 	Game theGame;
 	volatile boolean gameOver;
 	private boolean flag = true;
-	private boolean pauseTimer = false;
+	volatile private boolean pauseTimer = false;
 	volatile boolean gamePlaying = false;
+	volatile boolean tickerUpdated = false;
 	private boolean optionPanelOpen = false;
 	private boolean firstRun = true;
+	private int offset = 0;
+	private int offset2 = 0;
 	private ImageIcon drawnCard;
 	private String[] colors = {"red", "blue", "yellow", "green"};
 	private JTextField text_1 = new JTextField("Player 1");
@@ -48,12 +52,16 @@ public class GameGUI{
 	private FileInputStream fis = null;
 	private ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
+	private ObjectOutputStream timerOut = null;
+	private ObjectInputStream timerIn = null;
 	private TimerThread timerThread1 = new TimerThread();
 	private Space chocFalls = new Space(30, 108, 8, 85, false, false, "none", -1);
 	private Space britBridge = new Space(142, 224, 134, 211, false, false, "none", -1);
 	private Space licLake = new Space(328, 452, 303, 395, false, false, "none", -1);
 	private Space cupForest = new Space(427, 570, 103, 205, false, false, "none", -1);
 	private Space lolMntn = new Space(521, 651, 427, 529, false, false, "none", -1);
+	private Date elapsedTime;
+	int ach = 0;
 	//private File soundFile;
 	//private AudioInputStream in;
 	//private Clip clip;
@@ -152,9 +160,16 @@ public class GameGUI{
 		pane.setBackground(Color.PINK);
 		infoPanel.add(startPanel);
 		infoPanel.add(submitPanel);
+		JPanel errorPanel = new JPanel(new FlowLayout());
+		errorPanel.setBackground(Color.PINK);
+		loadError.setFont(font48);
+		
+		errorPanel.add(loadError);
+		infoPanel.add(errorPanel);
+		
 		
 		submit.setVisible(false);
-		load.setVisible(false);
+		load.setVisible(true);
 		
 		pane.add(infoPanel);
 		pane.setComponentZOrder(infoPanel, 0);
@@ -172,7 +187,6 @@ public class GameGUI{
 			playAudio("ButtonClick.wav", false);
 			playNameLabel.setVisible(true);
 			submit.setVisible(true);
-			load.setVisible(true);
 			numPlayers = (int) num_players_menu.getSelectedItem();
 			if(numPlayers == 2){
 				text_1.setVisible(true);
@@ -216,15 +230,29 @@ public class GameGUI{
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e ){
+			String filename = JOptionPane.showInputDialog("Enter name of game to open");
 			try{
-				fis = new FileInputStream("game.ser");
+
+				fis = new FileInputStream(filename+".ser");
 				ois = new ObjectInputStream(fis);
 				theGame = (Game)ois.readObject();
+				numPlayers = theGame.players.length;
+				fis.close();
+				fis = new FileInputStream(filename+"timer.ser");
+				timerIn = new ObjectInputStream(fis);
+				offset = (int)timerIn.readObject();
+				timerIn.close();
+				fis.close();
 				flag = false;
 				addBoardComponentsToPane(pane);
-				ois.close();
+				gamePlaying = true;
+				updateTicker(filename + " was loaded successfully!", "black");
+				(new RevertTickerThread()).execute();
+
 			} catch(Exception exc2){
-				exc2.printStackTrace();
+				//exc2.printStackTrace();
+				loadError.setText("The game could not be loaded.");
+				
 			}
 		}
 	}
@@ -293,7 +321,7 @@ public class GameGUI{
 	}
 	
 	public void updateTicker(String text, String color){
-		
+		tickerUpdated = true;
 		switch(color.toLowerCase()){
             case "red":  ticker.setForeground(Color.RED);
                     break;
@@ -331,15 +359,9 @@ public class GameGUI{
 	
 	public void updateTimer(Date start)
 	{
-		while(pauseTimer){
-			try{
-				Thread.sleep(50);
-			} catch( InterruptedException e2){
-
-			}
-		}
 		Date current = new Date();
-		int seconds = (int) (current.getTime()-start.getTime())/1000;
+		int seconds = (int) (current.getTime()-start.getTime())/1000 + offset - offset2;
+
 		int minutes = seconds / 60;
 		int hours = minutes / 60;
 		int days = hours / 24;
@@ -497,7 +519,9 @@ public class GameGUI{
 					
 				// }
 			// });
-		
+			
+			
+	
 
 		boardPanel.setBackground(Color.BLUE);
 		boardPanel.setPreferredSize(new Dimension(800, 615));
@@ -773,16 +797,28 @@ public class GameGUI{
 		}
 		public void actionPerformed(ActionEvent e){
 			try {
+				String filename = JOptionPane.showInputDialog("Name your game:");
 				boardPanel.setFirstRun(false);
-				fout = new FileOutputStream("game.ser");
+				fout = new FileOutputStream(filename + ".ser");
 				oos = new ObjectOutputStream(fout);
 				oos.writeObject(theGame);
 				oos.close();
+				fout = new FileOutputStream(filename+"timer.ser");
+				timerOut = new ObjectOutputStream(fout);
+				Date current = new Date();
+				int seconds = (int) (current.getTime()-gameStarted.getTime())/1000 + offset - offset2;
+				timerOut.writeObject(seconds);
+				timerOut.close();
+				updateTicker("Game saved!", "black");
+				(new RevertTickerThread()).execute();
 			}
 			catch(Exception exc){
 				exc.printStackTrace();
+				updateTicker("The game could not be saved.", "black");
+				(new RevertTickerThread()).execute();
 			}
 			//this code just removes the options panel and replaces it back to the board panel
+			pauseTimer = false;
 			pane.remove(optionPane);
 			deckOfCards.setEnabled(true);
 			pane.add(boardPanel);
@@ -838,6 +874,7 @@ public class GameGUI{
 		public void actionPerformed(ActionEvent e) {
 				playAudio("CardFlip.wav", false);
 				deckOfCards.setEnabled(false);
+				optionButton.setEnabled(false);
 				(new GameLogicThread()).execute();
 
 		}
@@ -979,7 +1016,7 @@ public class GameGUI{
 					//unknown card exception, game broke
 					default: //keep going i guess
 							System.out.println(drawnCard.color + " " + drawnCard.isdouble + " " + drawnCard.special + " " + drawnCard.specText + " " + drawnCard.specNum);
-							theGame.incrementTurn();
+							//theGame.incrementTurn();
 							//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 							break;
 				}
@@ -999,12 +1036,13 @@ public class GameGUI{
 					gameOver = true;
 					createWinScreen(theGame.players[i]); //, this.pane);
 				}
-				int z = i + 1;
+				//int z = i + 1;
 				//System.out.println("Player " + z + ": " + theGame.players[i].currentSpace.label); 
 			}
 			if(!won) { 
 				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 				deckOfCards.setEnabled(true);
+				optionButton.setEnabled(true);
 			}
        }
 	}
@@ -1013,14 +1051,21 @@ public class GameGUI{
 	   @Override
 		public Void doInBackground() {
 			while(!gameOver){
+				
 				gameStarted = new Date();
 				updateTimer(gameStarted);
 				while(gamePlaying)
 				{
+					
 					try{
 						Thread.sleep(1000);
 					}catch(InterruptedException e){  }
-					updateTimer(gameStarted);
+					if(pauseTimer)
+					{
+						offset2 ++;
+					}
+					else 
+						updateTimer(gameStarted);
 				}
 				try{
 					Thread.sleep(100);
@@ -1063,5 +1108,19 @@ public class GameGUI{
 		deckOfCards.setEnabled(false);
 	}
 
+    class RevertTickerThread extends SwingWorker<Void, Object> {
+	    @Override
+		public Void doInBackground() {
+			tickerUpdated = false;
+			try{
+				Thread.sleep(3000);
+			}catch(InterruptedException e){  }
+			if(!tickerUpdated)
+			{
+				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
+			}
+			return null;
+		}
+	}
    
 }

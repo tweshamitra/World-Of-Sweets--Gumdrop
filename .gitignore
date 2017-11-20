@@ -1,6 +1,7 @@
 *.class
 .gradle
 /build/
+*.ser
 
 # Ignore Gradle GUI config
 gradle-app.setting
