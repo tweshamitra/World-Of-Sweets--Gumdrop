@@ -24,7 +24,7 @@ public class GameGUI{
 	private JBoardPanel boardPanel;
 	private JFrame frame;
 	private JWelcomePanel displayCardPanel;
-	private JButton deckOfCards, shuffleCards, submit, optionButton, load;
+	private JButton deckOfCards, shuffleCards, submit, optionButton, load, boomButton;
 	Game theGame;
 	volatile boolean gameOver;
 	private boolean flag = true;
@@ -33,8 +33,10 @@ public class GameGUI{
 	volatile boolean tickerUpdated = false;
 	private boolean optionPanelOpen = false;
 	private boolean firstRun = true;
+	private boolean isBoom = false;
 	private int offset = 0;
 	private int offset2 = 0;
+	private int boomChoice;
 	private ImageIcon drawnCard;
 	private String[] colors = {"red", "blue", "yellow", "green"};
 	private JTextField text_1 = new JTextField("Player 1");
@@ -60,6 +62,7 @@ public class GameGUI{
 	private Space licLake = new Space(328, 452, 303, 395, false, false, "none", -1);
 	private Space cupForest = new Space(427, 570, 103, 205, false, false, "none", -1);
 	private Space lolMntn = new Space(521, 651, 427, 529, false, false, "none", -1);
+	private Space nextValid = null;
 	private Date elapsedTime;
 	int ach = 0;
 	//private File soundFile;
@@ -467,11 +470,28 @@ public class GameGUI{
 		
 		displayCardPanel = new JWelcomePanel();
 		displayCardPanel.setLayout(new BorderLayout());
-		displayCardPanel.setBackground(Color.GREEN);
-		displayCardPanel.setPreferredSize(new Dimension(250, 300));		
+		displayCardPanel.setOpaque(false);
+		
+		displayCardPanel.setPreferredSize(new Dimension(250, 300));
+		
+		ImageIcon boomImage = new ImageIcon(getImage("3Boom.png")); 
+		boomButton = new JButton();
+		boomButton.setIcon(boomImage);
+		boomButton.setPreferredSize(new Dimension(54, 61));
+		boomButton.setOpaque(false);
+		boomButton.setContentAreaFilled(false);
+		boomButton.setBorderPainted(false);
+		ActionListener boomListener = new BoomListener(pane);
+		boomButton.addActionListener(boomListener);
+		
+		
 		
 		drawnCardLabel.setVerticalAlignment(SwingConstants.TOP);
+		boomButton.setVerticalAlignment(SwingConstants.BOTTOM);
+		displayCardPanel.add(boomButton, BorderLayout.WEST);
 		displayCardPanel.add(drawnCardLabel, BorderLayout.CENTER);
+
+		
 		
 		deckPanel.add(displayCardPanel);
 		
@@ -744,6 +764,33 @@ public class GameGUI{
 		
 	}
 	
+	class BoomListener implements ActionListener{
+		Container pane;
+		public BoomListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e){
+			playAudio("ButtonClick.wav", false);
+			ImageIcon[] options = new ImageIcon[theGame.getNumPlayers() - 1];
+			String[] colors = {"red", "blue", "yellow", "green"};
+			int count = 0;
+			for (int i = 0; i < 4; i++){
+				if (theGame.getCurPlayerColor().toLowerCase() != colors[i] && count < options.length){
+					options[count] = new ImageIcon(getImage(colors[i] + "token.png"));	
+					count++;
+				} else{
+				
+				}
+			}
+			boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);	
+			if (boomChoice == -1){
+					isBoom = false;
+			} else{
+				isBoom = true;
+			}
+		}
+	}
+	
 	class PlayAgainListener implements ActionListener{
 		Container pane;
 		public PlayAgainListener(Container pane){
@@ -908,7 +955,12 @@ public class GameGUI{
 				updateTicker(curPlayer + " drew a " + doub + " " + color + " card!", playerColor);
 				theGame.pause(1000);
 				//TODO:  Addison:  more logic will be needed here to determine where the player is moving to
-				Space nextValid = theGame.getNextValidSpace(color, doub);
+				if (isBoom){
+					nextValid = theGame.getNextValidBoomSpace(color, doub);
+					isBoom = false;
+				} else{
+					nextValid = theGame.getNextValidSpace(color, doub);
+				}
 				theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
 				
 				String oor2 = drawnCard.isdouble ? "two" : "one";

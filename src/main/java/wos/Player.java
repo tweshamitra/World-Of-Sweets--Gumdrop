@@ -10,6 +10,8 @@ public class Player implements Serializable{
 	Space currentSpace;
 	int[] coordinates = new int[2];
 	int number;
+	int boomerangs;
+	
 	public Player(String pname, String pcolor){
 		name = pname;
 		color = pcolor;
@@ -29,6 +31,10 @@ public class Player implements Serializable{
 	
 	public Space getCurrentSpace(){
 		return currentSpace;
+	}
+	
+	public void decrementBooms(){
+		boomerangs--;
 	}
 	
 	public boolean checkWin(){

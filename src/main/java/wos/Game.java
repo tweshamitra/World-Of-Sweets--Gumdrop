@@ -7,6 +7,7 @@ public class Game implements Serializable{
 	Player[] players;
 	Deck gameDeck;
 	int turn;
+	int playerNum;
 	
 	public Game(int numPlayers)
 	{
@@ -14,7 +15,10 @@ public class Game implements Serializable{
 		gameBoard = new Board();
 		gameDeck = new Deck();
 		turn = 0;
+		playerNum = numPlayers;
 	}
+	
+
 	
 	public void setPlayer(int playerNum, String playerName, String playerColor)
 	{
@@ -38,6 +42,10 @@ public class Game implements Serializable{
 	public String getPlayerName(int playerNum)
 	{
 		return players[playerNum].name;
+	}
+	
+	public int getNumPlayers(){
+		return playerNum;
 	}
 	
 	public String getPlayerColor(int playerNum)
@@ -128,6 +136,65 @@ public class Game implements Serializable{
 			}
 			else{
 				returnSpace = gameBoard.gameSpaces[gameBoard.NUMBER_OF_SPACES-1];
+			}
+		}
+		
+		return returnSpace;
+	}
+	
+	public Space getNextValidBoomSpace(String color, String doub)
+	{
+		boolean found = false;
+		Space returnSpace = players[turn].getCurrentSpace();
+		Space currentSpace = players[turn].getCurrentSpace();
+		int currentIndex = -1;
+		// Gets the index of the space in gameSpaces the current player is on
+		if(color.equals("start")){
+			currentIndex = 0;
+		}
+		else{
+			for(int i = 0; i < gameBoard.NUMBER_OF_SPACES; i++){
+				if(gameBoard.gameSpaces[i].getLabel().equals(currentSpace.getLabel())){
+					currentIndex = i;
+					//System.out.println("found current space, index: " + i);
+				}
+			}
+		}
+		// Looks ahead at most five spaces to find the next valid space
+		if(doub.equals("single")){
+			if(currentIndex == 0){
+				returnSpace = gameBoard.gameSpaces[0];
+			}
+			else{
+				for(int j = currentIndex-1; j < Math.max(currentIndex-6, 0); j--){
+					if(gameBoard.gameSpaces[j].getColor().equals(color)){
+						returnSpace = gameBoard.gameSpaces[j];
+						found = true;
+						//System.out.println("first if, index: " + j);
+					}
+					if(!found){
+						returnSpace = gameBoard.gameSpaces[0];
+					}
+				}
+			}
+			
+		}
+		// Starts the search for the next valid space five spaces ahead of current, then will search at most five spaces ahead for the next valid space
+		else if(doub.equals("double")){
+			if(currentIndex > 7){
+				for(int j = currentIndex-6; j < Math.max(currentIndex-11, 0); j--){
+					if(gameBoard.gameSpaces[j].getColor().equals(color)){
+						returnSpace = gameBoard.gameSpaces[j];
+						found = true;
+						//System.out.println("second if, index: " + j);
+					}
+					if(!found){
+						returnSpace = gameBoard.gameSpaces[0];
+					}
+				}
+			}
+			else{
+				returnSpace = gameBoard.gameSpaces[0];
 			}
 		}
 		
