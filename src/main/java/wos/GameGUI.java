@@ -772,22 +772,24 @@ public class GameGUI{
 		public void actionPerformed(ActionEvent e){
 			playAudio("ButtonClick.wav", false);
 			ImageIcon[] options = new ImageIcon[theGame.getNumPlayers() - 1];
+			int[] correspondingNums = new int[theGame.getNumPlayers() - 1];
 			String[] colors = {"red", "blue", "yellow", "green"};
 			int count = 0;
 			for (int i = 0; i < 4; i++){
 				if (theGame.getCurPlayerColor().toLowerCase() != colors[i] && count < options.length){
-					options[count] = new ImageIcon(getImage(colors[i] + "token.png"));	
+					options[count] = new ImageIcon(getImage(colors[i] + "token.png"));
+					correspondingNums[count] = i;
 					count++;
-				} else{
-				
 				}
 			}
-			boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);	
-			if (boomChoice == -1){
-					isBoom = false;
-			} else{
+			try{
+				boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+				boomChoice = correspondingNums[boomChoice];
 				isBoom = true;
+			} catch (ArrayIndexOutOfBoundsException ae){
+				isBoom = false;
 			}
+			
 		}
 	}
 	
@@ -956,12 +958,13 @@ public class GameGUI{
 				theGame.pause(1000);
 				//TODO:  Addison:  more logic will be needed here to determine where the player is moving to
 				if (isBoom){
-					nextValid = theGame.getNextValidBoomSpace(color, doub);
+					nextValid = theGame.getNextValidBoomSpace(color, doub, boomChoice);
+					theGame.moveCurPlayer(nextValid.nextFreeSpace(boomChoice), nextValid, boomChoice);
 					isBoom = false;
 				} else{
 					nextValid = theGame.getNextValidSpace(color, doub);
+					theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
 				}
-				theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
 				
 				String oor2 = drawnCard.isdouble ? "two" : "one";
 				String plur = drawnCard.isdouble ? "s" : "";

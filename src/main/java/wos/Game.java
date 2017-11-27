@@ -82,6 +82,12 @@ public class Game implements Serializable{
 		// System.out.println("current space: " + getCurrentSpaceLabel());
 	}
 	
+	public void moveCurPlayer(int[] location, Space s, int playerNum)
+	{
+		players[playerNum].updateLocation(location, s);
+		// System.out.println("current space: " + getCurrentSpaceLabel());
+	}
+	
 	//TODO
 	public Space getNextValidSpace(String color, String doub)
 	{
@@ -142,11 +148,11 @@ public class Game implements Serializable{
 		return returnSpace;
 	}
 	
-	public Space getNextValidBoomSpace(String color, String doub)
+	public Space getNextValidBoomSpace(String color, String doub, int boomChoice)
 	{
 		boolean found = false;
-		Space returnSpace = players[turn].getCurrentSpace();
-		Space currentSpace = players[turn].getCurrentSpace();
+		Space returnSpace = gameBoard.gameSpaces[0];
+		Space currentSpace = players[boomChoice].getCurrentSpace();
 		int currentIndex = -1;
 		// Gets the index of the space in gameSpaces the current player is on
 		if(color.equals("start")){
@@ -156,7 +162,7 @@ public class Game implements Serializable{
 			for(int i = 0; i < gameBoard.NUMBER_OF_SPACES; i++){
 				if(gameBoard.gameSpaces[i].getLabel().equals(currentSpace.getLabel())){
 					currentIndex = i;
-					//System.out.println("found current space, index: " + i);
+					// System.out.println("found current space, index: " + i);
 				}
 			}
 		}
@@ -166,7 +172,7 @@ public class Game implements Serializable{
 				returnSpace = gameBoard.gameSpaces[0];
 			}
 			else{
-				for(int j = currentIndex-1; j < Math.max(currentIndex-6, 0); j--){
+				for(int j = currentIndex-1; j > Math.max(currentIndex-6, 0); j--){
 					if(gameBoard.gameSpaces[j].getColor().equals(color)){
 						returnSpace = gameBoard.gameSpaces[j];
 						found = true;
@@ -182,7 +188,7 @@ public class Game implements Serializable{
 		// Starts the search for the next valid space five spaces ahead of current, then will search at most five spaces ahead for the next valid space
 		else if(doub.equals("double")){
 			if(currentIndex > 7){
-				for(int j = currentIndex-6; j < Math.max(currentIndex-11, 0); j--){
+				for(int j = currentIndex-6; j > Math.max(currentIndex-11, 0); j--){
 					if(gameBoard.gameSpaces[j].getColor().equals(color)){
 						returnSpace = gameBoard.gameSpaces[j];
 						found = true;
