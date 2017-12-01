@@ -11,7 +11,7 @@ import wos.*;
 import java.time.Duration;
 import java.net.URL;
 import javax.sound.sampled.*;
-
+import java.security.MessageDigest;
 
 public class GameGUI{
 	private final int HEIGHT = 695;
@@ -789,7 +789,25 @@ public class GameGUI{
 			}
 		}
 	}
-	
+	private String getFileChecksum(String filename) throws Exception{
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		byte [] data = new byte[1024];
+		int count = 0;
+		File file = new File(filename);
+		FileInputStream fis2 = new FileInputStream(file);
+		while((count = fis2.read(data)) != -1){
+			md.update(data, 0, count);
+		};
+
+		byte [] mdbytes = md.digest();
+
+		StringBuffer sb = new StringBuffer("");
+		for(int i = 0; i <mdbytes.length; i ++){
+			sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+		}
+		System.out.println("Digest:" + sb.toString());
+		return sb.toString();
+	}
 	class SaveListener implements ActionListener{
 		Container pane;
 		public SaveListener(Container pane){
@@ -799,16 +817,20 @@ public class GameGUI{
 			try {
 				String filename = JOptionPane.showInputDialog("Name your game:");
 				boardPanel.setFirstRun(false);
-				fout = new FileOutputStream(filename + ".ser");
+				String gameFilename = filename + ".ser";
+				fout = new FileOutputStream(gameFilename);
 				oos = new ObjectOutputStream(fout);
 				oos.writeObject(theGame);
+				String checksum = getFileChecksum(gameFilename);
 				oos.close();
-				fout = new FileOutputStream(filename+"timer.ser");
+				String timerFilename = filename + "timer.ser";
+				fout = new FileOutputStream(timerFilename);
 				timerOut = new ObjectOutputStream(fout);
 				Date current = new Date();
 				int seconds = (int) (current.getTime()-gameStarted.getTime())/1000 + offset - offset2;
 				timerOut.writeObject(seconds);
 				timerOut.close();
+				checksum = getFileChecksum(timerFilename);
 				updateTicker("Game saved!", "black");
 				(new RevertTickerThread()).execute();
 			}
