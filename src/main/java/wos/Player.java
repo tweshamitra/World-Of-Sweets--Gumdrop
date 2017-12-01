@@ -11,7 +11,7 @@ public class Player implements Serializable{
 	int[] coordinates = new int[2];
 	int number;
 	int boomerangs = 3;
-	boolean isAI;
+	boolean isAI = false;
 	
 	public Player(String pname, String pcolor){
 		name = pname;
@@ -38,6 +38,10 @@ public class Player implements Serializable{
 		if (boomerangs > 0){
 			boomerangs--;
 		}
+	}
+	
+	public boolean haveBoomerangs(){
+		return boomerangs > 0;
 	}
 	
 	public boolean checkWin(){

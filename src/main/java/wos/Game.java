@@ -2,6 +2,9 @@ package wos;
 
 import wos.*;
 import java.io.Serializable;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
 public class Game implements Serializable{
 	Board gameBoard;
 	Player[] players;
@@ -20,17 +23,20 @@ public class Game implements Serializable{
 	
 
 	
-	public void setPlayer(int playerNum, String playerName, String playerColor)
+	public void setPlayer(int playerNum, String playerName, String playerType, String playerColor)
 	{
 		if(playerNum > players.length)
 		{
 			return;
 		}
 		players[playerNum] = new Player(playerName, playerColor);
+		if(playerType.equals("AI")){
+			players[playerNum].setAI();
+		}
 	}
 	
-	public Player getCurPlayer(){
-		return players[turn];
+	public boolean isCurPlayerAI(){
+		return players[turn].isAI();
 	}
 	
 	public String getCurPlayerName()
@@ -77,15 +83,6 @@ public class Game implements Serializable{
 	public String getCurrentSpaceLabel(){
 		return players[turn].getCurrentSpace().getLabel();
 	}
-	
-	//unsure?
-	public void getPlayerLocation(int playerNum)
-	{
-		//TODO: Addison:  Return a representation of the requested player's location, however you decide to represent that
-	}
-	
-	//TODO
-	//Or however we want to manifest location
 
 	public void moveCurPlayer(int[] location, Space s)
 	{
@@ -239,6 +236,7 @@ public class Game implements Serializable{
 		{
 			turn = 0;
 		}
+		// doAIWork();
 	}
 	
 	public Card drawCard()
@@ -255,4 +253,41 @@ public class Game implements Serializable{
 	{
 		return gameDeck.shuffleDeck();
 	}
+	
+	public void doAIWork(boolean mode){
+		Random drawOrBoom = new Random();
+		Robot aiPlay;
+		try{
+			Point originalLocation = MouseInfo.getPointerInfo().getLocation();
+			aiPlay = new Robot();
+			if(isCurPlayerAI() && mode){
+				if(drawOrBoom.nextInt(2) == 1 && players[turn].haveBoomerangs()){
+					aiPlay.mouseMove(27, 350);
+					aiPlay.mousePress(InputEvent.BUTTON1_MASK);
+					aiPlay.mouseRelease(InputEvent.BUTTON1_MASK);
+					aiPlay.mouseMove(125, 537);
+					aiPlay.mousePress(InputEvent.BUTTON1_MASK);
+					aiPlay.mouseRelease(InputEvent.BUTTON1_MASK);
+					aiPlay.mouseMove((int) originalLocation.getX(), (int) originalLocation.getY());
+				}
+				else{
+					aiPlay.mouseMove(125, 537);
+					aiPlay.mousePress(InputEvent.BUTTON1_MASK);
+					aiPlay.mouseRelease(InputEvent.BUTTON1_MASK);
+					aiPlay.mouseMove((int) originalLocation.getX(), (int) originalLocation.getY());
+				}
+			}
+			else if(isCurPlayerAI()){
+				aiPlay.mouseMove(125, 537);
+				aiPlay.mousePress(InputEvent.BUTTON1_MASK);
+				aiPlay.mouseRelease(InputEvent.BUTTON1_MASK);
+				aiPlay.mouseMove((int) originalLocation.getX(), (int) originalLocation.getY());
+			}
+		}
+		catch(AWTException ae){}
+		catch(IllegalArgumentException iae){}
+		
+	}
+	
+	
 }

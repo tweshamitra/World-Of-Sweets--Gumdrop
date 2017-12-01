@@ -73,6 +73,7 @@ public class GameGUI{
 	private Space nextValid = null;
 	private Date elapsedTime;
 	int ach = 0;
+	private Random rand = new Random();
 	//private File soundFile;
 	//private AudioInputStream in;
 	//private Clip clip;
@@ -104,6 +105,7 @@ public class GameGUI{
 		pane.removeAll();
 		pane.setLayout(new GridBagLayout());
 		playerNames.clear();
+		playerType.clear();
 		JPanel startPanel = new JPanel();
 		num_players_menu.setBackground(Color.GREEN);
 		ActionListener comboBoxListener = new ComboBoxListener(pane);		
@@ -292,6 +294,7 @@ public class GameGUI{
 		}
 	}
 	
+	
 	class LoadListener implements ActionListener{
 		Container pane;
 		public LoadListener(Container pane){
@@ -329,7 +332,7 @@ public class GameGUI{
 		pane.removeAll();
 		theGame = new Game(numPlayers);
 		for(int i = 0; i < numPlayers; i++){
-			theGame.setPlayer(i, playerNames.get(i), colors[i]);
+			theGame.setPlayer(i, playerNames.get(i), playerType.get(i), colors[i]);
 		}
 		gameOver = false;
 		addBoardComponentsToPane(pane);
@@ -619,10 +622,13 @@ public class GameGUI{
 
 		timerThread1.execute();
 		//(new TimerThread()).execute();
+		
+		theGame.doAIWork(gameType);
     }
 
 	//THIS CLASS HANDLES THE CUSTOM ANIMATION FOR THE GAME BOARD AND TOKENS
     public class JBoardPanel extends JPanel{
+		private Robot aiPlayer;
 		int xy[] = new int[2];
 		boolean firstRun = true;
 		@Override
@@ -651,7 +657,6 @@ public class GameGUI{
 			// }
 			
 			drawPlayers(g);
-			
 			
 		}
 		
@@ -852,13 +857,29 @@ public class GameGUI{
 						count++;
 					}
 				}
+				// try{
+					// boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+					// boomChoice = correspondingNums[boomChoice];
+					// isBoom = true;
+					// theGame.players[theGame.turn].decrementBooms();
+				// } catch (ArrayIndexOutOfBoundsException ae){
+					// isBoom = false;
+				// }
+// <<<<<<< Updated upstream
+// =======
 				try{
-					boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+					if(theGame.isCurPlayerAI()){
+						boomChoice = rand.nextInt(count);
+					}
+					else{
+						boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+					}
 					boomChoice = correspondingNums[boomChoice];
 					isBoom = true;
 					theGame.players[theGame.turn].decrementBooms();
 				} catch (ArrayIndexOutOfBoundsException ae){
 					isBoom = false;
+	// >>>>>>> Stashed changes
 				}
 			}
 			
@@ -1076,20 +1097,7 @@ public class GameGUI{
 							}
 							//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 							break;
-					/*  I'm leaving this code in here since the other cards will probably be very similar to implement.
-					case 2: showSpecialCard(drawnCard.specText);
-							updateTicker(curPlayer + " drew a middle card!", playerColor);
-							theGame.pause(1000);
-							//TODO:  Addison:  incorporate the movement logic
-							Space middleSpace = theGame.gameBoard.gameSpaces[16];
-							theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
-							
-							updateTicker(curPlayer + " was sent to the middle of the board!", playerColor);
-							theGame.pause(1000);
-							theGame.incrementTurn();
-							removeDrawnCard();
-							//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
-							break; */
+					
 					//Chocolate Falls
 					case 2: showSpecialCard(drawnCard.specText);
 							updateTicker(curPlayer + " drew a chocolate card!", playerColor);
@@ -1216,7 +1224,10 @@ public class GameGUI{
 				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 				deckOfCards.setEnabled(true);
 				optionButton.setEnabled(true);
-				boomButton.setEnabled(true);
+				if(gameType){
+					boomButton.setEnabled(true);
+				}
+				theGame.doAIWork(gameType);
 			}
        }
 	}
@@ -1255,7 +1266,7 @@ public class GameGUI{
 	{
 		theGame = new Game(1);
 		numPlayers = 1;
-		theGame.setPlayer(0, "TestPlayer", "orange");
+		theGame.setPlayer(0, "TestPlayer", "Player", "orange");
 		
 		frame = new JFrame("World of Sweets!");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
