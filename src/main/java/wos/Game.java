@@ -29,6 +29,10 @@ public class Game implements Serializable{
 		players[playerNum] = new Player(playerName, playerColor);
 	}
 	
+	public Player getCurPlayer(){
+		return players[turn];
+	}
+	
 	public String getCurPlayerName()
 	{
 		return players[turn].name;
@@ -44,6 +48,13 @@ public class Game implements Serializable{
 		return players[playerNum].name;
 	}
 	
+	public String getPlayerNameAt(int index){
+		return players[index].name;
+	}
+	
+	public String getPlayerColorAt(int index){
+		return players[index].color;
+	}
 	public int getNumPlayers(){
 		return playerNum;
 	}

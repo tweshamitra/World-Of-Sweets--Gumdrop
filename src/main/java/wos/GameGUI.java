@@ -523,26 +523,7 @@ public class GameGUI{
 		if(flag == false){
 			boardPanel.setFirstRun(flag);
 		}
-		// MouseListener to test space coordinates
-		// boardPanel.addMouseListener(new MouseAdapter(){
-				// @Override
-				// public void mouseClicked(MouseEvent e){
-					// for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
-						// Space sp = theGame.gameBoard.gameSpaces[i];
-						// int xy[] = new int[2];
-						// if(sp.wasClicked(e)){
-							// xy = sp.nextFreeSpace(theGame.getCurPlayerNum());
-							// System.out.println("PIn: " + sp.getPIndex() + " x: " + xy[0] + " y: " + xy[1] + " label: " + sp.getLabel());
-							// theGame.moveCurPlayer(xy, sp);
-						// }
-					// }
-					
-				// }
-			// });
-			
-			
-	
-
+		
 		boardPanel.setBackground(Color.BLUE);
 		boardPanel.setPreferredSize(new Dimension(800, 615));
 		
@@ -940,6 +921,12 @@ public class GameGUI{
 			updateDeckImage(theGame.getNumCardsLeft());
 			String curPlayer = theGame.getCurPlayerName();
 			String playerColor = theGame.getCurPlayerColor();
+			String boomPlayer = "";
+			String boomColor = ""; 
+			if(isBoom){
+				boomPlayer = theGame.getPlayerNameAt(boomChoice);
+				boomColor = theGame.getPlayerColorAt(boomChoice);
+			}
 			if(drawnCard == null)
 			{
 				playAudio("DeckShuffle.wav", false);
@@ -957,18 +944,21 @@ public class GameGUI{
 				updateTicker(curPlayer + " drew a " + doub + " " + color + " card!", playerColor);
 				theGame.pause(1000);
 				//TODO:  Addison:  more logic will be needed here to determine where the player is moving to
+				String oor2 = drawnCard.isdouble ? "two" : "one";
+				String plur = drawnCard.isdouble ? "s" : "";
 				if (isBoom){
 					nextValid = theGame.getNextValidBoomSpace(color, doub, boomChoice);
 					theGame.moveCurPlayer(nextValid.nextFreeSpace(boomChoice), nextValid, boomChoice);
 					isBoom = false;
+					updateTicker(boomPlayer + " moved back " + oor2 + " " + color + " space" + plur + "!", boomColor);
 				} else{
 					nextValid = theGame.getNextValidSpace(color, doub);
 					theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
+					updateTicker(curPlayer + " moved " + oor2 + " " + color + " space" + plur + "!", playerColor);
 				}
 				
-				String oor2 = drawnCard.isdouble ? "two" : "one";
-				String plur = drawnCard.isdouble ? "s" : "";
-				updateTicker(curPlayer + " moved " + oor2 + " " + color + " space" + plur + "!", playerColor);
+				
+				
 				theGame.incrementTurn();
 				theGame.pause(2000);
 				removeDrawnCard();
@@ -1009,9 +999,15 @@ public class GameGUI{
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							logicalSpace = theGame.gameBoard.gameSpaces[44];
-							theGame.moveCurPlayer(chocFalls.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
-							
-							updateTicker(curPlayer + " was sent to Chocolate Falls!", playerColor);
+							if(isBoom){
+								theGame.moveCurPlayer(chocFalls.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
+								updateTicker(boomPlayer + " was sent to Chocolate Falls!", boomColor);
+								isBoom = false;
+							}
+							else{
+								theGame.moveCurPlayer(chocFalls.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+								updateTicker(curPlayer + " was sent to Chocolate Falls!", playerColor);								
+							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
@@ -1022,9 +1018,16 @@ public class GameGUI{
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							logicalSpace = theGame.gameBoard.gameSpaces[22];
-							theGame.moveCurPlayer(lolMntn.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+							if(isBoom){
+								theGame.moveCurPlayer(lolMntn.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
+								updateTicker(boomPlayer + " was sent to Lollipop Mountain!", boomColor);
+								isBoom = false;
+							}
+							else{
+								theGame.moveCurPlayer(lolMntn.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+								updateTicker(curPlayer + " was sent to Lollipop Mountain!", playerColor);
+							}
 							
-							updateTicker(curPlayer + " was sent to Lollipop Mountain!", playerColor);
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
@@ -1035,9 +1038,15 @@ public class GameGUI{
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							logicalSpace = theGame.gameBoard.gameSpaces[50];
-							theGame.moveCurPlayer(cupForest.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
-							
-							updateTicker(curPlayer + " was sent to the Cupcake Forest!", playerColor);
+							if(isBoom){
+								theGame.moveCurPlayer(cupForest.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
+								updateTicker(boomPlayer + " was sent to the Cupcake Forest!", boomColor);
+								isBoom = false;
+							}
+							else{
+								theGame.moveCurPlayer(cupForest.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+								updateTicker(curPlayer + " was sent to the Cupcake Forest!", playerColor);
+							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
@@ -1048,9 +1057,15 @@ public class GameGUI{
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							logicalSpace = theGame.gameBoard.gameSpaces[45];
-							theGame.moveCurPlayer(britBridge.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
-							
-							updateTicker(curPlayer + " was sent to Brittle Bridge!", playerColor);
+							if(isBoom){
+								theGame.moveCurPlayer(britBridge.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
+								updateTicker(boomPlayer + " was sent to Brittle Bridge!", boomColor);
+								isBoom = false;
+							}
+							else{
+								theGame.moveCurPlayer(britBridge.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+								updateTicker(curPlayer + " was sent to Brittle Bridge!", playerColor);
+							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
@@ -1061,9 +1076,15 @@ public class GameGUI{
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							logicalSpace = theGame.gameBoard.gameSpaces[38];
-							theGame.moveCurPlayer(licLake.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
-							
-							updateTicker(curPlayer + " was sent to Licorice Lake!", playerColor);
+							if(isBoom){
+								theGame.moveCurPlayer(licLake.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
+								updateTicker(boomPlayer + " was sent to Licorice Lake!", boomColor);
+								isBoom = false;
+							}
+							else{
+								theGame.moveCurPlayer(licLake.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+								updateTicker(curPlayer + " was sent to Licorice Lake!", playerColor);
+							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
