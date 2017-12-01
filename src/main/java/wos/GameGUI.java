@@ -977,6 +977,9 @@ public class GameGUI{
 							theGame.pause(2000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							if(isBoom){
+								isBoom = false;
+							}
 							//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 							break;
 					/*  I'm leaving this code in here since the other cards will probably be very similar to implement.
