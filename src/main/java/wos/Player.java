@@ -10,7 +10,7 @@ public class Player implements Serializable{
 	Space currentSpace;
 	int[] coordinates = new int[2];
 	int number;
-	int boomerangs;
+	int boomerangs = 3;
 	boolean isAI;
 	
 	public Player(String pname, String pcolor){
@@ -35,7 +35,9 @@ public class Player implements Serializable{
 	}
 	
 	public void decrementBooms(){
-		boomerangs--;
+		if (boomerangs > 0){
+			boomerangs--;
+		}
 	}
 	
 	public boolean checkWin(){

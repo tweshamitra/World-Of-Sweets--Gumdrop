@@ -28,6 +28,7 @@ public class GameGUI{
 	Game theGame;
 	volatile boolean gameOver;
 	private boolean flag = true;
+	private boolean gameType = false;
 	volatile private boolean pauseTimer = false;
 	volatile boolean gamePlaying = false;
 	volatile boolean tickerUpdated = false;
@@ -48,6 +49,13 @@ public class GameGUI{
 	private int[] nums = {2,3,4};
 	private ArrayList<String> playerNames = new ArrayList<String>();
 	private JComboBox num_players_menu = new JComboBox();
+	private String[] playType = {"Human", "AI"};
+	private ArrayList<String> playerType = new ArrayList<String>();
+	private JComboBox play_1 = new JComboBox();
+	private JComboBox play_2 = new JComboBox();
+	private JComboBox play_3 = new JComboBox();
+	private JComboBox play_4 = new JComboBox();
+	private JComboBox gameChoice = new JComboBox();
 	private Font font, font40, font48;
 	private Date gameStarted;
 	private FileOutputStream fout = null;
@@ -75,6 +83,17 @@ public class GameGUI{
 		num_players_menu.addItem(nums[0]);
 		num_players_menu.addItem(nums[1]);
 		num_players_menu.addItem(nums[2]);
+		play_1.addItem(playType[0]);
+		play_2.addItem(playType[0]);
+		play_3.addItem(playType[0]);
+		play_4.addItem(playType[0]);
+		
+		play_1.addItem(playType[1]);
+		play_2.addItem(playType[1]);
+		play_3.addItem(playType[1]);
+		play_4.addItem(playType[1]);		
+		gameChoice.addItem("Classic");
+		gameChoice.addItem("Strategic");
 	}
 	//THIS FUNCTION WILL DRAW THE START SCREEN
 	private void drawStartScreen(Container pane) {	
@@ -111,25 +130,34 @@ public class GameGUI{
 		welcomePanel.setBackground(Color.PINK);
 		welcomePanel.add(welcomeLabel);
 		welcomePanel.setMaximumSize(new Dimension(10,10));
-		startPanel.setLayout(new GridLayout(0,2));
+		startPanel.setLayout(new GridLayout(0,3));
 		startPanel.setBackground(Color.PINK);
+		startPanel.setPreferredSize(new Dimension(100, 500));
 		
 
 		startPanel.add(numPlayLabel);
 		startPanel.add(num_players_menu);
-
+		startPanel.add(new JLabel());
 		startPanel.add(playNameLabel);
 		playNameLabel.setVisible(false);
 		startPanel.add(text_1);
+		startPanel.add(play_1);
         startPanel.add(new JLabel());
 		
 		startPanel.add(text_2);
+		startPanel.add(play_2);
         startPanel.add(new JLabel());
 
 		startPanel.add(text_3);
+		startPanel.add(play_3);
         startPanel.add(new JLabel());
 
 		startPanel.add(text_4);
+		startPanel.add(play_4);
+		
+		startPanel.add(new JLabel());
+		startPanel.add(new JLabel());
+		startPanel.add(gameChoice);
 		
 		text_1.setVisible(false);
 		text_2.setVisible(false);
@@ -139,6 +167,18 @@ public class GameGUI{
 		text_2.setBackground(Color.GREEN);
 		text_3.setBackground(Color.GREEN);
 		text_4.setBackground(Color.GREEN);
+		
+		play_1.setVisible(false);
+		play_2.setVisible(false);
+		play_3.setVisible(false);
+		play_4.setVisible(false);
+		play_1.setBackground(Color.GREEN);
+		play_2.setBackground(Color.GREEN);
+		play_3.setBackground(Color.GREEN);
+		play_4.setBackground(Color.GREEN);
+		
+		gameChoice.setVisible(false);
+		gameChoice.setBackground(Color.GREEN);
 
 		JPanel submitPanel = new JPanel(new GridLayout(1,2));
 		submitPanel.setBackground(Color.PINK);
@@ -172,7 +212,7 @@ public class GameGUI{
 		
 		
 		submit.setVisible(false);
-		load.setVisible(true);
+		//load.setVisible(true);
 		
 		pane.add(infoPanel);
 		pane.setComponentZOrder(infoPanel, 0);
@@ -196,17 +236,33 @@ public class GameGUI{
 				text_2.setVisible(true);
 				text_3.setVisible(false);
 				text_4.setVisible(false);	
+
+				play_1.setVisible(true);
+				play_2.setVisible(true);
+				play_3.setVisible(false);
+				play_4.setVisible(false);	
 			} else if (numPlayers == 3){
 				text_1.setVisible(true);
 				text_2.setVisible(true);
 				text_3.setVisible(true);
-				text_4.setVisible(false);				
+				text_4.setVisible(false);
+
+				play_1.setVisible(true);
+				play_2.setVisible(true);
+				play_3.setVisible(true);
+				play_4.setVisible(false);				
 			} else{
 				text_1.setVisible(true);
 				text_2.setVisible(true);
 				text_3.setVisible(true);
 				text_4.setVisible(true);
+				
+				play_1.setVisible(true);
+				play_2.setVisible(true);
+				play_3.setVisible(true);
+				play_4.setVisible(true);
 			}
+			gameChoice.setVisible(true);
 		}
 	}
 	
@@ -223,6 +279,15 @@ public class GameGUI{
 			playerNames.add(text_2.getText());
 			playerNames.add(text_3.getText());
 			playerNames.add(text_4.getText());
+			playerType.add((String)play_1.getSelectedItem());
+			playerType.add((String)play_2.getSelectedItem());
+			playerType.add((String)play_3.getSelectedItem());
+			playerType.add((String)play_4.getSelectedItem());
+			if ((String)gameChoice.getSelectedItem() == "Classic"){
+				gameType = false;
+			} else{
+				gameType = true;
+			}
 			drawPlayerInfoScreen(pane);
 		}
 	}
@@ -304,6 +369,21 @@ public class GameGUI{
 		
 		ImageIcon icon = new ImageIcon(getImage(imgString)); 
 		deckOfCards.setIcon(icon);
+
+		String num = "0";
+		String boom = "Boom.png";
+		switch (theGame.players[theGame.turn].boomerangs){
+			case 3:  num = "3";
+				break;
+			case 2:  num = "2";
+					break;
+			case 1:  num = "1";
+					break;
+			case 0:  num = "0";	
+		}
+		ImageIcon boomImage = new ImageIcon(getImage(num + boom)); 
+		boomButton.setIcon(boomImage);
+		
 	}
 	
 	public void showDrawnCard(String color, String doub)
@@ -473,26 +553,35 @@ public class GameGUI{
 		displayCardPanel.setOpaque(false);
 		
 		displayCardPanel.setPreferredSize(new Dimension(250, 300));
-		
-		ImageIcon boomImage = new ImageIcon(getImage("3Boom.png")); 
-		boomButton = new JButton();
-		boomButton.setIcon(boomImage);
-		boomButton.setPreferredSize(new Dimension(54, 61));
-		boomButton.setOpaque(false);
-		boomButton.setContentAreaFilled(false);
-		boomButton.setBorderPainted(false);
-		ActionListener boomListener = new BoomListener(pane);
-		boomButton.addActionListener(boomListener);
-		
-		
-		
 		drawnCardLabel.setVerticalAlignment(SwingConstants.TOP);
-		boomButton.setVerticalAlignment(SwingConstants.BOTTOM);
-		displayCardPanel.add(boomButton, BorderLayout.WEST);
+		
+		String boom = "Boom.png";
+		String num = "0";
+		System.out.println("Boomerangs: " + theGame.players[theGame.turn].boomerangs);
+		if(gameType){
+			switch (theGame.players[theGame.turn].boomerangs){
+				case 3:  num = "3";
+					break;
+				case 2:  num = "2";
+						break;
+				case 1:  num = "1";
+						break;
+				case 0:  num = "0";	
+			}
+			ImageIcon boomImage = new ImageIcon(getImage(num + boom)); 
+			boomButton = new JButton();
+			boomButton.setIcon(boomImage);
+			boomButton.setPreferredSize(new Dimension(54, 61));
+			boomButton.setOpaque(false);
+			boomButton.setContentAreaFilled(false);
+			boomButton.setBorderPainted(false);
+			ActionListener boomListener = new BoomListener(pane);
+			boomButton.addActionListener(boomListener);
+			boomButton.setVerticalAlignment(SwingConstants.BOTTOM);	
+			displayCardPanel.add(boomButton, BorderLayout.WEST);			
+		}
+		
 		displayCardPanel.add(drawnCardLabel, BorderLayout.CENTER);
-
-		
-		
 		deckPanel.add(displayCardPanel);
 		
 		//INITIALIZING THE DECK DISPLAY
@@ -644,7 +733,7 @@ public class GameGUI{
 		JLabel text = new JLabel("Game over!");
 	
 		text.setPreferredSize(new Dimension(1050,60));
-		text.setFont(new Font("TimesRoman", Font.ITALIC, 60));
+		text.setFont(font48);
 		text.setHorizontalAlignment(JLabel.CENTER);
 
 		textPanel.add(text);
@@ -676,7 +765,7 @@ public class GameGUI{
 		drawACardPanel.add(deckOfCards, BorderLayout.CENTER);
 		deckPanel.add(drawACardPanel);
 		JLabel winnerLabel = new JLabel(winner.getPlayerName()+ " has won!");
-		winnerLabel.setFont(new Font("TimesRoman", Font.ITALIC, 72));
+		winnerLabel.setFont(font48);
 		winnerLabel.setForeground(Color.RED);
 		winnerLabel.setBackground(Color.GREEN);
 		JPanel winnerPanel = new JPanel(new GridLayout(2,1));
@@ -751,24 +840,28 @@ public class GameGUI{
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
-			playAudio("ButtonClick.wav", false);
-			ImageIcon[] options = new ImageIcon[theGame.getNumPlayers() - 1];
-			int[] correspondingNums = new int[theGame.getNumPlayers() - 1];
-			String[] colors = {"red", "blue", "yellow", "green"};
-			int count = 0;
-			for (int i = 0; i < 4; i++){
-				if (theGame.getCurPlayerColor().toLowerCase() != colors[i] && count < options.length){
-					options[count] = new ImageIcon(getImage(colors[i] + "token.png"));
-					correspondingNums[count] = i;
-					count++;
+			
+			if (theGame.players[theGame.turn].boomerangs > 0){
+				playAudio("ButtonClick.wav", false);
+				ImageIcon[] options = new ImageIcon[theGame.getNumPlayers() - 1];
+				int[] correspondingNums = new int[theGame.getNumPlayers() - 1];
+				String[] colors = {"red", "blue", "yellow", "green"};
+				int count = 0;
+				for (int i = 0; i < 4; i++){
+					if (theGame.getCurPlayerColor().toLowerCase() != colors[i] && count < options.length){
+						options[count] = new ImageIcon(getImage(colors[i] + "token.png"));
+						correspondingNums[count] = i;
+						count++;
+					}
 				}
-			}
-			try{
-				boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-				boomChoice = correspondingNums[boomChoice];
-				isBoom = true;
-			} catch (ArrayIndexOutOfBoundsException ae){
-				isBoom = false;
+				try{
+					boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+					boomChoice = correspondingNums[boomChoice];
+					isBoom = true;
+					theGame.players[theGame.turn].decrementBooms();
+				} catch (ArrayIndexOutOfBoundsException ae){
+					isBoom = false;
+				}
 			}
 			
 		}
@@ -905,6 +998,9 @@ public class GameGUI{
 				playAudio("CardFlip.wav", false);
 				deckOfCards.setEnabled(false);
 				optionButton.setEnabled(false);
+				if (gameType){
+					boomButton.setEnabled(false);
+				}
 				(new GameLogicThread()).execute();
 
 		}
@@ -1122,6 +1218,7 @@ public class GameGUI{
 				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 				deckOfCards.setEnabled(true);
 				optionButton.setEnabled(true);
+				boomButton.setEnabled(true);
 			}
        }
 	}
