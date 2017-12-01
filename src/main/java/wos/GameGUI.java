@@ -368,22 +368,7 @@ public class GameGUI{
 		}
 		
 		ImageIcon icon = new ImageIcon(getImage(imgString)); 
-		deckOfCards.setIcon(icon);
-
-		String num = "0";
-		String boom = "Boom.png";
-		switch (theGame.players[theGame.turn].boomerangs){
-			case 3:  num = "3";
-				break;
-			case 2:  num = "2";
-					break;
-			case 1:  num = "1";
-					break;
-			case 0:  num = "0";	
-		}
-		ImageIcon boomImage = new ImageIcon(getImage(num + boom)); 
-		boomButton.setIcon(boomImage);
-		
+		deckOfCards.setIcon(icon);		
 	}
 	
 	public void showDrawnCard(String color, String doub)
@@ -401,6 +386,19 @@ public class GameGUI{
 	public void removeDrawnCard()
 	{
 		drawnCardLabel.setIcon(null);
+		String num = "0";
+		String boom = "Boom.png";
+		switch (theGame.players[theGame.turn].boomerangs){
+			case 3:  num = "3";
+				break;
+			case 2:  num = "2";
+					break;
+			case 1:  num = "1";
+					break;
+			case 0:  num = "0";	
+		}
+		ImageIcon boomImage = new ImageIcon(getImage(num + boom)); 
+		boomButton.setIcon(boomImage);
 	}
 	
 	public void updateTicker(String text, String color){
