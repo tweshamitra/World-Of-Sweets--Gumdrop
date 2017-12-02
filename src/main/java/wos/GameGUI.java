@@ -46,7 +46,6 @@ public class GameGUI{
 	private int[] nums = {2,3,4};
 	private ArrayList<String> playerNames = new ArrayList<String>();
 	private JComboBox num_players_menu = new JComboBox();
-	private ArrayList<String> game_names = new ArrayList<String>();
 	private JComboBox games = new JComboBox();
 	private Font font, font40, font48;
 	private Date gameStarted;
@@ -63,7 +62,7 @@ public class GameGUI{
 	private Space cupForest = new Space(427, 570, 103, 205, false, false, "none", -1);
 	private Space lolMntn = new Space(521, 651, 427, 529, false, false, "none", -1);
 	private Date elapsedTime;
-	private String checksumFile = "checksums.txt";
+	private String checksumFile = "checksums.md5";
 	int ach = 0;
 	
 	public GameGUI()
@@ -236,13 +235,15 @@ public class GameGUI{
 				theGame = (Game)ois.readObject();
 				numPlayers = theGame.players.length;
 				fis.close();
+				//boolean corrupted = verifyFile(filename+ ".ser")
+
 				fis = new FileInputStream(filename+"timer.ser");
 				timerIn = new ObjectInputStream(fis);
 				offset = (int)timerIn.readObject();
 				timerIn.close();
 				fis.close();
 				flag = false;
-				String checksum = getFileChecksum(filename + ".ser", false);
+				//String checksum = getFileChecksum(filename + ".ser", false);
 
 				addBoardComponentsToPane(pane);
 				gamePlaying = true;
@@ -789,7 +790,7 @@ public class GameGUI{
 			}
 		}
 	}
-	private String getFileChecksum(String filename, boolean put) throws Exception{
+	private String getFileChecksum(String filename, boolean loading) throws Exception{
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		byte [] data = new byte[1024];
 		int count = 0;
@@ -806,11 +807,7 @@ public class GameGUI{
 			sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
 		}
 		fis2.close();
-		// if(put){
-		// 	checksum.put(filename, sb.toString());
-		// }
 		System.out.println("Digest:" + sb.toString());
-		//System.out.println(checksum);
 		return sb.toString();
 	}
 	class SaveListener implements ActionListener{
@@ -823,39 +820,21 @@ public class GameGUI{
 				String filename = JOptionPane.showInputDialog("Name your game:");
 				boardPanel.setFirstRun(false);
 				String gameFilename = filename + ".ser";
-				game_names.add(gameFilename);
 				fout = new FileOutputStream(gameFilename);
 				oos = new ObjectOutputStream(fout);
 				oos.writeObject(theGame);
-				oos.close();
 				String checksum = getFileChecksum(gameFilename, true);
-				File file = new File(checksumFile);
-				if(!file.exists()){
-					file.createNewFile();
-					System.out.println("here");
-				}
-				System.out.println("now here");
-
-				FileWriter fw = new FileWriter(file, true);
-				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write(gameFilename);
-				bw.write(",");
-				bw.write(checksum);
-				bw.write("\n");
+				oos.writeObject("\nchecksum:" +checksum);
+				oos.close();	
 				String timerFilename = filename + "timer.ser";
 				fout = new FileOutputStream(timerFilename);
 				timerOut = new ObjectOutputStream(fout);
 				Date current = new Date();
 				int seconds = (int) (current.getTime()-gameStarted.getTime())/1000 + offset - offset2;
 				timerOut.writeObject(seconds);
-				timerOut.close();
 				checksum = getFileChecksum(timerFilename, true);
-
-				bw.write(timerFilename);
-				bw.write(",");
-				bw.write(checksum);
-				bw.write("\n");
-				bw.close();
+				timerOut.writeObject("\nchecksum:"+checksum);
+				timerOut.close();	
 				updateTicker("Game saved!", "black");
 				(new RevertTickerThread()).execute();
 			}
