@@ -558,7 +558,7 @@ public class GameGUI{
 		
 		String boom = "Boom.png";
 		String num = "0";
-		System.out.println("Boomerangs: " + theGame.players[theGame.turn].boomerangs);
+		// System.out.println("Boomerangs: " + theGame.players[theGame.turn].boomerangs);
 		if(gameType){
 			switch (theGame.players[theGame.turn].boomerangs){
 				case 3:  num = "3";
@@ -623,12 +623,11 @@ public class GameGUI{
 		timerThread1.execute();
 		//(new TimerThread()).execute();
 		
-		theGame.doAIWork(gameType);
+		doAIWork(theGame.isCurPlayerAI(), gameType);
     }
 
 	//THIS CLASS HANDLES THE CUSTOM ANIMATION FOR THE GAME BOARD AND TOKENS
     public class JBoardPanel extends JPanel{
-		private Robot aiPlayer;
 		int xy[] = new int[2];
 		boolean firstRun = true;
 		@Override
@@ -857,16 +856,6 @@ public class GameGUI{
 						count++;
 					}
 				}
-				// try{
-					// boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-					// boomChoice = correspondingNums[boomChoice];
-					// isBoom = true;
-					// theGame.players[theGame.turn].decrementBooms();
-				// } catch (ArrayIndexOutOfBoundsException ae){
-					// isBoom = false;
-				// }
-// <<<<<<< Updated upstream
-// =======
 				try{
 					if(theGame.isCurPlayerAI()){
 						boomChoice = rand.nextInt(count);
@@ -879,7 +868,6 @@ public class GameGUI{
 					theGame.players[theGame.turn].decrementBooms();
 				} catch (ArrayIndexOutOfBoundsException ae){
 					isBoom = false;
-	// >>>>>>> Stashed changes
 				}
 			}
 			
@@ -1227,9 +1215,26 @@ public class GameGUI{
 				if(gameType){
 					boomButton.setEnabled(true);
 				}
-				theGame.doAIWork(gameType);
+				doAIWork(theGame.isCurPlayerAI(), gameType);
 			}
        }
+	}
+	
+	void doAIWork(boolean isPlayerAI, boolean mode){
+		Random rand = new Random();
+		
+		if(isPlayerAI && mode){
+			if(rand.nextInt(2) == 1){
+				boomButton.doClick();
+				deckOfCards.doClick();
+			}
+			else{
+				deckOfCards.doClick();				
+			}
+		}
+		else if(isPlayerAI){
+			deckOfCards.doClick();
+		}
 	}
 	   
 	class TimerThread extends SwingWorker<Void, Object> {

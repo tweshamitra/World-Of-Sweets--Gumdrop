@@ -236,7 +236,6 @@ public class Game implements Serializable{
 		{
 			turn = 0;
 		}
-		// doAIWork();
 	}
 	
 	public Card drawCard()
@@ -253,41 +252,4 @@ public class Game implements Serializable{
 	{
 		return gameDeck.shuffleDeck();
 	}
-	
-	public void doAIWork(boolean mode){
-		Random drawOrBoom = new Random();
-		Robot aiPlay;
-		try{
-			Point originalLocation = MouseInfo.getPointerInfo().getLocation();
-			aiPlay = new Robot();
-			if(isCurPlayerAI() && mode){
-				if(drawOrBoom.nextInt(2) == 1 && players[turn].haveBoomerangs()){
-					aiPlay.mouseMove(27, 350);
-					aiPlay.mousePress(InputEvent.BUTTON1_MASK);
-					aiPlay.mouseRelease(InputEvent.BUTTON1_MASK);
-					aiPlay.mouseMove(125, 537);
-					aiPlay.mousePress(InputEvent.BUTTON1_MASK);
-					aiPlay.mouseRelease(InputEvent.BUTTON1_MASK);
-					aiPlay.mouseMove((int) originalLocation.getX(), (int) originalLocation.getY());
-				}
-				else{
-					aiPlay.mouseMove(125, 537);
-					aiPlay.mousePress(InputEvent.BUTTON1_MASK);
-					aiPlay.mouseRelease(InputEvent.BUTTON1_MASK);
-					aiPlay.mouseMove((int) originalLocation.getX(), (int) originalLocation.getY());
-				}
-			}
-			else if(isCurPlayerAI()){
-				aiPlay.mouseMove(125, 537);
-				aiPlay.mousePress(InputEvent.BUTTON1_MASK);
-				aiPlay.mouseRelease(InputEvent.BUTTON1_MASK);
-				aiPlay.mouseMove((int) originalLocation.getX(), (int) originalLocation.getY());
-			}
-		}
-		catch(AWTException ae){}
-		catch(IllegalArgumentException iae){}
-		
-	}
-	
-	
 }
