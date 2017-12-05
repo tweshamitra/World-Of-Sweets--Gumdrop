@@ -859,7 +859,6 @@ public class GameGUI{
 				try{
 					if(theGame.isCurPlayerAI()){
 						boomChoice = rand.nextInt(count);
-						System.out.println("Boom Choice: " + boomChoice);
 					}
 					else{
 						boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
