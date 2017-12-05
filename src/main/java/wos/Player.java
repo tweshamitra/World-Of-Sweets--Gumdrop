@@ -12,6 +12,7 @@ public class Player implements Serializable{
 	int number;
 	int boomerangs = 3;
 	boolean isAI = false;
+	boolean onSpecial;
 	
 	public Player(String pname, String pcolor){
 		name = pname;

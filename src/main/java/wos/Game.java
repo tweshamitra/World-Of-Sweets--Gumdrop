@@ -71,13 +71,13 @@ public class Game implements Serializable{
 	}
 	
 	public int getCurPlayerNum(){
-		int ret = -1;
+		/*int ret = -1;
 		for(int i = 0; i < players.length; i++){
 			if(getCurPlayerName().equals(getPlayerName(i))){
 				ret = i;
 			}
-		}
-		return ret;
+		}*/
+		return turn;
 	}
 	
 	public String getCurrentSpaceLabel(){
@@ -251,5 +251,63 @@ public class Game implements Serializable{
 	public boolean shuffleDeck()
 	{
 		return gameDeck.shuffleDeck();
+	}
+		
+	public boolean isCurPlayerDad()
+	{
+		return players[turn].name.toLowerCase().equals("dad");
+	}
+	
+	public void playerIsOnSpecial(int p, boolean b)
+	{
+		players[p].onSpecial = b;
+	}
+	
+	public boolean isPlayerOnSpecial(int p)
+	{
+		return players[p].onSpecial;
+	}
+	
+	public Card drawSpecialCardJustForPapa(double pos)
+	{
+		return gameDeck.drawWorstCard(pos);
+	}
+	
+	public int getIntRepOfSpace(Space s)
+	{
+		int pos;
+		String label = s.getLabel();
+		if(label.equals("start"))
+		{
+			return 0;
+		}
+		if(label.equals("goal"))
+		{
+			return gameBoard.NUMBER_OF_SPACES;
+		}
+		else
+		{
+			String[] val = label.split("-");
+			int plusVal;
+			
+			switch(val[0])
+			{
+				case "red": plusVal = 1;
+						break;
+				case "yellow":  plusVal = 2;
+						break;
+				case "blue":  plusVal = 3;
+						break;
+				case "green":  plusVal = 4;
+						break;
+				case "orange":  plusVal = 5;
+						break;
+				default:  plusVal = 0; //error
+						break;
+			}
+			
+			pos = (Integer.parseInt(val[1])-1) * 5 + plusVal;
+			return pos;
+		}
 	}
 }
