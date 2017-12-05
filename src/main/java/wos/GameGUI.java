@@ -859,6 +859,7 @@ public class GameGUI{
 				try{
 					if(theGame.isCurPlayerAI()){
 						boomChoice = rand.nextInt(count);
+						System.out.println("Boom Choice: " + boomChoice);
 					}
 					else{
 						boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
@@ -1225,15 +1226,20 @@ public class GameGUI{
 		
 		if(isPlayerAI && mode){
 			if(rand.nextInt(2) == 1){
-				boomButton.doClick();
-				deckOfCards.doClick();
+				if(rand.nextInt(2) == 1){
+					boomButton.doClick(2000);
+					deckOfCards.doClick(2000);
+				}
+				else{
+					deckOfCards.doClick(2000);
+				}
 			}
 			else{
 				deckOfCards.doClick();				
 			}
 		}
 		else if(isPlayerAI){
-			deckOfCards.doClick();
+			deckOfCards.doClick(1000);
 		}
 	}
 	   
