@@ -389,6 +389,9 @@ public class GameGUI{
 	public void removeDrawnCard()
 	{
 		drawnCardLabel.setIcon(null);
+	}
+	
+	public void updateBoomerangButton(){
 		String num = "0";
 		String boom = "Boom.png";
 		switch (theGame.players[theGame.turn].boomerangs){
@@ -1086,6 +1089,7 @@ public class GameGUI{
 				theGame.incrementTurn();
 				theGame.pause(2000);
 				removeDrawnCard();
+				updateBoomerangButton();
 				//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 			}
 			else
@@ -1101,6 +1105,7 @@ public class GameGUI{
 							theGame.pause(2000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							if(isBoom){
 								isBoom = false;
 							}
@@ -1127,6 +1132,7 @@ public class GameGUI{
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Lollipop Mountain
 					case 3: showSpecialCard(drawnCard.specText);
@@ -1149,6 +1155,7 @@ public class GameGUI{
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Cupcake Forest
 					case 4: showSpecialCard(drawnCard.specText);
@@ -1170,6 +1177,7 @@ public class GameGUI{
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Peanut Brittle Bridge
 					case 5: showSpecialCard(drawnCard.specText);
@@ -1191,6 +1199,7 @@ public class GameGUI{
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Licorice Lake
 					case 6: showSpecialCard(drawnCard.specText);
@@ -1212,6 +1221,7 @@ public class GameGUI{
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//unknown card exception, game broke
 					default: //keep going i guess

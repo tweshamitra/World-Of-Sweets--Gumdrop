@@ -169,7 +169,11 @@ public class Game implements Serializable{
 		else{
 			for(int i = 0; i < gameBoard.NUMBER_OF_SPACES; i++){
 				if(gameBoard.gameSpaces[i].getLabel().equals(currentSpace.getLabel())){
-					currentIndex = i;
+					if (this.isPlayerOnSpecial(boomChoice)){
+						currentIndex = i + 1;
+					} else{
+						currentIndex = i;
+					}
 					// System.out.println("found current space, index: " + i);
 				}
 			}
