@@ -62,7 +62,8 @@ public class GameGUI{
 	private Space cupForest = new Space(427, 570, 103, 205, false, false, "none", -1);
 	private Space lolMntn = new Space(521, 651, 427, 529, false, false, "none", -1);
 	private Date elapsedTime;
-	private String checksumFile = "checksums.md5";
+		private String checksumFile = ".checksums";
+
 	int ach = 0;
 	
 	public GameGUI()
@@ -235,15 +236,14 @@ public class GameGUI{
 				theGame = (Game)ois.readObject();
 				numPlayers = theGame.players.length;
 				fis.close();
-				//boolean corrupted = verifyFile(filename+ ".ser")
+				boolean corrupted = verifyFile(filename+ ".ser");
 
 				fis = new FileInputStream(filename+"timer.ser");
 				timerIn = new ObjectInputStream(fis);
 				offset = (int)timerIn.readObject();
 				timerIn.close();
 				fis.close();
-				flag = false;
-				//String checksum = getFileChecksum(filename + ".ser", false);
+				corrupted = verifyFile(filename+"timer.ser");
 
 				addBoardComponentsToPane(pane);
 				gamePlaying = true;
@@ -258,6 +258,24 @@ public class GameGUI{
 		}
 	}
 	
+	private boolean verifyFile(String filename){
+		try{
+			FileInputStream in = new FileInputStream("checksums.txt");
+			//System.out.println("here");
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String current = null;
+			while((current = br.readLine())!=null){
+				if(current.contains(filename)){
+					String[] data = current.split(",");
+					//System.out.println(data[1]);
+				}
+			}
+			System.out.println(getFileChecksum(filename,false));
+		} catch(Exception exc3){
+			exc3.printStackTrace();
+		}
+		return false;
+	}
 	private void drawPlayerInfoScreen(Container pane) {
 		pane.removeAll();
 		theGame = new Game(numPlayers);
@@ -796,10 +814,11 @@ public class GameGUI{
 		int count = 0;
 		File file = new File(filename);
 		FileInputStream fis2 = new FileInputStream(file);
+		
 		while((count = fis2.read(data)) != -1){
 			md.update(data, 0, count);
 		};
-
+		
 		byte [] mdbytes = md.digest();
 
 		StringBuffer sb = new StringBuffer("");
@@ -823,18 +842,32 @@ public class GameGUI{
 				fout = new FileOutputStream(gameFilename);
 				oos = new ObjectOutputStream(fout);
 				oos.writeObject(theGame);
+				oos.close();
 				String checksum = getFileChecksum(gameFilename, true);
-				oos.writeObject("\nchecksum:" +checksum);
-				oos.close();	
+				File file = new File(checksumFile);
+				if(!file.exists()){
+					file.createNewFile();
+				}
+				FileWriter fw = new FileWriter(file, true);
+				BufferedWriter bw = new BufferedWriter(fw);
+				bw.write(gameFilename);
+				bw.write(",");
+				bw.write(checksum);
+				bw.write("\n");
 				String timerFilename = filename + "timer.ser";
 				fout = new FileOutputStream(timerFilename);
 				timerOut = new ObjectOutputStream(fout);
 				Date current = new Date();
 				int seconds = (int) (current.getTime()-gameStarted.getTime())/1000 + offset - offset2;
 				timerOut.writeObject(seconds);
+				timerOut.close();
 				checksum = getFileChecksum(timerFilename, true);
-				timerOut.writeObject("\nchecksum:"+checksum);
-				timerOut.close();	
+
+				bw.write(timerFilename);
+				bw.write(",");
+				bw.write(checksum);
+				bw.write("\n");
+				bw.close();
 				updateTicker("Game saved!", "black");
 				(new RevertTickerThread()).execute();
 			}
