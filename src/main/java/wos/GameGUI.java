@@ -389,6 +389,9 @@ public class GameGUI{
 	public void removeDrawnCard()
 	{
 		drawnCardLabel.setIcon(null);
+	}
+	
+	public void updateBoomerangButton(){
 		String num = "0";
 		String boom = "Boom.png";
 		switch (theGame.players[theGame.turn].boomerangs){
@@ -1020,7 +1023,7 @@ public class GameGUI{
        @Override
        public Void doInBackground() {
 			gamePlaying = true;
-           	Card drawnCard = theGame.drawCard();
+           	Card drawnCard;
 			updateDeckImage(theGame.getNumCardsLeft());
 			String curPlayer = theGame.getCurPlayerName();
 			String playerColor = theGame.getCurPlayerColor();
@@ -1030,15 +1033,36 @@ public class GameGUI{
 				boomPlayer = theGame.getPlayerNameAt(boomChoice);
 				boomColor = theGame.getPlayerColorAt(boomChoice);
 			}
-			if(drawnCard == null)
+			
+			if(theGame.isCurPlayerDad() && !isBoom)
 			{
-				playAudio("DeckShuffle.wav", false);
-				theGame.shuffleDeck();
-				updateTicker("The deck was shuffled!", "black");
-				updateDeckImage(theGame.getNumCardsLeft());
-				theGame.pause(1000);		
-				drawnCard = theGame.drawCard();				
+				double pos = (double) theGame.getIntRepOfSpace(theGame.players[theGame.getCurPlayerNum()].currentSpace);
+				if(theGame.isPlayerOnSpecial(theGame.getCurPlayerNum())) { pos = pos + .5; };
+				drawnCard = theGame.drawSpecialCardJustForPapa(pos);
+				if(drawnCard == null)
+				{
+					playAudio("DeckShuffle.wav", false);
+					theGame.shuffleDeck();
+					updateTicker("The deck was shuffled!", "black");
+					updateDeckImage(theGame.getNumCardsLeft());
+					theGame.pause(1000);		
+					drawnCard = theGame.drawSpecialCardJustForPapa(pos);				
+				}
 			}
+			else
+			{
+				drawnCard = theGame.drawCard();
+				if(drawnCard == null)
+				{
+					playAudio("DeckShuffle.wav", false);
+					theGame.shuffleDeck();
+					updateTicker("The deck was shuffled!", "black");
+					updateDeckImage(theGame.getNumCardsLeft());
+					theGame.pause(1000);		
+					drawnCard = theGame.drawCard();				
+				}
+			}
+			
 			if(drawnCard.special == false)
 			{
 				String color = drawnCard.color;
@@ -1046,7 +1070,7 @@ public class GameGUI{
 				showDrawnCard(color, doub);
 				updateTicker(curPlayer + " drew a " + doub + " " + color + " card!", playerColor);
 				theGame.pause(1000);
-				//TODO:  Addison:  more logic will be needed here to determine where the player is moving to
+				
 				String oor2 = drawnCard.isdouble ? "two" : "one";
 				String plur = drawnCard.isdouble ? "s" : "";
 				if (isBoom){
@@ -1054,17 +1078,18 @@ public class GameGUI{
 					theGame.moveCurPlayer(nextValid.nextFreeSpace(boomChoice), nextValid, boomChoice);
 					isBoom = false;
 					updateTicker(boomPlayer + " moved back " + oor2 + " " + color + " space" + plur + "!", boomColor);
+					theGame.playerIsOnSpecial(boomChoice, false);
 				} else{
 					nextValid = theGame.getNextValidSpace(color, doub);
 					theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
 					updateTicker(curPlayer + " moved " + oor2 + " " + color + " space" + plur + "!", playerColor);
+					theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), false);
 				}
-				
-				
 				
 				theGame.incrementTurn();
 				theGame.pause(2000);
 				removeDrawnCard();
+				updateBoomerangButton();
 				//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 			}
 			else
@@ -1080,6 +1105,7 @@ public class GameGUI{
 							theGame.pause(2000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							if(isBoom){
 								isBoom = false;
 							}
@@ -1096,14 +1122,17 @@ public class GameGUI{
 								theGame.moveCurPlayer(chocFalls.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
 								updateTicker(boomPlayer + " was sent to Chocolate Falls!", boomColor);
 								isBoom = false;
+								theGame.playerIsOnSpecial(boomChoice, true);
 							}
 							else{
 								theGame.moveCurPlayer(chocFalls.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
-								updateTicker(curPlayer + " was sent to Chocolate Falls!", playerColor);								
+								updateTicker(curPlayer + " was sent to Chocolate Falls!", playerColor);
+								theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), true);
 							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Lollipop Mountain
 					case 3: showSpecialCard(drawnCard.specText);
@@ -1115,15 +1144,18 @@ public class GameGUI{
 								theGame.moveCurPlayer(lolMntn.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
 								updateTicker(boomPlayer + " was sent to Lollipop Mountain!", boomColor);
 								isBoom = false;
+								theGame.playerIsOnSpecial(boomChoice, true);
 							}
 							else{
 								theGame.moveCurPlayer(lolMntn.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
 								updateTicker(curPlayer + " was sent to Lollipop Mountain!", playerColor);
+								theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), true);
 							}
 							
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Cupcake Forest
 					case 4: showSpecialCard(drawnCard.specText);
@@ -1135,14 +1167,17 @@ public class GameGUI{
 								theGame.moveCurPlayer(cupForest.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
 								updateTicker(boomPlayer + " was sent to the Cupcake Forest!", boomColor);
 								isBoom = false;
+								theGame.playerIsOnSpecial(boomChoice, true);
 							}
 							else{
 								theGame.moveCurPlayer(cupForest.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
 								updateTicker(curPlayer + " was sent to the Cupcake Forest!", playerColor);
+								theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), true);
 							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Peanut Brittle Bridge
 					case 5: showSpecialCard(drawnCard.specText);
@@ -1154,14 +1189,17 @@ public class GameGUI{
 								theGame.moveCurPlayer(britBridge.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
 								updateTicker(boomPlayer + " was sent to Brittle Bridge!", boomColor);
 								isBoom = false;
+								theGame.playerIsOnSpecial(boomChoice, true);
 							}
 							else{
 								theGame.moveCurPlayer(britBridge.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
 								updateTicker(curPlayer + " was sent to Brittle Bridge!", playerColor);
+								theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), true);
 							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Licorice Lake
 					case 6: showSpecialCard(drawnCard.specText);
@@ -1173,14 +1211,17 @@ public class GameGUI{
 								theGame.moveCurPlayer(licLake.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
 								updateTicker(boomPlayer + " was sent to Licorice Lake!", boomColor);
 								isBoom = false;
+								theGame.playerIsOnSpecial(boomChoice, true);
 							}
 							else{
 								theGame.moveCurPlayer(licLake.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
 								updateTicker(curPlayer + " was sent to Licorice Lake!", playerColor);
+								theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), true);
 							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//unknown card exception, game broke
 					default: //keep going i guess
@@ -1223,7 +1264,7 @@ public class GameGUI{
 	void doAIWork(boolean isPlayerAI, boolean mode){
 		Random rand = new Random();
 		
-		if(isPlayerAI && mode){
+		if(isPlayerAI && mode && !theGame.isCurPlayerDad()){
 			if(rand.nextInt(2) == 1){
 				if(rand.nextInt(2) == 1){
 					boomButton.doClick(2000);
