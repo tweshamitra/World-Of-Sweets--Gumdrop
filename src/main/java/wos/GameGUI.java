@@ -24,17 +24,20 @@ public class GameGUI{
 	private JBoardPanel boardPanel;
 	private JFrame frame;
 	private JWelcomePanel displayCardPanel;
-	private JButton deckOfCards, shuffleCards, submit, optionButton, load;
+	private JButton deckOfCards, shuffleCards, submit, optionButton, load, boomButton;
 	Game theGame;
 	volatile boolean gameOver;
 	private boolean flag = true;
+	private boolean gameType = false;
 	volatile private boolean pauseTimer = false;
 	volatile boolean gamePlaying = false;
 	volatile boolean tickerUpdated = false;
 	private boolean optionPanelOpen = false;
 	private boolean firstRun = true;
+	private boolean isBoom = false;
 	private int offset = 0;
 	private int offset2 = 0;
+	private int boomChoice;
 	private ImageIcon drawnCard;
 	private String[] colors = {"red", "blue", "yellow", "green"};
 	private JTextField text_1 = new JTextField("Player 1");
@@ -47,6 +50,13 @@ public class GameGUI{
 	private ArrayList<String> playerNames = new ArrayList<String>();
 	private JComboBox num_players_menu = new JComboBox();
 	private JComboBox games = new JComboBox();
+	private String[] playType = {"Human", "AI"};
+	private ArrayList<String> playerType = new ArrayList<String>();
+	private JComboBox play_1 = new JComboBox();
+	private JComboBox play_2 = new JComboBox();
+	private JComboBox play_3 = new JComboBox();
+	private JComboBox play_4 = new JComboBox();
+	private JComboBox gameChoice = new JComboBox();
 	private Font font, font40, font48;
 	private Date gameStarted;
 	private FileOutputStream fout = null;
@@ -61,16 +71,31 @@ public class GameGUI{
 	private Space licLake = new Space(328, 452, 303, 395, false, false, "none", -1);
 	private Space cupForest = new Space(427, 570, 103, 205, false, false, "none", -1);
 	private Space lolMntn = new Space(521, 651, 427, 529, false, false, "none", -1);
+	private Space nextValid = null;
 	private Date elapsedTime;
-		private String checksumFile = ".checksums";
-
+	private String checksumFile = ".checksums";
 	int ach = 0;
+	private Random rand = new Random();
+	//private File soundFile;
+	//private AudioInputStream in;
+	//private Clip clip;
 	
 	public GameGUI()
 	{
 		num_players_menu.addItem(nums[0]);
 		num_players_menu.addItem(nums[1]);
 		num_players_menu.addItem(nums[2]);
+		play_1.addItem(playType[0]);
+		play_2.addItem(playType[0]);
+		play_3.addItem(playType[0]);
+		play_4.addItem(playType[0]);
+		
+		play_1.addItem(playType[1]);
+		play_2.addItem(playType[1]);
+		play_3.addItem(playType[1]);
+		play_4.addItem(playType[1]);		
+		gameChoice.addItem("Classic");
+		gameChoice.addItem("Strategic");
 	}
 	//THIS FUNCTION WILL DRAW THE START SCREEN
 	private void drawStartScreen(Container pane) {	
@@ -81,6 +106,7 @@ public class GameGUI{
 		pane.removeAll();
 		pane.setLayout(new GridBagLayout());
 		playerNames.clear();
+		playerType.clear();
 		JPanel startPanel = new JPanel();
 		num_players_menu.setBackground(Color.GREEN);
 		ActionListener comboBoxListener = new ComboBoxListener(pane);		
@@ -107,25 +133,34 @@ public class GameGUI{
 		welcomePanel.setBackground(Color.PINK);
 		welcomePanel.add(welcomeLabel);
 		welcomePanel.setMaximumSize(new Dimension(10,10));
-		startPanel.setLayout(new GridLayout(0,2));
+		startPanel.setLayout(new GridLayout(0,3));
 		startPanel.setBackground(Color.PINK);
+		startPanel.setPreferredSize(new Dimension(100, 500));
 		
 
 		startPanel.add(numPlayLabel);
 		startPanel.add(num_players_menu);
-
+		startPanel.add(new JLabel());
 		startPanel.add(playNameLabel);
 		playNameLabel.setVisible(false);
 		startPanel.add(text_1);
+		startPanel.add(play_1);
         startPanel.add(new JLabel());
 		
 		startPanel.add(text_2);
+		startPanel.add(play_2);
         startPanel.add(new JLabel());
 
 		startPanel.add(text_3);
+		startPanel.add(play_3);
         startPanel.add(new JLabel());
 
 		startPanel.add(text_4);
+		startPanel.add(play_4);
+		
+		startPanel.add(new JLabel());
+		startPanel.add(new JLabel());
+		startPanel.add(gameChoice);
 		
 		text_1.setVisible(false);
 		text_2.setVisible(false);
@@ -135,6 +170,18 @@ public class GameGUI{
 		text_2.setBackground(Color.GREEN);
 		text_3.setBackground(Color.GREEN);
 		text_4.setBackground(Color.GREEN);
+		
+		play_1.setVisible(false);
+		play_2.setVisible(false);
+		play_3.setVisible(false);
+		play_4.setVisible(false);
+		play_1.setBackground(Color.GREEN);
+		play_2.setBackground(Color.GREEN);
+		play_3.setBackground(Color.GREEN);
+		play_4.setBackground(Color.GREEN);
+		
+		gameChoice.setVisible(false);
+		gameChoice.setBackground(Color.GREEN);
 
 		JPanel submitPanel = new JPanel(new GridLayout(1,2));
 		submitPanel.setBackground(Color.PINK);
@@ -168,7 +215,7 @@ public class GameGUI{
 		
 		
 		submit.setVisible(false);
-		load.setVisible(true);
+		//load.setVisible(true);
 		
 		pane.add(infoPanel);
 		pane.setComponentZOrder(infoPanel, 0);
@@ -192,17 +239,33 @@ public class GameGUI{
 				text_2.setVisible(true);
 				text_3.setVisible(false);
 				text_4.setVisible(false);	
+
+				play_1.setVisible(true);
+				play_2.setVisible(true);
+				play_3.setVisible(false);
+				play_4.setVisible(false);	
 			} else if (numPlayers == 3){
 				text_1.setVisible(true);
 				text_2.setVisible(true);
 				text_3.setVisible(true);
-				text_4.setVisible(false);				
+				text_4.setVisible(false);
+
+				play_1.setVisible(true);
+				play_2.setVisible(true);
+				play_3.setVisible(true);
+				play_4.setVisible(false);				
 			} else{
 				text_1.setVisible(true);
 				text_2.setVisible(true);
 				text_3.setVisible(true);
 				text_4.setVisible(true);
+				
+				play_1.setVisible(true);
+				play_2.setVisible(true);
+				play_3.setVisible(true);
+				play_4.setVisible(true);
 			}
+			gameChoice.setVisible(true);
 		}
 	}
 	
@@ -219,9 +282,19 @@ public class GameGUI{
 			playerNames.add(text_2.getText());
 			playerNames.add(text_3.getText());
 			playerNames.add(text_4.getText());
+			playerType.add((String)play_1.getSelectedItem());
+			playerType.add((String)play_2.getSelectedItem());
+			playerType.add((String)play_3.getSelectedItem());
+			playerType.add((String)play_4.getSelectedItem());
+			if ((String)gameChoice.getSelectedItem() == "Classic"){
+				gameType = false;
+			} else{
+				gameType = true;
+			}
 			drawPlayerInfoScreen(pane);
 		}
 	}
+	
 	
 	class LoadListener implements ActionListener{
 		Container pane;
@@ -285,7 +358,7 @@ public class GameGUI{
 		pane.removeAll();
 		theGame = new Game(numPlayers);
 		for(int i = 0; i < numPlayers; i++){
-			theGame.setPlayer(i, playerNames.get(i), colors[i]);
+			theGame.setPlayer(i, playerNames.get(i), playerType.get(i), colors[i]);
 		}
 		gameOver = false;
 		addBoardComponentsToPane(pane);
@@ -324,7 +397,7 @@ public class GameGUI{
 		}
 		
 		ImageIcon icon = new ImageIcon(getImage(imgString)); 
-		deckOfCards.setIcon(icon);
+		deckOfCards.setIcon(icon);		
 	}
 	
 	public void showDrawnCard(String color, String doub)
@@ -342,6 +415,22 @@ public class GameGUI{
 	public void removeDrawnCard()
 	{
 		drawnCardLabel.setIcon(null);
+	}
+	
+	public void updateBoomerangButton(){
+		String num = "0";
+		String boom = "Boom.png";
+		switch (theGame.players[theGame.turn].boomerangs){
+			case 3:  num = "3";
+				break;
+			case 2:  num = "2";
+					break;
+			case 1:  num = "1";
+					break;
+			case 0:  num = "0";	
+		}
+		ImageIcon boomImage = new ImageIcon(getImage(num + boom)); 
+		boomButton.setIcon(boomImage);
 	}
 	
 	public void updateTicker(String text, String color){
@@ -491,12 +580,38 @@ public class GameGUI{
 		
 		displayCardPanel = new JWelcomePanel();
 		displayCardPanel.setLayout(new BorderLayout());
-		displayCardPanel.setBackground(Color.GREEN);
-		displayCardPanel.setPreferredSize(new Dimension(250, 300));		
+		displayCardPanel.setOpaque(false);
 		
+		displayCardPanel.setPreferredSize(new Dimension(250, 300));
 		drawnCardLabel.setVerticalAlignment(SwingConstants.TOP);
-		displayCardPanel.add(drawnCardLabel, BorderLayout.CENTER);
 		
+		String boom = "Boom.png";
+		String num = "0";
+		// System.out.println("Boomerangs: " + theGame.players[theGame.turn].boomerangs);
+		if(gameType){
+			switch (theGame.players[theGame.turn].boomerangs){
+				case 3:  num = "3";
+					break;
+				case 2:  num = "2";
+						break;
+				case 1:  num = "1";
+						break;
+				case 0:  num = "0";	
+			}
+			ImageIcon boomImage = new ImageIcon(getImage(num + boom)); 
+			boomButton = new JButton();
+			boomButton.setIcon(boomImage);
+			boomButton.setPreferredSize(new Dimension(54, 61));
+			boomButton.setOpaque(false);
+			boomButton.setContentAreaFilled(false);
+			boomButton.setBorderPainted(false);
+			ActionListener boomListener = new BoomListener(pane);
+			boomButton.addActionListener(boomListener);
+			boomButton.setVerticalAlignment(SwingConstants.BOTTOM);	
+			displayCardPanel.add(boomButton, BorderLayout.WEST);			
+		}
+		
+		displayCardPanel.add(drawnCardLabel, BorderLayout.CENTER);
 		deckPanel.add(displayCardPanel);
 		
 		//INITIALIZING THE DECK DISPLAY
@@ -527,26 +642,7 @@ public class GameGUI{
 		if(flag == false){
 			boardPanel.setFirstRun(flag);
 		}
-		// MouseListener to test space coordinates
-		// boardPanel.addMouseListener(new MouseAdapter(){
-				// @Override
-				// public void mouseClicked(MouseEvent e){
-					// for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
-						// Space sp = theGame.gameBoard.gameSpaces[i];
-						// int xy[] = new int[2];
-						// if(sp.wasClicked(e)){
-							// xy = sp.nextFreeSpace(theGame.getCurPlayerNum());
-							// System.out.println("PIn: " + sp.getPIndex() + " x: " + xy[0] + " y: " + xy[1] + " label: " + sp.getLabel());
-							// theGame.moveCurPlayer(xy, sp);
-						// }
-					// }
-					
-				// }
-			// });
-			
-			
-	
-
+		
 		boardPanel.setBackground(Color.BLUE);
 		boardPanel.setPreferredSize(new Dimension(800, 615));
 		
@@ -555,6 +651,8 @@ public class GameGUI{
 
 		timerThread1.execute();
 		//(new TimerThread()).execute();
+		
+		doAIWork(theGame.isCurPlayerAI(), gameType);
     }
 
 	//THIS CLASS HANDLES THE CUSTOM ANIMATION FOR THE GAME BOARD AND TOKENS
@@ -587,7 +685,6 @@ public class GameGUI{
 			// }
 			
 			drawPlayers(g);
-			
 			
 		}
 		
@@ -667,7 +764,7 @@ public class GameGUI{
 		JLabel text = new JLabel("Game over!");
 	
 		text.setPreferredSize(new Dimension(1050,60));
-		text.setFont(new Font("TimesRoman", Font.ITALIC, 60));
+		text.setFont(font48);
 		text.setHorizontalAlignment(JLabel.CENTER);
 
 		textPanel.add(text);
@@ -699,7 +796,7 @@ public class GameGUI{
 		drawACardPanel.add(deckOfCards, BorderLayout.CENTER);
 		deckPanel.add(drawACardPanel);
 		JLabel winnerLabel = new JLabel(winner.getPlayerName()+ " has won!");
-		winnerLabel.setFont(new Font("TimesRoman", Font.ITALIC, 72));
+		winnerLabel.setFont(font48);
 		winnerLabel.setForeground(Color.RED);
 		winnerLabel.setBackground(Color.GREEN);
 		JPanel winnerPanel = new JPanel(new GridLayout(2,1));
@@ -766,6 +863,44 @@ public class GameGUI{
 		pane.revalidate();
 		pane.repaint();
 		
+	}
+	
+	class BoomListener implements ActionListener{
+		Container pane;
+		public BoomListener(Container pane){
+			this.pane = pane;
+		}
+		public void actionPerformed(ActionEvent e){
+			
+			if (theGame.players[theGame.turn].boomerangs > 0){
+				playAudio("ButtonClick.wav", false);
+				ImageIcon[] options = new ImageIcon[theGame.getNumPlayers() - 1];
+				int[] correspondingNums = new int[theGame.getNumPlayers() - 1];
+				String[] colors = {"red", "blue", "yellow", "green"};
+				int count = 0;
+				for (int i = 0; i < 4; i++){
+					if (theGame.getCurPlayerColor().toLowerCase() != colors[i] && count < options.length){
+						options[count] = new ImageIcon(getImage(colors[i] + "token.png"));
+						correspondingNums[count] = i;
+						count++;
+					}
+				}
+				try{
+					if(theGame.isCurPlayerAI()){
+						boomChoice = rand.nextInt(count);
+					}
+					else{
+						boomChoice = JOptionPane.showOptionDialog(null, "Choose a player to boomerang", "Boomerang", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+					}
+					boomChoice = correspondingNums[boomChoice];
+					isBoom = true;
+					theGame.players[theGame.turn].decrementBooms();
+				} catch (ArrayIndexOutOfBoundsException ae){
+					isBoom = false;
+				}
+			}
+			
+		}
 	}
 	
 	class PlayAgainListener implements ActionListener{
@@ -938,6 +1073,9 @@ public class GameGUI{
 				playAudio("CardFlip.wav", false);
 				deckOfCards.setEnabled(false);
 				optionButton.setEnabled(false);
+				if (gameType){
+					boomButton.setEnabled(false);
+				}
 				(new GameLogicThread()).execute();
 
 		}
@@ -950,19 +1088,46 @@ public class GameGUI{
        @Override
        public Void doInBackground() {
 			gamePlaying = true;
-           	Card drawnCard = theGame.drawCard();
+           	Card drawnCard;
 			updateDeckImage(theGame.getNumCardsLeft());
 			String curPlayer = theGame.getCurPlayerName();
 			String playerColor = theGame.getCurPlayerColor();
-			if(drawnCard == null)
-			{
-				playAudio("DeckShuffle.wav", false);
-				theGame.shuffleDeck();
-				updateTicker("The deck was shuffled!", "black");
-				updateDeckImage(theGame.getNumCardsLeft());
-				theGame.pause(1000);		
-				drawnCard = theGame.drawCard();				
+			String boomPlayer = "";
+			String boomColor = ""; 
+			if(isBoom){
+				boomPlayer = theGame.getPlayerNameAt(boomChoice);
+				boomColor = theGame.getPlayerColorAt(boomChoice);
 			}
+			
+			if(theGame.isCurPlayerDad() && !isBoom)
+			{
+				double pos = (double) theGame.getIntRepOfSpace(theGame.players[theGame.getCurPlayerNum()].currentSpace);
+				if(theGame.isPlayerOnSpecial(theGame.getCurPlayerNum())) { pos = pos + .5; };
+				drawnCard = theGame.drawSpecialCardJustForPapa(pos);
+				if(drawnCard == null)
+				{
+					playAudio("DeckShuffle.wav", false);
+					theGame.shuffleDeck();
+					updateTicker("The deck was shuffled!", "black");
+					updateDeckImage(theGame.getNumCardsLeft());
+					theGame.pause(1000);		
+					drawnCard = theGame.drawSpecialCardJustForPapa(pos);				
+				}
+			}
+			else
+			{
+				drawnCard = theGame.drawCard();
+				if(drawnCard == null)
+				{
+					playAudio("DeckShuffle.wav", false);
+					theGame.shuffleDeck();
+					updateTicker("The deck was shuffled!", "black");
+					updateDeckImage(theGame.getNumCardsLeft());
+					theGame.pause(1000);		
+					drawnCard = theGame.drawCard();				
+				}
+			}
+			
 			if(drawnCard.special == false)
 			{
 				String color = drawnCard.color;
@@ -970,16 +1135,26 @@ public class GameGUI{
 				showDrawnCard(color, doub);
 				updateTicker(curPlayer + " drew a " + doub + " " + color + " card!", playerColor);
 				theGame.pause(1000);
-				//TODO:  Addison:  more logic will be needed here to determine where the player is moving to
-				Space nextValid = theGame.getNextValidSpace(color, doub);
-				theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
 				
 				String oor2 = drawnCard.isdouble ? "two" : "one";
 				String plur = drawnCard.isdouble ? "s" : "";
-				updateTicker(curPlayer + " moved " + oor2 + " " + color + " space" + plur + "!", playerColor);
+				if (isBoom){
+					nextValid = theGame.getNextValidBoomSpace(color, doub, boomChoice);
+					theGame.moveCurPlayer(nextValid.nextFreeSpace(boomChoice), nextValid, boomChoice);
+					isBoom = false;
+					updateTicker(boomPlayer + " moved back " + oor2 + " " + color + " space" + plur + "!", boomColor);
+					theGame.playerIsOnSpecial(boomChoice, false);
+				} else{
+					nextValid = theGame.getNextValidSpace(color, doub);
+					theGame.moveCurPlayer(nextValid.nextFreeSpace(theGame.getCurPlayerNum()), nextValid);
+					updateTicker(curPlayer + " moved " + oor2 + " " + color + " space" + plur + "!", playerColor);
+					theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), false);
+				}
+				
 				theGame.incrementTurn();
 				theGame.pause(2000);
 				removeDrawnCard();
+				updateBoomerangButton();
 				//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 			}
 			else
@@ -995,34 +1170,34 @@ public class GameGUI{
 							theGame.pause(2000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
+							if(isBoom){
+								isBoom = false;
+							}
 							//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 							break;
-					/*  I'm leaving this code in here since the other cards will probably be very similar to implement.
-					case 2: showSpecialCard(drawnCard.specText);
-							updateTicker(curPlayer + " drew a middle card!", playerColor);
-							theGame.pause(1000);
-							//TODO:  Addison:  incorporate the movement logic
-							Space middleSpace = theGame.gameBoard.gameSpaces[16];
-							theGame.moveCurPlayer(middleSpace.nextFreeSpace(theGame.getCurPlayerNum()), middleSpace);
-							
-							updateTicker(curPlayer + " was sent to the middle of the board!", playerColor);
-							theGame.pause(1000);
-							theGame.incrementTurn();
-							removeDrawnCard();
-							//updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
-							break; */
+					
 					//Chocolate Falls
 					case 2: showSpecialCard(drawnCard.specText);
 							updateTicker(curPlayer + " drew a chocolate card!", playerColor);
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							logicalSpace = theGame.gameBoard.gameSpaces[44];
-							theGame.moveCurPlayer(chocFalls.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
-							
-							updateTicker(curPlayer + " was sent to Chocolate Falls!", playerColor);
+							if(isBoom){
+								theGame.moveCurPlayer(chocFalls.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
+								updateTicker(boomPlayer + " was sent to Chocolate Falls!", boomColor);
+								isBoom = false;
+								theGame.playerIsOnSpecial(boomChoice, true);
+							}
+							else{
+								theGame.moveCurPlayer(chocFalls.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+								updateTicker(curPlayer + " was sent to Chocolate Falls!", playerColor);
+								theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), true);
+							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Lollipop Mountain
 					case 3: showSpecialCard(drawnCard.specText);
@@ -1030,12 +1205,22 @@ public class GameGUI{
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							logicalSpace = theGame.gameBoard.gameSpaces[22];
-							theGame.moveCurPlayer(lolMntn.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+							if(isBoom){
+								theGame.moveCurPlayer(lolMntn.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
+								updateTicker(boomPlayer + " was sent to Lollipop Mountain!", boomColor);
+								isBoom = false;
+								theGame.playerIsOnSpecial(boomChoice, true);
+							}
+							else{
+								theGame.moveCurPlayer(lolMntn.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+								updateTicker(curPlayer + " was sent to Lollipop Mountain!", playerColor);
+								theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), true);
+							}
 							
-							updateTicker(curPlayer + " was sent to Lollipop Mountain!", playerColor);
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Cupcake Forest
 					case 4: showSpecialCard(drawnCard.specText);
@@ -1043,12 +1228,21 @@ public class GameGUI{
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							logicalSpace = theGame.gameBoard.gameSpaces[50];
-							theGame.moveCurPlayer(cupForest.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
-							
-							updateTicker(curPlayer + " was sent to the Cupcake Forest!", playerColor);
+							if(isBoom){
+								theGame.moveCurPlayer(cupForest.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
+								updateTicker(boomPlayer + " was sent to the Cupcake Forest!", boomColor);
+								isBoom = false;
+								theGame.playerIsOnSpecial(boomChoice, true);
+							}
+							else{
+								theGame.moveCurPlayer(cupForest.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+								updateTicker(curPlayer + " was sent to the Cupcake Forest!", playerColor);
+								theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), true);
+							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Peanut Brittle Bridge
 					case 5: showSpecialCard(drawnCard.specText);
@@ -1056,12 +1250,21 @@ public class GameGUI{
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							logicalSpace = theGame.gameBoard.gameSpaces[45];
-							theGame.moveCurPlayer(britBridge.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
-							
-							updateTicker(curPlayer + " was sent to Brittle Bridge!", playerColor);
+							if(isBoom){
+								theGame.moveCurPlayer(britBridge.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
+								updateTicker(boomPlayer + " was sent to Brittle Bridge!", boomColor);
+								isBoom = false;
+								theGame.playerIsOnSpecial(boomChoice, true);
+							}
+							else{
+								theGame.moveCurPlayer(britBridge.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+								updateTicker(curPlayer + " was sent to Brittle Bridge!", playerColor);
+								theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), true);
+							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//Licorice Lake
 					case 6: showSpecialCard(drawnCard.specText);
@@ -1069,12 +1272,21 @@ public class GameGUI{
 							theGame.pause(1000);
 							//TODO:  Addison:  incorporate the movement logic
 							logicalSpace = theGame.gameBoard.gameSpaces[38];
-							theGame.moveCurPlayer(licLake.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
-							
-							updateTicker(curPlayer + " was sent to Licorice Lake!", playerColor);
+							if(isBoom){
+								theGame.moveCurPlayer(licLake.nextFreeSpace(boomChoice), logicalSpace, boomChoice);
+								updateTicker(boomPlayer + " was sent to Licorice Lake!", boomColor);
+								isBoom = false;
+								theGame.playerIsOnSpecial(boomChoice, true);
+							}
+							else{
+								theGame.moveCurPlayer(licLake.nextFreeSpace(theGame.getCurPlayerNum()), logicalSpace);
+								updateTicker(curPlayer + " was sent to Licorice Lake!", playerColor);
+								theGame.playerIsOnSpecial(theGame.getCurPlayerNum(), true);
+							}
 							theGame.pause(1000);
 							theGame.incrementTurn();
 							removeDrawnCard();
+							updateBoomerangButton();
 							break;
 					//unknown card exception, game broke
 					default: //keep going i guess
@@ -1106,8 +1318,34 @@ public class GameGUI{
 				updateTicker("It is " + theGame.getCurPlayerName() + "'s turn!", theGame.getCurPlayerColor());
 				deckOfCards.setEnabled(true);
 				optionButton.setEnabled(true);
+				if(gameType){
+					boomButton.setEnabled(true);
+				}
+				doAIWork(theGame.isCurPlayerAI(), gameType);
 			}
        }
+	}
+	
+	void doAIWork(boolean isPlayerAI, boolean mode){
+		Random rand = new Random();
+		
+		if(isPlayerAI && mode && !theGame.isCurPlayerDad()){
+			if(rand.nextInt(2) == 1){
+				if(rand.nextInt(2) == 1){
+					boomButton.doClick(2000);
+					deckOfCards.doClick(2000);
+				}
+				else{
+					deckOfCards.doClick(2000);
+				}
+			}
+			else{
+				deckOfCards.doClick();				
+			}
+		}
+		else if(isPlayerAI){
+			deckOfCards.doClick(1000);
+		}
 	}
 	   
 	class TimerThread extends SwingWorker<Void, Object> {
@@ -1144,7 +1382,7 @@ public class GameGUI{
 	{
 		theGame = new Game(1);
 		numPlayers = 1;
-		theGame.setPlayer(0, "TestPlayer", "orange");
+		theGame.setPlayer(0, "TestPlayer", "Player", "orange");
 		
 		frame = new JFrame("World of Sweets!");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
