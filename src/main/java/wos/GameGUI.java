@@ -303,33 +303,34 @@ public class GameGUI{
 		}
 		public void actionPerformed(ActionEvent e ){
 			String filename = JOptionPane.showInputDialog("Enter name of game to open");
-			// boolean corrupted = false;
 			try{
-				if(verifyFile(filename+".ser") && verifyFile(filename+"timer.ser")){
-					fis = new FileInputStream(filename+".ser");
-					ois = new ObjectInputStream(fis);
+				fis = new FileInputStream(filename + ".ser");
+				ois = new ObjectInputStream(fis);
+
+				if(verifyFile(filename+".ser")){
 					theGame = (Game)ois.readObject();
 					gameType = (boolean)ois.readObject();
-					numPlayers = theGame.players.length;
+				 	numPlayers = theGame.players.length;
 					fis.close();
-					fis = new FileInputStream(filename+"timer.ser");
-					timerIn = new ObjectInputStream(fis);
-					offset = (int)timerIn.readObject();
-					timerIn.close();
-					fis.close();
-					flag = false;
-					addBoardComponentsToPane(pane);
-					gamePlaying = true;
-					updateTicker(filename + " was loaded successfully!", "black");
-					(new RevertTickerThread()).execute();
+					if(verifyFile(filename+"timer.ser")){
+						fis = new FileInputStream(filename+"timer.ser");
+						timerIn = new ObjectInputStream(fis);
+						offset = (int)timerIn.readObject();
+						timerIn.close();
+						fis.close();
+						flag = false;
+						addBoardComponentsToPane(pane);
+						gamePlaying = true;
+						updateTicker(filename + " was loaded successfully!", "black");
+					 	(new RevertTickerThread()).execute();	
+					}
 				}
-				else {
-					loadError.setText(filename + " was corrupted, could not load");
-
+				else{
+					loadError.setText(filename + " was corrupted.");
 				}
 		
 			} catch(Exception exc2){
-				exc2.printStackTrace();
+				//exc2.printStackTrace();
 				loadError.setText("The game could not be loaded.");
 				
 			}
@@ -887,11 +888,6 @@ public class GameGUI{
 						count++;
 					}
 				}
-				System.out.print("[");
-				for(int i = 0; i < options.length; i++){
-					System.out.print(correspondingNums[i] + " " );
-				}
-				System.out.println("]");
 				try{
 					if(theGame.isCurPlayerAI()){
 						boomChoice = rand.nextInt(count);
