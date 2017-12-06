@@ -244,6 +244,7 @@ public class Game implements Serializable{
 		{
 			turn = 0;
 		}
+		System.out.println("turn: " + turn);
 	}
 	
 	public Card drawCard()

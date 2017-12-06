@@ -881,12 +881,17 @@ public class GameGUI{
 				String[] colors = {"red", "blue", "yellow", "green"};
 				int count = 0;
 				for (int i = 0; i < 4; i++){
-					if (theGame.getCurPlayerColor().toLowerCase() != colors[i] && count < options.length){
+					if (!theGame.getCurPlayerColor().toLowerCase().equals(colors[i]) && count < options.length){
 						options[count] = new ImageIcon(getImage(colors[i] + "token.png"));
 						correspondingNums[count] = i;
 						count++;
 					}
 				}
+				System.out.print("[");
+				for(int i = 0; i < options.length; i++){
+					System.out.print(correspondingNums[i] + " " );
+				}
+				System.out.println("]");
 				try{
 					if(theGame.isCurPlayerAI()){
 						boomChoice = rand.nextInt(count);
