@@ -39,6 +39,10 @@ public class Game implements Serializable{
 		return players[turn].isAI();
 	}
 	
+	public boolean curPlayerHasBoom(){
+		return players[turn].haveBoomerangs();
+	}
+	
 	public String getCurPlayerName()
 	{
 		return players[turn].name;

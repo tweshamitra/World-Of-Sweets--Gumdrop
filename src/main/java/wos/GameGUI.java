@@ -309,6 +309,7 @@ public class GameGUI{
 					fis = new FileInputStream(filename+".ser");
 					ois = new ObjectInputStream(fis);
 					theGame = (Game)ois.readObject();
+					gameType = (boolean)ois.readObject();
 					numPlayers = theGame.players.length;
 					fis.close();
 					fis = new FileInputStream(filename+"timer.ser");
@@ -316,6 +317,7 @@ public class GameGUI{
 					offset = (int)timerIn.readObject();
 					timerIn.close();
 					fis.close();
+					flag = false;
 					addBoardComponentsToPane(pane);
 					gamePlaying = true;
 					updateTicker(filename + " was loaded successfully!", "black");
@@ -981,6 +983,7 @@ public class GameGUI{
 				fout = new FileOutputStream(gameFilename);
 				oos = new ObjectOutputStream(fout);
 				oos.writeObject(theGame);
+				oos.writeObject(gameType);
 				oos.close();
 				String checksum = getFileChecksum(gameFilename, true);
 				File file = new File(checksumFile);
@@ -1331,7 +1334,7 @@ public class GameGUI{
 		
 		if(isPlayerAI && mode && !theGame.isCurPlayerDad()){
 			if(rand.nextInt(2) == 1){
-				if(rand.nextInt(2) == 1){
+				if(rand.nextInt(2) == 1 && theGame.curPlayerHasBoom()){
 					boomButton.doClick(2000);
 					deckOfCards.doClick(2000);
 				}
