@@ -29,6 +29,7 @@ public class GameGUI{
 	volatile boolean gameOver;
 	private boolean flag = true;
 	private boolean gameType = false;
+	private boolean wantToPlayAgain = false;
 	volatile private boolean pauseTimer = false;
 	volatile boolean gamePlaying = false;
 	volatile boolean tickerUpdated = false;
@@ -359,9 +360,17 @@ public class GameGUI{
 	}
 	private void drawPlayerInfoScreen(Container pane) {
 		pane.removeAll();
-		theGame = new Game(numPlayers);
-		for(int i = 0; i < numPlayers; i++){
-			theGame.setPlayer(i, playerNames.get(i), playerType.get(i), colors[i]);
+		if(firstRun){
+			theGame = new Game(numPlayers);
+			for(int i = 0; i < numPlayers; i++){
+				theGame.setPlayer(i, playerNames.get(i), playerType.get(i), colors[i]);
+			}
+		}
+		else{
+			theGame.players = new Player[numPlayers];
+			for(int i = 0; i < numPlayers; i++){
+				theGame.setPlayer(i, playerNames.get(i), playerType.get(i), colors[i]);
+			}
 		}
 		gameOver = false;
 		addBoardComponentsToPane(pane);
@@ -670,7 +679,7 @@ public class GameGUI{
 
 			// If it is the first players initial turn, draw all the players in the start space
 			// otherwise, draw them whereever their coordinates indicate
-			if(firstRun){
+			if(firstRun || wantToPlayAgain){
 				Space startSpace = getSpaceAt(0);
 				for(int i = 0; i < numPlayers; i++){
 					xy = startSpace.nextFreeSpace(i);
@@ -678,7 +687,7 @@ public class GameGUI{
 					g.drawImage(getImage(colors[i]+"token.png"), xy[0], xy[1], null);
 				}
 				
-				
+				wantToPlayAgain = false;
 				firstRun = false;
 			}
 			
@@ -912,6 +921,7 @@ public class GameGUI{
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
+			wantToPlayAgain = true;
 			playAudio("ButtonClick.wav", false);
 			drawStartScreen(pane);
 		}
