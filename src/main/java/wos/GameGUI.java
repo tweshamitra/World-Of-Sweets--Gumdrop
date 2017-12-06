@@ -35,6 +35,7 @@ public class GameGUI{
 	private boolean optionPanelOpen = false;
 	private boolean firstRun = true;
 	private boolean isBoom = false;
+	private boolean wantToPlayAgain = false;
 	private int offset = 0;
 	private int offset2 = 0;
 	private int boomChoice;
@@ -681,6 +682,16 @@ public class GameGUI{
 				
 				firstRun = false;
 			}
+			if(!firstRun && wantToPlayAgain){
+				Space startSpace = getSpaceAt(0);
+				for(int i = 0; i < numPlayers; i++){
+					xy = startSpace.nextFreeSpace(i);
+					theGame.players[i].updateLocation(xy, startSpace);
+					g.drawImage(getImage(colors[i]+"token.png"), xy[0], xy[1], null);
+				}
+				
+				wantToPlayAgain = false;
+			}
 			
 			// for(int i = 0; i < theGame.gameBoard.gameSpaces.length; i++){
 				// Space s = getSpaceAt(i);
@@ -912,6 +923,7 @@ public class GameGUI{
 			this.pane = pane;
 		}
 		public void actionPerformed(ActionEvent e){
+			wantToPlayAgain = true;
 			playAudio("ButtonClick.wav", false);
 			drawStartScreen(pane);
 		}
