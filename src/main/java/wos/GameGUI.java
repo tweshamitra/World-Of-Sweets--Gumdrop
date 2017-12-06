@@ -11,7 +11,7 @@ import wos.*;
 import java.time.Duration;
 import java.net.URL;
 import javax.sound.sampled.*;
-
+import java.security.MessageDigest;
 
 public class GameGUI{
 	private final int HEIGHT = 695;
@@ -49,6 +49,7 @@ public class GameGUI{
 	private int[] nums = {2,3,4};
 	private ArrayList<String> playerNames = new ArrayList<String>();
 	private JComboBox num_players_menu = new JComboBox();
+	private JComboBox games = new JComboBox();
 	private String[] playType = {"Human", "AI"};
 	private ArrayList<String> playerType = new ArrayList<String>();
 	private JComboBox play_1 = new JComboBox();
@@ -72,13 +73,13 @@ public class GameGUI{
 	private Space lolMntn = new Space(521, 651, 427, 529, false, false, "none", -1);
 	private Space nextValid = null;
 	private Date elapsedTime;
+	private String checksumFile = ".checksums";
 	int ach = 0;
 	private Random rand = new Random();
 	//private File soundFile;
 	//private AudioInputStream in;
 	//private Clip clip;
-
-
+	
 	public GameGUI()
 	{
 		num_players_menu.addItem(nums[0]);
@@ -302,32 +303,57 @@ public class GameGUI{
 		}
 		public void actionPerformed(ActionEvent e ){
 			String filename = JOptionPane.showInputDialog("Enter name of game to open");
+			// boolean corrupted = false;
 			try{
+				if(verifyFile(filename+".ser") && verifyFile(filename+"timer.ser")){
+					fis = new FileInputStream(filename+".ser");
+					ois = new ObjectInputStream(fis);
+					theGame = (Game)ois.readObject();
+					numPlayers = theGame.players.length;
+					fis.close();
+					fis = new FileInputStream(filename+"timer.ser");
+					timerIn = new ObjectInputStream(fis);
+					offset = (int)timerIn.readObject();
+					timerIn.close();
+					fis.close();
+					addBoardComponentsToPane(pane);
+					gamePlaying = true;
+					updateTicker(filename + " was loaded successfully!", "black");
+					(new RevertTickerThread()).execute();
+				}
+				else {
+					loadError.setText(filename + " was corrupted, could not load");
 
-				fis = new FileInputStream(filename+".ser");
-				ois = new ObjectInputStream(fis);
-				theGame = (Game)ois.readObject();
-				numPlayers = theGame.players.length;
-				fis.close();
-				fis = new FileInputStream(filename+"timer.ser");
-				timerIn = new ObjectInputStream(fis);
-				offset = (int)timerIn.readObject();
-				timerIn.close();
-				fis.close();
-				flag = false;
-				addBoardComponentsToPane(pane);
-				gamePlaying = true;
-				updateTicker(filename + " was loaded successfully!", "black");
-				(new RevertTickerThread()).execute();
-
+				}
+		
 			} catch(Exception exc2){
-				//exc2.printStackTrace();
+				exc2.printStackTrace();
 				loadError.setText("The game could not be loaded.");
 				
 			}
 		}
 	}
 	
+	private boolean verifyFile(String filename){
+		boolean verified = false;
+		try{
+			FileInputStream in = new FileInputStream(checksumFile);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String current = null;
+			String[] data = null;
+			while((current = br.readLine())!=null){
+				if(current.contains(filename)){
+					data = current.split(",");
+				}
+			}
+			if(data[1].equals(getFileChecksum(filename,false))){
+				verified = true;
+			}
+		} catch(Exception exc3){
+			exc3.printStackTrace();
+		}
+		return verified;
+	}
 	private void drawPlayerInfoScreen(Container pane) {
 		pane.removeAll();
 		theGame = new Game(numPlayers);
@@ -922,7 +948,26 @@ public class GameGUI{
 			}
 		}
 	}
-	
+	private String getFileChecksum(String filename, boolean loading) throws Exception{
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		byte [] data = new byte[1024];
+		int count = 0;
+		File file = new File(filename);
+		FileInputStream fis2 = new FileInputStream(file);
+		
+		while((count = fis2.read(data)) != -1){
+			md.update(data, 0, count);
+		};
+		
+		byte [] mdbytes = md.digest();
+
+		StringBuffer sb = new StringBuffer("");
+		for(int i = 0; i <mdbytes.length; i ++){
+			sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+		}
+		fis2.close();
+		return sb.toString();
+	}
 	class SaveListener implements ActionListener{
 		Container pane;
 		public SaveListener(Container pane){
@@ -932,16 +977,36 @@ public class GameGUI{
 			try {
 				String filename = JOptionPane.showInputDialog("Name your game:");
 				boardPanel.setFirstRun(false);
-				fout = new FileOutputStream(filename + ".ser");
+				String gameFilename = filename + ".ser";
+				fout = new FileOutputStream(gameFilename);
 				oos = new ObjectOutputStream(fout);
 				oos.writeObject(theGame);
 				oos.close();
-				fout = new FileOutputStream(filename+"timer.ser");
+				String checksum = getFileChecksum(gameFilename, true);
+				File file = new File(checksumFile);
+				if(!file.exists()){
+					file.createNewFile();
+				}
+				FileWriter fw = new FileWriter(file, true);
+				BufferedWriter bw = new BufferedWriter(fw);
+				bw.write(gameFilename);
+				bw.write(",");
+				bw.write(checksum);
+				bw.write("\n");
+				String timerFilename = filename + "timer.ser";
+				fout = new FileOutputStream(timerFilename);
 				timerOut = new ObjectOutputStream(fout);
 				Date current = new Date();
 				int seconds = (int) (current.getTime()-gameStarted.getTime())/1000 + offset - offset2;
 				timerOut.writeObject(seconds);
 				timerOut.close();
+				checksum = getFileChecksum(timerFilename, true);
+
+				bw.write(timerFilename);
+				bw.write(",");
+				bw.write(checksum);
+				bw.write("\n");
+				bw.close();
 				updateTicker("Game saved!", "black");
 				(new RevertTickerThread()).execute();
 			}
