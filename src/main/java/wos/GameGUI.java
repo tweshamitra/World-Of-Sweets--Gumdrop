@@ -888,11 +888,6 @@ public class GameGUI{
 						count++;
 					}
 				}
-				System.out.print("[");
-				for(int i = 0; i < options.length; i++){
-					System.out.print(correspondingNums[i] + " " );
-				}
-				System.out.println("]");
 				try{
 					if(theGame.isCurPlayerAI()){
 						boomChoice = rand.nextInt(count);
