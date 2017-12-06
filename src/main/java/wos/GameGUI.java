@@ -230,26 +230,29 @@ public class GameGUI{
 		}
 		public void actionPerformed(ActionEvent e ){
 			String filename = JOptionPane.showInputDialog("Enter name of game to open");
+			// boolean corrupted = false;
 			try{
-				fis = new FileInputStream(filename+".ser");
-				ois = new ObjectInputStream(fis);
-				theGame = (Game)ois.readObject();
-				numPlayers = theGame.players.length;
-				fis.close();
-				boolean corrupted = verifyFile(filename+ ".ser");
+				if(verifyFile(filename+".ser") && verifyFile(filename+"timer.ser")){
+					fis = new FileInputStream(filename+".ser");
+					ois = new ObjectInputStream(fis);
+					theGame = (Game)ois.readObject();
+					numPlayers = theGame.players.length;
+					fis.close();
+					fis = new FileInputStream(filename+"timer.ser");
+					timerIn = new ObjectInputStream(fis);
+					offset = (int)timerIn.readObject();
+					timerIn.close();
+					fis.close();
+					addBoardComponentsToPane(pane);
+					gamePlaying = true;
+					updateTicker(filename + " was loaded successfully!", "black");
+					(new RevertTickerThread()).execute();
+				}
+				else {
+					loadError.setText(filename + " was corrupted, could not load");
 
-				fis = new FileInputStream(filename+"timer.ser");
-				timerIn = new ObjectInputStream(fis);
-				offset = (int)timerIn.readObject();
-				timerIn.close();
-				fis.close();
-				corrupted = verifyFile(filename+"timer.ser");
-
-				addBoardComponentsToPane(pane);
-				gamePlaying = true;
-				updateTicker(filename + " was loaded successfully!", "black");
-				(new RevertTickerThread()).execute();
-
+				}
+		
 			} catch(Exception exc2){
 				exc2.printStackTrace();
 				loadError.setText("The game could not be loaded.");
@@ -259,22 +262,24 @@ public class GameGUI{
 	}
 	
 	private boolean verifyFile(String filename){
+		boolean verified = false;
 		try{
-			FileInputStream in = new FileInputStream("checksums.txt");
-			//System.out.println("here");
+			FileInputStream in = new FileInputStream(checksumFile);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String current = null;
+			String[] data = null;
 			while((current = br.readLine())!=null){
 				if(current.contains(filename)){
-					String[] data = current.split(",");
-					//System.out.println(data[1]);
+					data = current.split(",");
 				}
 			}
-			System.out.println(getFileChecksum(filename,false));
+			if(data[1].equals(getFileChecksum(filename,false))){
+				verified = true;
+			}
 		} catch(Exception exc3){
 			exc3.printStackTrace();
 		}
-		return false;
+		return verified;
 	}
 	private void drawPlayerInfoScreen(Container pane) {
 		pane.removeAll();
@@ -826,7 +831,6 @@ public class GameGUI{
 			sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
 		}
 		fis2.close();
-		System.out.println("Digest:" + sb.toString());
 		return sb.toString();
 	}
 	class SaveListener implements ActionListener{
