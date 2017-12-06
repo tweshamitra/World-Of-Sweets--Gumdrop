@@ -39,6 +39,10 @@ public class Game implements Serializable{
 		return players[turn].isAI();
 	}
 	
+	public boolean curPlayerHasBoom(){
+		return players[turn].haveBoomerangs();
+	}
+	
 	public String getCurPlayerName()
 	{
 		return players[turn].name;
@@ -240,6 +244,7 @@ public class Game implements Serializable{
 		{
 			turn = 0;
 		}
+		System.out.println("turn: " + turn);
 	}
 	
 	public Card drawCard()

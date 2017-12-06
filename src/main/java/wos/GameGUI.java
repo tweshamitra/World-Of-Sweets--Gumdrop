@@ -309,6 +309,7 @@ public class GameGUI{
 					fis = new FileInputStream(filename+".ser");
 					ois = new ObjectInputStream(fis);
 					theGame = (Game)ois.readObject();
+					gameType = (boolean)ois.readObject();
 					numPlayers = theGame.players.length;
 					fis.close();
 					fis = new FileInputStream(filename+"timer.ser");
@@ -316,6 +317,7 @@ public class GameGUI{
 					offset = (int)timerIn.readObject();
 					timerIn.close();
 					fis.close();
+					flag = false;
 					addBoardComponentsToPane(pane);
 					gamePlaying = true;
 					updateTicker(filename + " was loaded successfully!", "black");
@@ -879,12 +881,17 @@ public class GameGUI{
 				String[] colors = {"red", "blue", "yellow", "green"};
 				int count = 0;
 				for (int i = 0; i < 4; i++){
-					if (theGame.getCurPlayerColor().toLowerCase() != colors[i] && count < options.length){
+					if (!theGame.getCurPlayerColor().toLowerCase().equals(colors[i]) && count < options.length){
 						options[count] = new ImageIcon(getImage(colors[i] + "token.png"));
 						correspondingNums[count] = i;
 						count++;
 					}
 				}
+				System.out.print("[");
+				for(int i = 0; i < options.length; i++){
+					System.out.print(correspondingNums[i] + " " );
+				}
+				System.out.println("]");
 				try{
 					if(theGame.isCurPlayerAI()){
 						boomChoice = rand.nextInt(count);
@@ -981,6 +988,7 @@ public class GameGUI{
 				fout = new FileOutputStream(gameFilename);
 				oos = new ObjectOutputStream(fout);
 				oos.writeObject(theGame);
+				oos.writeObject(gameType);
 				oos.close();
 				String checksum = getFileChecksum(gameFilename, true);
 				File file = new File(checksumFile);
@@ -1331,7 +1339,7 @@ public class GameGUI{
 		
 		if(isPlayerAI && mode && !theGame.isCurPlayerDad()){
 			if(rand.nextInt(2) == 1){
-				if(rand.nextInt(2) == 1){
+				if(rand.nextInt(2) == 1 && theGame.curPlayerHasBoom()){
 					boomButton.doClick(2000);
 					deckOfCards.doClick(2000);
 				}
