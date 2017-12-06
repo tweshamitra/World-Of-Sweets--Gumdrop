@@ -10,6 +10,10 @@ public class Player implements Serializable{
 	Space currentSpace;
 	int[] coordinates = new int[2];
 	int number;
+	int boomerangs = 3;
+	boolean isAI = false;
+	boolean onSpecial;
+	
 	public Player(String pname, String pcolor){
 		name = pname;
 		color = pcolor;
@@ -31,11 +35,29 @@ public class Player implements Serializable{
 		return currentSpace;
 	}
 	
+	public void decrementBooms(){
+		if (boomerangs > 0){
+			boomerangs--;
+		}
+	}
+	
+	public boolean haveBoomerangs(){
+		return boomerangs > 0;
+	}
+	
 	public boolean checkWin(){
 		if (currentSpace.isGoal()){
 			return true;
 		} else{
 			return false;
 		}
+	}
+	
+	public void setAI(){
+		isAI = true;
+	}
+	
+	public boolean isAI(){
+		return isAI;
 	}
 }

@@ -14,8 +14,8 @@ public class GameTest{
      */
     @Test
     public void testCurPlayerName(){
-        testGame.setPlayer(0, "Twesha", "Red");
-        testGame.setPlayer(1, "Jessica", "Green");
+        testGame.setPlayer(0, "Twesha", "Human", "Red");
+        testGame.setPlayer(1, "Jessica", "Human",  "Green");
         assertNotNull(testGame.getCurPlayerName());
     }
     /**
@@ -28,13 +28,13 @@ public class GameTest{
 
     @Test
     public void testGetPlayerName(){
-        testGame.setPlayer(0, "Twesha", "Red");
+        testGame.setPlayer(0, "Twesha", "Human",  "Red");
         assertEquals("Twesha", testGame.getPlayerName(0));
     }
 
     @Test
     public void testGetPlayerColor(){
-        testGame.setPlayer(0, "Twesha", "Red");
+        testGame.setPlayer(0, "Twesha", "Human",  "Red");
         assertEquals("Red", testGame.getPlayerColor(0));
     }
 }
